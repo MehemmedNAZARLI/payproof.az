@@ -62,7 +62,7 @@ export function ApprovalPage({ pkg, flow, onOpenDocument }: Props) {
   return (
     <>
       <Facts pkg={pkg} />
-      <FailureBanner flow={flow} pkg={pkg} />
+      <FailureBanner flow={flow} />
 
       <section key={nudged(flow, "docs")} style={flow.nudge?.step === "docs" ? shake : undefined}>
         <StepTitle aside={t.approval.seenProgress(seen, total)}>{t.approval.stepDocs}</StepTitle>
@@ -117,6 +117,7 @@ export function ApprovalPage({ pkg, flow, onOpenDocument }: Props) {
             type="checkbox"
             checked={flow.ack}
             disabled={flow.unseen > 0}
+            aria-describedby={flow.unseen > 0 ? "approve-ack-locked" : undefined}
             onChange={(e) => flow.setAck(e.target.checked)}
             className="peer sr-only"
           />
@@ -135,7 +136,10 @@ export function ApprovalPage({ pkg, flow, onOpenDocument }: Props) {
           <span className="text-md leading-snug">{t.approval.ack(pkg.version)}</span>
         </label>
         {flow.unseen > 0 && (
-          <p className="text-text-3 mt-2 flex items-center gap-1.5 px-1 text-sm">
+          <p
+            id="approve-ack-locked"
+            className="text-text-3 mt-2 flex items-center gap-1.5 px-1 text-sm"
+          >
             <Icon name="lock" size={15} />
             {t.approval.ackLocked(flow.unseen)}
           </p>
@@ -143,6 +147,12 @@ export function ApprovalPage({ pkg, flow, onOpenDocument }: Props) {
       </section>
 
       <Banner tone="neutral" title={t.approval.notPayment} className="mt-5" />
+      {/* Says out loud what the shake shows when a locked "Təsdiqlə" is tapped. */}
+      <p role="status" className="sr-only">
+        {flow.nudge &&
+          (flow.nudge.step === "docs" ? t.approval.needDocs : t.approval.needAck) +
+            "\u200b".repeat(flow.nudge.n % 2)}
+      </p>
     </>
   );
 }
