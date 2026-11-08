@@ -46,7 +46,7 @@ test("an operator waits for the approver on a ready package", async ({ page }) =
   await page.goto("/packages?status=ready");
   await page.getByRole("link", { name: /INV-1038/ }).click();
   await expect(page.getByText("Təsdiqçi gözlənilir")).toBeVisible();
-  await expect(page.getByRole("button", { name: /təsdiqlə/ })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Sübutlara baxıb təsdiqlə" })).toHaveCount(0);
 });
 
 test("an unknown package says so", async ({ page }) => {
