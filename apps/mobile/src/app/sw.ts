@@ -1,4 +1,3 @@
-/// <reference lib="webworker" />
 import { defaultCache } from "@serwist/turbopack/worker";
 import { type PrecacheEntry, Serwist, type SerwistGlobalConfig } from "serwist";
 
