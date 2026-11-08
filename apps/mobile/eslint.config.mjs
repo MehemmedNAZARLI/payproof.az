@@ -17,5 +17,12 @@ export default defineConfig([
   },
   // Formatting is Prettier's job (root .prettierrc.json).
   prettier,
-  globalIgnores([".next/**", "out/**", "next-env.d.ts", "playwright-report/**", "test-results/**"]),
+  globalIgnores([
+    ".next/**",
+    "out/**",
+    "next-env.d.ts",
+    "playwright-report/**",
+    "test-results/**",
+    "src/lib/api/generated/**",
+  ]),
 ]);

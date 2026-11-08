@@ -4,18 +4,22 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev -p 3001",
-    "build": "next build",
+    "api:generate": "openapi-typescript ../../packages/contracts/openapi.yaml -o src/lib/api/generated/schema.ts",
+    "dev": "pnpm api:generate && next dev -p 3001",
+    "build": "pnpm api:generate && next build",
     "start": "next start -p 3002",
     "lint": "eslint .",
-    "typecheck": "next typegen && tsc --noEmit && tsc --noEmit -p tsconfig.sw.json",
+    "typecheck": "pnpm api:generate && next typegen && tsc --noEmit && tsc --noEmit -p tsconfig.sw.json",
     "test": "vitest run",
     "e2e": "playwright test"
   },
   "dependencies": {
     "@payproof/design-tokens": "workspace:^",
     "@serwist/turbopack": "9.5.13",
+    "@tanstack/react-query": "^5.107.1",
+    "msw": "^3.0.4",
     "next": "16.4.5",
+    "openapi-fetch": "^0.17.0",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
@@ -35,6 +39,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-simple-import-sort": "^14.0.0",
     "jsdom": "^31.0.0",
+    "openapi-typescript": "^7.13.0",
     "serwist": "9.5.13",
     "tailwindcss": "^4",
     "typescript": "^5",
