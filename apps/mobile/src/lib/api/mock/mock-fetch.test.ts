@@ -72,6 +72,14 @@ describe("mock dev login", () => {
   });
 });
 
+describe("mock GET /v1/dashboard", () => {
+  it("serves the dashboard to a signed-in user only", async () => {
+    const d = await unwrap(apiAs().GET("/v1/dashboard"));
+    expect(d.status_counts.READY_FOR_APPROVAL).toBe(statusCount("READY_FOR_APPROVAL"));
+    expect(await fail(unwrap(apiAs(null).GET("/v1/dashboard")))).toMatchObject({ status: 401 });
+  });
+});
+
 describe("mock GET /v1/packages", () => {
   it("lists all packages, most recently updated first", async () => {
     const page = await unwrap(apiAs().GET("/v1/packages"));

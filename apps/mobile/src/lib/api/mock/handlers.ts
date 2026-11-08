@@ -1,6 +1,7 @@
 import { http, HttpResponse } from "msw";
 
 import type { Schemas } from "../client";
+import { dashboard } from "./dashboard";
 import { listPackages, QueryError } from "./list-packages";
 import { devUsers, meFor, packageList, userSlug } from "./store";
 
@@ -62,6 +63,9 @@ export const handlers = [
     const me = sessionUser(request);
     return me ? HttpResponse.json(me satisfies Schemas["Me"]) : unauthenticated();
   }),
+  http.get("*/v1/dashboard", ({ request }) =>
+    sessionUser(request) ? HttpResponse.json(dashboard()) : unauthenticated(),
+  ),
   http.get("*/v1/packages", ({ request }) => {
     if (!sessionUser(request)) return unauthenticated();
     try {
