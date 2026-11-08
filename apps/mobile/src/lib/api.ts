@@ -1,8 +1,11 @@
 import { createApiClient } from "./api/client";
+import type { paths } from "./api/generated/schema";
 import { env } from "./env";
 
 export type { Schemas } from "./api/client";
 export { ApiError, unwrap } from "./api/client";
+
+export type PackageListQuery = NonNullable<paths["/v1/packages"]["get"]["parameters"]["query"]>;
 
 type Fetch = (request: Request) => Promise<Response>;
 
