@@ -170,8 +170,13 @@ export const t = {
   },
   notifications: {
     title: "Bildirişlər",
-    soonTitle: "Bildirişlər tezliklə",
-    soonBody: "Paket təsdiq gözləyəndə və ya təsdiq etibarsızlaşanda burada görünəcək.",
+    allRead: "Hamısı oxunub",
+    readAll: "Hamısını oxu",
+    emptyTitle: "Bildiriş yoxdur",
+    emptyBody: "Paket təsdiq gözləyəndə və ya təsdiq etibarsızlaşanda burada görünəcək.",
+    loadFailed: "Bildirişlər yüklənmədi",
+    unread: "Oxunmamış",
+    pushNote: "Push bildirişləri P2 mərhələsindədir; bildirişlər hələlik tətbiq daxilindədir.",
   },
   packageItem: {
     processing: "Faktura oxunur…",
