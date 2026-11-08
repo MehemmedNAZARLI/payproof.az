@@ -29,8 +29,21 @@ export function ProfileScreen() {
     <>
       <AppHeader large title={t.profile.title} />
       <main className="px-safe pb-tabbar mx-auto max-w-app">
-        {me.isPending ? (
-          <IdentitySkeleton />
+        {/* Data first: a failed background refresh keeps the profile (a toast reports it). */}
+        {me.data ? (
+          <>
+            <Identity me={me.data} />
+            <SectionHeader title={t.profile.permissions} />
+            <ListGroup label={t.profile.permissions}>
+              {PERMISSIONS.map((p) => (
+                <PermissionRow
+                  key={p}
+                  label={t.permission[p]}
+                  granted={me.data.permissions.includes(p)}
+                />
+              ))}
+            </ListGroup>
+          </>
         ) : me.isError ? (
           <Card className="p-0">
             <EmptyState
@@ -45,19 +58,7 @@ export function ProfileScreen() {
             />
           </Card>
         ) : (
-          <>
-            <Identity me={me.data} />
-            <SectionHeader title={t.profile.permissions} />
-            <ListGroup label={t.profile.permissions}>
-              {PERMISSIONS.map((p) => (
-                <PermissionRow
-                  key={p}
-                  label={t.permission[p]}
-                  granted={me.data.permissions.includes(p)}
-                />
-              ))}
-            </ListGroup>
-          </>
+          <IdentitySkeleton />
         )}
 
         <SectionHeader title={t.profile.settings} />

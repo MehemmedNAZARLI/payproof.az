@@ -18,7 +18,7 @@ import { useSession } from "@/lib/session";
 import { useDashboard, useRecentActivity } from "../queries";
 import { OpenAmounts, RecentActivity, SectionSkeleton } from "./home-sections";
 import { ApprovalHero, StatusTiles, SummarySkeleton } from "./home-summary";
-import { LoadError, Section } from "./section";
+import { Section } from "./section";
 
 const READY = { status: ["READY_FOR_APPROVAL" as const], limit: 20 };
 
@@ -49,21 +49,20 @@ export function HomeScreen() {
         }
       />
       <main className="px-safe pb-tabbar mx-auto max-w-app pt-2">
-        {dashboard.isPending ? (
-          <SummarySkeleton />
-        ) : dashboard.isError ? (
-          <LoadError error={dashboard.error} retry={() => void dashboard.refetch()} />
-        ) : (
-          <>
-            <ApprovalHero
-              dashboard={dashboard.data}
-              canApprove={me?.permissions.includes("APPROVE_PACKAGE") ?? false}
-            />
-            <StatusTiles counts={dashboard.data.status_counts} />
-            <SectionHeader title={t.home.openAmount} />
-            <OpenAmounts amounts={dashboard.data.open_problem_amounts} />
-          </>
-        )}
+        {/* Loaded numbers stay on screen if a background refresh fails (a toast reports it). */}
+        <Section query={dashboard} skeleton={<SummarySkeleton />}>
+          {(data) => (
+            <>
+              <ApprovalHero
+                dashboard={data}
+                canApprove={me?.permissions.includes("APPROVE_PACKAGE") ?? false}
+              />
+              <StatusTiles counts={data.status_counts} />
+              <SectionHeader title={t.home.openAmount} />
+              <OpenAmounts amounts={data.open_problem_amounts} />
+            </>
+          )}
+        </Section>
 
         <SectionHeader
           title={t.home.pending}
