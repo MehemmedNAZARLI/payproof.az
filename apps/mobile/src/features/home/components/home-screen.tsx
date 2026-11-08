@@ -51,7 +51,7 @@ export function HomeScreen() {
           <Link
             href="/notifications"
             aria-label={unread ? t.common.notificationsUnread(unread) : t.nav.notifications}
-            className="text-brand-600 relative grid size-11 place-items-center rounded-full transition-opacity active:opacity-50"
+            className="text-accent relative grid size-11 place-items-center rounded-full transition-opacity active:opacity-50"
           >
             <Icon name="bell" size={24} />
             {unread > 0 && <CountBadge count={unread} className="absolute top-1 right-0.5" />}
@@ -79,7 +79,7 @@ export function HomeScreen() {
           action={
             <Link
               href={packagesHref("ready")}
-              className="text-brand-600 flex min-h-11 items-center text-md font-medium active:opacity-50"
+              className="text-accent flex min-h-11 items-center text-subhead font-medium active:opacity-50"
             >
               {t.home.all}
             </Link>
@@ -96,7 +96,7 @@ export function HomeScreen() {
                 />
               </Card>
             ) : (
-              <ListGroup variant="cards" label={t.home.pending}>
+              <ListGroup label={t.home.pending}>
                 {page.items.map((p) => (
                   <PackageRow key={p.id} item={p} />
                 ))}
