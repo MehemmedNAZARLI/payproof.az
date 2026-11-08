@@ -19,7 +19,8 @@ src/
   lib/api.ts          `api` (openapi-fetch) + `unwrap` + `ApiError`; mock rejimində fetch səhifədaxili mock-a gedir
   lib/api/client.ts   createApiClient/ApiError — S-05 imzası ilə (shortcut: S-05 gələndə import dəyişir)
   lib/api/generated/  openapi.yaml-dan generasiya (`pnpm api:generate`; gitignore-dadır, dev/build/typecheck-dən əvvəl işləyir)
-  lib/api/mock/       fixtures-dan store + MSW handler-ləri + createMockFetch (S-06 gələnə qədər; yalnız oxuma);
+  lib/api/mock/       fixtures-dan store + MSW handler-ləri + createMockFetch (S-06 gələnə qədər); yazılar
+                      (təsdiq, oxunmuş bildiriş, idempotency cavabları) session-db.ts-də (sessionStorage);
                       engine/ — prototip qayda mühərrikinin portu (mesaj, sübut), paper.ts — mock sənəd kağızı
   lib/{query-client.ts,env.ts,format.ts,i18n.ts,spring.ts,cx.ts,brand.ts}
   lib/session.ts      dev-login sessiyası (localStorage), useSession, watchUserChange; lib/runtime-caches.ts — çıxışda SW keşləri
@@ -54,7 +55,6 @@ Mock: `NEXT_PUBLIC_API_MOCK=1` (default). Real: `NEXT_PUBLIC_API_MOCK=0`, `NEXT_
 - Çıxış (`useSignOut`): sessiya → Query keşi `clear()` → SW runtime keşləri (`clearRuntimeCaches`; Serwist precache saxlanılır — o yalnız ictimai app shell-dir). Girişdə də Query keşi təmizlənir.
 - Paket filtri və axtarış URL-dədir (`features/packages/filters.ts`: `?status=ready|problem|approved|exported&q=`); çip sayları `/v1/dashboard`-un `status_counts`-undan.
 - Tarixlər Bakı vaxtı ilə (`formatDateTime`, `formatLongDate`, `greeting` — `lib/format.ts`).
-- `/notifications` hələlik yer tutucudur (M-10).
 
 ## Paket detalı və sübut (M-07, M-08)
 - `features/package-detail/`: `usePackage(id)` (`packageKeys.all` altında — paketlər yenilənəndə detal da yenilənir), `useDocumentFile(versionId)` (imzalı link 5 dəq; 4 dəq təzə sayılır), `cta.ts` (CTA vəziyyəti status + serverin `permissions`-ından, rol cihazda yoxlanmır).
@@ -63,6 +63,15 @@ Mock: `NEXT_PUBLIC_API_MOCK=1` (default). Real: `NEXT_PUBLIC_API_MOCK=0`, `NEXT_
 - Sənəd görüntüləyici (`features/document-viewer/`): link `mock:paper/` ilə başlayırsa (`lib/api/mock-file.ts`) fixtures-dan kağız (`lib/api/mock/paper.ts` → `paper.tsx`, lazy chunk); əks halda `source_kind`-ə görə react-pdf (`pdf-pages.tsx`, lazy; worker `pdfjs-dist`-dən `new URL(..., import.meta.url)`), skan şəkli və ya cədvəl üçün "Faylı aç". Vurğu: kağızda sitat bərabərliyi, PDF/skanda `bbox`; tapılmırsa "səhifə + sitat" göstərilir (təxmini vurğu yoxdur).
 - `ZoomPane`: səhifə enə sığır (geniş ekranda 640px-də dayanır), pinch/double-tap/ctrl+wheel/± düymələri fokus nöqtəsini saxlayır; pinch zamanı yalnız transform, buraxanda bir dəfə layout. Sitatdan açılanda mətn ~12.5px olana qədər böyüdülür.
 - Baxılma (`seen-store.ts`): sessionStorage `payproof.seen`, açar istifadəçi + paket, dəyər paket versiyası + baxılmış sənəd versiyaları; versiya dəyişəndə boş sayılır; istifadəçi dəyişəndə `providers.tsx` silir. Sənəd ekranda göründükdən sonra işarələnir (açılış deyil). Yalnız UX qoruyucusudur.
+
+## Təsdiq və bildirişlər (M-09, M-10)
+- Təsdiq vərəqəsi sübut sheet-inin bir səhifəsidir (`SheetRoute { kind: "approve" }`): sənəd oradan bir səviyyə dərinə açılır, "Geri" vərəqəyə qaytarır. Vəziyyət (`features/approval/use-approval-flow.ts`) sheet-dən yuxarıdadır: "baxdım" qeydi paket **versiyasına** bağlıdır (versiya dəyişəndə özü düşür), `Idempotency-Key` hər cəhd üçün bir dəfə yaradılır və həmin cəhdin təkrarlarında saxlanılır (409 VERSION_CONFLICT → yeni açar).
+- "Təsdiqlə" kilidli ikən `aria-disabled`-dir (həqiqi `disabled` yox): toxunuş çatışmayan addımı titrədir + haptik. Göndərilən sorğu zamanı ref qoruyucusu ikinci toxunuşu udur.
+- Xətalar vərəqədə izah olunur (`FailureBanner`, `role="alert"`): 409 conflict → yenidən bax, 403 → səlahiyyət, offline (`useOnline`) → "təsdiq oflayn mümkün deyil"; 409 PACKAGE_NOT_READY → vərəqə bağlanır + toast. Mutasiya `silentError`-dur.
+- Uğurdan sonra `approval-cache.ts` cavabı detal, bütün siyahı səhifələri (filtrə görə çıxarır və ya yenidən etiketləyir) və dashboard-a (say + `ready_amounts`, BigInt sent) dərhal yazır, sonra hamısı yenidən sorğulanır (gözlənilmir). Uğur ekranı `/packages/[id]/success` yalnız `current_approval` varsa uğuru göstərir.
+- Haptik (`lib/haptics.ts`): Android-də Vibration API, iOS 18+-da gizli `switch` checkbox; mənası həmişə ekranda da var.
+- Bildirişlər (`features/notifications/`): bir query (`["notifications","list"]`, 60 s polling ön planda) — siyahı, tab bar, zəng və app ikonu (Badging API) eyni `unread_count`-u oxuyur. Oxuma optimistikdir (xətada geri qaytarılır). Qruplar Bakı günü ilə ("Bu gün", "Dünən", "6 noyabr, cümə") — prototipin "Yeni/Əvvəlki" əvəzinə (istifadəçi qərarı); oxunmamış nöqtə + qalın mətn + ekran oxuyucu üçün "Oxunmamış". Toxunuş → oxundu + paketə keçid.
+- Mock: təsdiq paketin sahibinə bildiriş yaradır; təsdiq statusu siyahı, dashboard, detal və auditə tətbiq olunur (`mock/live.ts`). Yeni tab fixtures-dan başlayır.
 
 ## UI dəsti qaydaları (M-03)
 - Bar materialı: `material` (yarımşəffaf surface + blur), ayırıcılar `hairline-t/b` (0.5px). Tab bar üçün səhifə `pb-tabbar` istifadə edir.
