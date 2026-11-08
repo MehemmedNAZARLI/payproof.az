@@ -94,11 +94,17 @@ const fold = (s: string) =>
     .replace(/\u0307/g, "")
     .replace(/ı/g, "i");
 
+// shortcut: these contract filters arrive with S-06; until then the mock refuses them loudly
+// instead of returning an unfiltered list.
+const UNSUPPORTED = ["customer_id", "owner_id", "issue", "from", "to"];
+
 /** GET /v1/packages over the given items; throws QueryError for an invalid parameter. */
 export function listPackages(
   all: readonly Item[],
   params: URLSearchParams,
 ): Schemas["PackagePage"] {
+  const unsupported = UNSUPPORTED.find((name) => params.has(name));
+  if (unsupported) throw new QueryError(unsupported);
   const statuses = params.get("status")?.split(",").filter(Boolean) ?? [];
   if (statuses.some((s) => !(STATUSES as string[]).includes(s))) throw new QueryError("status");
   const q = fold(params.get("q")?.trim() ?? "");

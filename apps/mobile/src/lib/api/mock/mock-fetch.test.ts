@@ -93,6 +93,13 @@ describe("mock GET /v1/packages", () => {
     expect(new Set([...first.items, ...second.items].map((p) => p.id)).size).toBe(14);
   });
 
+  it("refuses filters it does not implement yet rather than ignoring them", async () => {
+    const error = await fail(
+      unwrap(apiAs().GET("/v1/packages", { params: { query: { from: "2026-11-01" } } })),
+    );
+    expect(error).toMatchObject({ status: 422, details: { param: "from" } });
+  });
+
   it("rejects an unknown status with a validation error", async () => {
     const error = await fail(
       unwrap(

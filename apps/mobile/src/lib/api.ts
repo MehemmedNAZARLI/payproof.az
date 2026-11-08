@@ -12,7 +12,14 @@ type Fetch = (request: Request) => Promise<Response>;
 // The mock (fixtures + MSW handlers) is a separate chunk, loaded only in mock mode.
 let mock: Promise<Fetch> | undefined;
 const mockFetch: Fetch = async (request) => {
-  mock ??= import("./api/mock/mock-fetch").then((m) => m.createMockFetch());
+  // A failed chunk load is not cached, so the next request tries again.
+  mock ??= import("./api/mock/mock-fetch").then(
+    (m) => m.createMockFetch(),
+    (error: unknown) => {
+      mock = undefined;
+      throw error;
+    },
+  );
   return (await mock)(request);
 };
 
