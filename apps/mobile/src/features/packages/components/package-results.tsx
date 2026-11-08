@@ -12,7 +12,7 @@ import { PackageRow } from "./package-row";
 
 type PackageResultsProps = {
   list: ReturnType<typeof usePackages>;
-  /** A pull of fresh data the user asked for: show the skeleton, as the prototype does. */
+  /** Clears the search and filter (the empty result's action). */
   onClear: () => void;
 };
 
@@ -24,7 +24,7 @@ export function PackageResults({ list, onClear: clear }: PackageResultsProps) {
   return (
     <>
       {!data ? (
-        data || list.fetchStatus === "fetching" ? (
+        list.fetchStatus === "fetching" ? (
           <ListSkeleton rows={5} />
         ) : list.isError ? (
           <Card className="p-0">
