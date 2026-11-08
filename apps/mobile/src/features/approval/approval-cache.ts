@@ -77,7 +77,9 @@ export async function applyApproval(qc: QueryClient, pkg: Detail, approval: Appr
     qc.cancelQueries({ queryKey: packageKeys.all }),
     qc.cancelQueries({ queryKey: homeKeys.dashboard() }),
   ]);
-  const wasReady = pkg.status === "READY_FOR_APPROVAL";
+  // A replayed or earlier approval is already counted; only a new one moves the counts.
+  const isNew =
+    pkg.status === "READY_FOR_APPROVAL" && !pkg.approvals.some((a) => a.id === approval.id);
   qc.setQueryData<Detail>(
     packageDetailKeys.detail(pkg.id),
     (d) => d && approvedDetail(d, approval),
@@ -86,7 +88,7 @@ export async function applyApproval(qc: QueryClient, pkg: Detail, approval: Appr
     const query = (key[2] ?? {}) as PackageListQuery;
     if (page) qc.setQueryData(key, approvedPage(page, query, pkg.id, approval.approved_at));
   }
-  if (wasReady)
+  if (isNew)
     qc.setQueryData<Dashboard>(homeKeys.dashboard(), (d) => d && approvedDashboard(d, pkg.total));
   // Not awaited: the user moves on to the success screen while the views confirm.
   void Promise.all([
