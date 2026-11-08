@@ -1,6 +1,7 @@
 import { createApiClient } from "./api/client";
 import type { paths } from "./api/generated/schema";
 import { env } from "./env";
+import { getToken } from "./session";
 
 export type { Schemas } from "./api/client";
 export { ApiError, unwrap } from "./api/client";
@@ -25,7 +26,6 @@ const mockFetch: Fetch = async (request) => {
 
 export const api = createApiClient({
   baseUrl: env.apiUrl,
-  // shortcut: no session until M-04 (dev-login); the mock then serves the default demo approver.
-  getToken: () => null,
+  getToken,
   fetch: env.apiMock ? mockFetch : undefined,
 });
