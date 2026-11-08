@@ -1,9 +1,13 @@
+import packages from "@fixtures/packages.json";
 import { http, HttpResponse } from "msw";
 
 import type { Schemas } from "../client";
+import { MOCK_FILE_SCHEME } from "../mock-file";
 import { auditLog } from "./audit";
 import { dashboard } from "./dashboard";
+import { findVersion } from "./documents";
 import { listPackages, QueryError } from "./list-packages";
+import { packageDetail } from "./package-detail";
 import { devUsers, meFor, packageList, userSlug } from "./store";
 
 // Tokens are `mock.<fixture user slug>`; the real API issues a JWT for the same users.
@@ -22,10 +26,20 @@ export function apiError(
   });
 }
 
-function sessionUser(request: Request): Schemas["Me"] | undefined {
+/** The fixture slug of a signed-in user (`u2`), if the token belongs to one. */
+function sessionSlug(request: Request): string | undefined {
   const slug = TOKEN.exec(request.headers.get("Authorization") ?? "")?.[1];
+  return slug && meFor(slug) ? slug : undefined;
+}
+
+function sessionUser(request: Request): Schemas["Me"] | undefined {
+  const slug = sessionSlug(request);
   return slug ? meFor(slug) : undefined;
 }
+
+const notFound = () => apiError(404, "NOT_FOUND", "Obyekt tapılmadı.");
+
+const LINK_SECONDS = 300;
 
 const unauthenticated = () =>
   apiError(401, "UNAUTHENTICATED", "Sessiya bitib. Yenidən daxil olun.");
@@ -96,5 +110,22 @@ export const handlers = [
         param: error.param,
       });
     }
+  }),
+  http.get("*/v1/packages/:id", ({ request, params }) => {
+    const slug = sessionSlug(request);
+    if (!slug) return unauthenticated();
+    const detail = packageDetail(String(params.id), slug);
+    return detail ? HttpResponse.json(detail) : notFound();
+  }),
+  http.get("*/v1/documents/versions/:id/file", ({ request, params }) => {
+    if (!sessionUser(request)) return unauthenticated();
+    const id = String(params.id);
+    if (!findVersion(packages, id)) return notFound();
+    return HttpResponse.json({
+      url: `${MOCK_FILE_SCHEME}${id}`,
+      expires_at: new Date(Date.now() + LINK_SECONDS * 1000)
+        .toISOString()
+        .replace(/\.\d{3}Z$/, "Z"),
+    } satisfies Schemas["SignedUrl"]);
   }),
 ];
