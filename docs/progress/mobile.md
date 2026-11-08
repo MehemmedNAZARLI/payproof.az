@@ -13,8 +13,8 @@ Bu faylı yalnız bu track-in sessiyası yeniləyir (`/step` başlayanda 🟡, `
 | M-04 | Giriş, sessiya, profil | ✅ | `claude/mobile-screens-m04-m06-ddguv8` | 2026-11-08 | Bir toxunuşla demo giriş; sessiya localStorage-da (vaxtında bitir, tablar arası izlənir); `?next=` yalnız tətbiqdaxili; çıxış/istifadəçi dəyişməsi Query keşini və SW runtime keşlərini (precache-dən başqa) silir — e2e ilə yoxlanır; mock tokensiz sorğuya 401; M-04…M-06 bir sessiya branch-ında (istifadəçi qərarı); hələ merge olunmayıb |
 | M-05 | Əsas ekran | ✅ | `claude/mobile-screens-m04-m06-ddguv8` | 2026-11-08 | Mock `/v1/dashboard` müqavilə nümunəsi və `expected.json` ilə golden test (veb W-06 eyni endpoint-i oxuyur); "Son fəaliyyət" mock `/v1/audit`-dən (tarixçə fixtures-dan törədilir — S-06 əvəz edəcək); bildiriş sayğacı M-10-da; hələ merge olunmayıb |
 | M-06 | Paketlər siyahısı | ✅ | `claude/mobile-screens-m04-m06-ddguv8` | 2026-11-08 | Filtr və axtarış URL-də (`?status=&q=`); çip sayları dashboard-dan; düymə ilə yeniləmə (pull-to-refresh yox); 100 paketdən sonra səhifələmə yoxdur; `/packages/[id]` və `/notifications` M-07/M-10-a qədər yer tutucu; hələ merge olunmayıb |
-| M-07 | Paket detalı | ⬜ | | | |
-| M-08 | Sübut və sənəd vərəqələri | ⬜ | | | |
+| M-07 | Paket detalı | 🟡 | `claude/dazzling-ride-l4qka6` | 2026-11-08 | M-07 və M-08 bir sessiya branch-ında (istifadəçi qərarı) |
+| M-08 | Sübut və sənəd vərəqələri | 🟡 | `claude/dazzling-ride-l4qka6` | 2026-11-08 | |
 | M-09 | Təsdiq axını | ⬜ | | | |
 | M-10 | Bildirişlər | ⬜ | | | |
 | M-11 | PWA və keyfiyyət keçidi | ⬜ | | | SW yeniləmə ipucu (`skipWaiting` əvəzinə); manifest teal ↔ meta theme-color keçidi; dark splash |
