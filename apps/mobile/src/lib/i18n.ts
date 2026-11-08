@@ -322,6 +322,7 @@ export const t = {
     loading: "Yüklənir…",
     retry: "Yenidən cəhd et",
     refresh: "Yenilə",
+    refreshData: "Məlumatı yenilə",
     empty: "Heç nə tapılmadı",
     unread: (n: number) => `${n} oxunmamış`,
     notificationsUnread: (n: number) => `Bildirişlər, ${n} oxunmamış`,

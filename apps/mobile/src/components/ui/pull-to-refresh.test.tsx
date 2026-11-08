@@ -67,7 +67,7 @@ describe("PullToRefresh", () => {
 
   it("offers keyboard and screen-reader users a refresh button", () => {
     const { onRefresh } = setup();
-    fireEvent.click(screen.getByRole("button", { name: "Yenilə" }));
+    fireEvent.click(screen.getByRole("button", { name: "Məlumatı yenilə" }));
     expect(onRefresh).toHaveBeenCalledOnce();
   });
 });
