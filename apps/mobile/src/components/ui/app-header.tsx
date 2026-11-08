@@ -4,6 +4,7 @@ import Link from "next/link";
 import { type ReactNode, useRef } from "react";
 
 import { t } from "@/lib/i18n";
+import { useOnline } from "@/lib/online";
 
 import { Icon } from "./icon";
 import { useScrollCollapse } from "./use-scroll-collapse";
@@ -58,6 +59,7 @@ export function AppHeader({ title, subtitle, large = false, back, trailing }: Ap
           )}
           <div className="flex items-center justify-self-end">{trailing}</div>
         </div>
+        <OfflineStrip />
       </header>
       {large && (
         <div ref={largeRef} className="px-safe pt-1 pb-2">
@@ -66,5 +68,21 @@ export function AppHeader({ title, subtitle, large = false, back, trailing }: Ap
         </div>
       )}
     </>
+  );
+}
+
+// Under every bar while offline: what is on screen is the last loaded data. The status region is
+// always there, so screen readers announce the change when the connection drops.
+function OfflineStrip() {
+  const online = useOnline();
+  return (
+    <div role="status" className="relative">
+      {!online && (
+        <p className="bg-warning-bg text-warning flex h-7 animate-[fade-in_200ms_var(--ease)] items-center justify-center gap-1.5 px-4 text-xs font-semibold">
+          <Icon name="wifi-off" size={14} strokeWidth={2.2} />
+          {t.offline.strip}
+        </p>
+      )}
+    </div>
   );
 }

@@ -297,6 +297,9 @@ export const t = {
     offline: "İnternet bağlantısı yoxdur",
     offlineHint: "Bağlantı bərpa olunanda siyahı özü yüklənəcək.",
   },
+  offline: {
+    strip: "Oflayn — son yüklənən məlumat göstərilir",
+  },
   pwa: {
     updateTitle: "Yeni versiya hazırdır",
     updateBody: "Açıq işinizi bitirib yeniləyin.",
