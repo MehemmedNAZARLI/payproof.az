@@ -1,5 +1,6 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 
 import { AppHeader } from "@/components/ui/app-header";
@@ -8,14 +9,16 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Icon } from "@/components/ui/icon";
 import { CountBadge } from "@/components/ui/icon-button";
 import { ListGroup } from "@/components/ui/list";
+import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { useMe } from "@/features/auth/queries";
-import { useUnreadCount } from "@/features/notifications/queries";
+import { notificationKeys, useUnreadCount } from "@/features/notifications/queries";
 import { PackageRow } from "@/features/packages/components/package-row";
 import { packagesHref } from "@/features/packages/filters";
 import { usePackages } from "@/features/packages/queries";
 import { InstallCard } from "@/features/pwa/install-hint";
 import { formatLongDate, greeting } from "@/lib/format";
 import { t } from "@/lib/i18n";
+import { refreshAll } from "@/lib/refresh";
 import { useSession } from "@/lib/session";
 
 import { useDashboard, useRecentActivity } from "../queries";
@@ -33,11 +36,13 @@ export function HomeScreen() {
   const ready = usePackages(READY);
   const activity = useRecentActivity();
   const unread = useUnreadCount();
+  const qc = useQueryClient();
+  const notifications = { refetch: () => qc.refetchQueries({ queryKey: notificationKeys.all }) };
   const now = new Date();
   const firstName = me?.full_name.split(" ")[0];
 
   return (
-    <>
+    <PullToRefresh onRefresh={() => refreshAll([dashboard, ready, activity, notifications])}>
       <AppHeader
         large
         title={firstName ? `${greeting(now)}, ${firstName}` : greeting(now)}
@@ -53,7 +58,7 @@ export function HomeScreen() {
           </Link>
         }
       />
-      <main className="px-safe pb-tabbar mx-auto max-w-app pt-2">
+      <main className="px-safe pb-tabbar pull-shift mx-auto max-w-app pt-2">
         {/* Loaded numbers stay on screen if a background refresh fails (a toast reports it). */}
         <Section query={dashboard} skeleton={<SummarySkeleton />}>
           {(data) => (
@@ -107,6 +112,6 @@ export function HomeScreen() {
           {(page) => <RecentActivity events={page.items} />}
         </Section>
       </main>
-    </>
+    </PullToRefresh>
   );
 }

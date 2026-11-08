@@ -12,8 +12,7 @@ type List = Parameters<typeof PackageResults>[0]["list"];
 const page = { items: packageList.slice(0, 3), next_cursor: null, total_count: 3 };
 const query = (state: Partial<List>) =>
   ({ refetch: vi.fn(), isPlaceholderData: false, fetchStatus: "idle", ...state }) as List;
-const show = (list: List, refreshing = false) =>
-  render(<PackageResults list={list} refreshing={refreshing} onClear={() => {}} />);
+const show = (list: List) => render(<PackageResults list={list} onClear={() => {}} />);
 
 describe("PackageResults", () => {
   it("keeps showing rows when a background refresh fails (the toast says so)", () => {
@@ -27,15 +26,9 @@ describe("PackageResults", () => {
     expect(screen.getByText("Server xətası.")).toBeInTheDocument();
   });
 
-  it("keeps cached rows while a refresh waits for the network", () => {
-    show(query({ data: page, fetchStatus: "paused" }), true);
+  it("keeps the rows in place while a refresh fetches (the pull spinner shows it)", () => {
+    show(query({ data: page, fetchStatus: "fetching" }));
     expect(screen.getAllByRole("listitem")).toHaveLength(3);
-  });
-
-  it("shows the skeleton during a refresh that is actually fetching", () => {
-    show(query({ data: page, fetchStatus: "fetching" }), true);
-    expect(screen.queryByRole("listitem")).toBeNull();
-    expect(screen.getByRole("status", { busy: true })).toBeInTheDocument();
   });
 
   it("says it is offline on a first load without network", () => {

@@ -1,15 +1,13 @@
 "use client";
 
-import { onlineManager } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { AppHeader } from "@/components/ui/app-header";
-import { IconButton } from "@/components/ui/icon-button";
-import { toast } from "@/components/ui/toast-store";
+import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { useDashboard } from "@/features/home/queries";
-import { cx } from "@/lib/cx";
 import { t } from "@/lib/i18n";
+import { refreshAll } from "@/lib/refresh";
 
 import {
   filterCount,
@@ -33,7 +31,6 @@ export function PackagesScreen() {
   const q = params.get("q") ?? "";
   // The field answers every keystroke; the URL (and the request) follow once typing pauses.
   const [text, setText] = useState(q);
-  const [refreshing, setRefreshing] = useState(false);
   // The URL's search as last seen, and the one this screen last wrote. A change that is not our
   // own (a tab tap, back, a link) replaces the field; our own must not clobber newer typing.
   const [url, setUrl] = useState({ seen: q, wrote: q });
@@ -61,38 +58,19 @@ export function PackagesScreen() {
   const list = usePackages({ status: filterStatuses(filter), q: q || undefined, limit: PAGE });
   const counts = dashboard.data?.status_counts;
 
-  const refresh = async () => {
-    // Offline, refetch() would wait for the network indefinitely; keep the cached rows and say so.
-    if (!onlineManager.isOnline()) {
-      toast.error(t.errors.offline, t.errors.offlineHint);
-      return;
-    }
-    setRefreshing(true);
-    await Promise.allSettled([list.refetch(), dashboard.refetch()]);
-    setRefreshing(false);
-  };
   const clear = () => {
     setText("");
     navigate("all", "");
   };
 
   return (
-    <>
+    <PullToRefresh onRefresh={() => refreshAll([list, dashboard])}>
       <AppHeader
         large
         title={t.packages.title}
         subtitle={dashboard.data ? t.packages.subtitle(dashboard.data.package_count) : undefined}
-        trailing={
-          <IconButton
-            icon="refresh"
-            label={t.common.refresh}
-            onClick={() => void refresh()}
-            disabled={refreshing}
-            className={cx(list.isFetching && "[&_svg]:animate-spin")}
-          />
-        }
       />
-      <main className="px-safe pb-tabbar mx-auto max-w-app">
+      <main className="px-safe pb-tabbar pull-shift mx-auto max-w-app">
         <SearchField value={text} onChange={setText} />
         <FilterChips
           value={filter}
@@ -100,9 +78,9 @@ export function PackagesScreen() {
           onChange={(f) => navigate(f, text)}
         />
         <div className="mt-2">
-          <PackageResults list={list} refreshing={refreshing} onClear={clear} />
+          <PackageResults list={list} onClear={clear} />
         </div>
       </main>
-    </>
+    </PullToRefresh>
   );
 }

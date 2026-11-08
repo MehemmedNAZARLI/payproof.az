@@ -62,7 +62,7 @@ export function AppHeader({ title, subtitle, large = false, back, trailing }: Ap
         <OfflineStrip />
       </header>
       {large && (
-        <div ref={largeRef} className="px-safe pt-1 pb-2">
+        <div ref={largeRef} className="px-safe pull-shift pt-1 pb-2">
           <h1 className="text-4xl leading-tight font-bold tracking-tight">{title}</h1>
           {subtitle && <p className="text-text-3 text-sm">{subtitle}</p>}
         </div>

@@ -12,19 +12,17 @@ import { PackageRow } from "./package-row";
 type PackageResultsProps = {
   list: ReturnType<typeof usePackages>;
   /** A pull of fresh data the user asked for: show the skeleton, as the prototype does. */
-  refreshing: boolean;
   onClear: () => void;
 };
 
 // The list area's states: offline, loading, error, nothing found, rows.
-export function PackageResults({ list, refreshing, onClear: clear }: PackageResultsProps) {
+export function PackageResults({ list, onClear: clear }: PackageResultsProps) {
   const { data } = list;
-  // A refresh the user asked for shows the skeleton while it really fetches (not while it waits
-  // offline). Loaded rows otherwise stay: a failed background refresh is reported by a toast.
-  const reloading = refreshing && list.fetchStatus === "fetching";
+  // Loaded rows stay through refreshes (pull-to-refresh shows its own spinner); a failed
+  // background refresh is reported by a toast.
   return (
     <>
-      {!data || reloading ? (
+      {!data ? (
         data || list.fetchStatus === "fetching" ? (
           <ListSkeleton rows={5} />
         ) : list.isError ? (
