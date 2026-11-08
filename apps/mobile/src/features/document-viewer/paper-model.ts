@@ -30,3 +30,11 @@ export type PaperPage = {
 };
 
 export type PaperDocument = { pages: PaperPage[] };
+
+/** Every quote a page can highlight. */
+export const pageQuotes = (page: PaperPage): (string | null | undefined)[] => [
+  ...page.meta.map((r) => r.quote),
+  ...page.rows.map((r) => r.quote),
+  page.total?.quote,
+  page.signatures?.quote,
+];

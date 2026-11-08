@@ -1,17 +1,13 @@
 import packages from "@fixtures/packages.json";
 import { describe, expect, it } from "vitest";
 
+import { pageQuotes } from "@/features/document-viewer/paper-model";
+
 import { packageDetail } from "./package-detail";
 import { mockPaper } from "./paper";
 import { mockUuid } from "./store";
 
-const regions = (versionId: string) =>
-  (mockPaper(versionId)?.pages ?? []).flatMap((p) => [
-    ...p.meta.map((r) => r.quote),
-    ...p.rows.map((r) => r.quote),
-    p.total?.quote,
-    p.signatures?.quote,
-  ]);
+const regions = (versionId: string) => (mockPaper(versionId)?.pages ?? []).flatMap(pageQuotes);
 
 describe("mock paper", () => {
   it("has a region for every evidence quote, except text the scan could not read", () => {

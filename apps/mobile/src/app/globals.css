@@ -114,6 +114,20 @@
   }
 }
 
+/* The cited region on a document draws the eye twice, then rests (prototype pulse). */
+@keyframes paper-pulse {
+  0% {
+    box-shadow:
+      0 0 0 2px var(--paper-hl-ring),
+      0 0 0 0 var(--paper-hl-ring);
+  }
+  100% {
+    box-shadow:
+      0 0 0 2px var(--paper-hl-ring),
+      0 0 0 10px transparent;
+  }
+}
+
 @keyframes toast-in {
   from {
     opacity: 0;
