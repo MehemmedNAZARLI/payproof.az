@@ -85,6 +85,27 @@ export const t = {
   document: {
     type: { invoice: "Faktura", order: "Sifariş", delivery: "Təhvil sənədi" },
   },
+  evidence: {
+    source: "Mənbə sübutu",
+    none: "Bu nəticə üçün sənəd fraqmenti yoxdur — asılı olduğu yoxlamaya baxın.",
+    fixOnWeb: "Düzəliş və tapşırıq veb tətbiqdə idarə olunur.",
+    page: (n: number) => `səh. ${n}`,
+    missingDocument: "Bu sənəd paketin cari versiyasında yoxdur.",
+  },
+  viewer: {
+    label: (title: string) => `${title}: sənəd səhifələri`,
+    zoomIn: "Böyüt",
+    zoomOut: "Kiçilt",
+    fit: "Ekrana sığdır",
+    loading: "Sənəd açılır…",
+    loadFailed: "Sənəd açılmadı",
+    highlightHint: "Sarı ilə vurğulanan hissə yoxlamanın mənbəyidir.",
+    currentHint: "Sənəd cari versiyada göstərilir.",
+    quoteOnly: (page: number) => `Vurğulama mümkün deyil — səhifə ${page} və sitat göstərilir.`,
+    scan: "Skan nüsxədir: mətn tanınması zəif ola bilər, mənbəni gözlə yoxlayın.",
+    spreadsheet: "Cədvəl faylı mobildə önizlənmir. Sitat aşağıdadır; faylı ayrıca aça bilərsiniz.",
+    openFile: "Faylı aç",
+  },
   rule: {
     short: {
       "R-001": "PO çatışmır",
