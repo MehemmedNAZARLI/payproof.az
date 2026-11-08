@@ -1,0 +1,65 @@
+[
+  {
+    "id": "u1",
+    "email": "aygun.mammadova@a-distribusiya.test",
+    "full_name": "Aygün Məmmədova",
+    "title": "Maliyyə əməkdaşı",
+    "role": "operator",
+    "avatar_tone": 1,
+    "demo_login": true
+  },
+  {
+    "id": "u2",
+    "email": "rashad.aliyev@a-distribusiya.test",
+    "full_name": "Rəşad Əliyev",
+    "title": "Maliyyə direktoru",
+    "role": "approver",
+    "avatar_tone": 3,
+    "demo_login": true
+  },
+  {
+    "id": "u3",
+    "email": "elvin.qasimov@a-distribusiya.test",
+    "full_name": "Elvin Qasımov",
+    "title": "Anbar və logistika",
+    "role": "assignee",
+    "avatar_tone": 4,
+    "demo_login": false
+  },
+  {
+    "id": "u4",
+    "email": "nigar.huseynova@a-distribusiya.test",
+    "full_name": "Nigar Hüseynova",
+    "title": "Satış meneceri",
+    "role": "assignee",
+    "avatar_tone": 5,
+    "demo_login": false
+  },
+  {
+    "id": "u5",
+    "email": "kamran.babayev@a-distribusiya.test",
+    "full_name": "Kamran Babayev",
+    "title": "Daxili auditor",
+    "role": "readonly",
+    "avatar_tone": 2,
+    "demo_login": true
+  },
+  {
+    "id": "u6",
+    "email": "leyla.rzayeva@a-distribusiya.test",
+    "full_name": "Leyla Rzayeva",
+    "title": "Mühasib",
+    "role": "assignee",
+    "avatar_tone": 2,
+    "demo_login": false
+  },
+  {
+    "id": "u7",
+    "email": "sabina.quliyeva@a-distribusiya.test",
+    "full_name": "Səbinə Quliyeva",
+    "title": "Maliyyə əməkdaşı",
+    "role": "operator",
+    "avatar_tone": 4,
+    "demo_login": false
+  }
+]

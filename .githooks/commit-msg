@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Conventional Commits with step ID or area scope: feat(B-07): add R-001 rule
+set -euo pipefail
+first_line="$(head -n1 "$1")"
+
+if [[ "$first_line" =~ ^(Merge|Revert|fixup!|squash!) ]]; then
+  exit 0
+fi
+
+pattern='^(feat|fix|refactor|test|docs|chore|build|ci|perf|style)\(([A-Z]-[0-9]{2}[a-z]?|[a-z0-9-]+)\)!?: .{3,}$'
+if ! [[ "$first_line" =~ $pattern ]]; then
+  cat >&2 <<MSG
+✗ Commit message must follow: <type>(<STEP-ID|scope>): <description>
+  types: feat fix refactor test docs chore build ci perf style
+  e.g.   feat(B-07): implement R-001 PO reference rule
+         docs(repo): add engineering guidelines
+  got:   $first_line
+MSG
+  exit 1
+fi
+
+if (( ${#first_line} > 100 )); then
+  echo "✗ Commit subject is ${#first_line} chars — keep it ≤ 100 (ideally ≤ 72)." >&2
+  exit 1
+fi

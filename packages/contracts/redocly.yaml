@@ -1,0 +1,13 @@
+extends:
+  - recommended
+rules:
+  no-invalid-media-type-examples:
+    severity: error
+    allowAdditionalProperties: false
+  no-unused-components: error
+  operation-4xx-response: error
+  operation-operationId: error
+  operation-summary: error
+  tag-description: error
+  info-license: off
+  no-server-example.com: off # localhost is the real local server

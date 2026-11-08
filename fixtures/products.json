@@ -1,0 +1,52 @@
+[
+  {
+    "code": "GY-1L",
+    "description": "Günəbaxan yağı, 1 L",
+    "unit": "ədəd"
+  },
+  {
+    "code": "DY-5",
+    "description": "Düyü “Basmati”, 5 kq",
+    "unit": "kisə"
+  },
+  {
+    "code": "ST-1",
+    "description": "Şəkər tozu, 1 kq",
+    "unit": "ədəd"
+  },
+  {
+    "code": "CQ-250",
+    "description": "Qara çay, 250 q",
+    "unit": "qutu"
+  },
+  {
+    "code": "KY-10",
+    "description": "Kərə yağı 82%, 10 kq blok",
+    "unit": "blok"
+  },
+  {
+    "code": "MK-500",
+    "description": "Makaron, 500 q",
+    "unit": "ədəd"
+  },
+  {
+    "code": "PP-700",
+    "description": "Pomidor pastası, 700 q",
+    "unit": "banka"
+  },
+  {
+    "code": "MS-05",
+    "description": "Mineral su, 0,5 L (12 əd.)",
+    "unit": "qutu"
+  },
+  {
+    "code": "KY-200",
+    "description": "Kərə yağı, 200 q",
+    "unit": "ədəd"
+  },
+  {
+    "code": "ZY-1L",
+    "description": "Zeytun yağı, 1 L",
+    "unit": "şüşə"
+  }
+]

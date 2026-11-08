@@ -1,0 +1,1404 @@
+[
+  {
+    "id": "pkg_1042",
+    "invoice_number": "INV-1042",
+    "customer_id": "c1",
+    "currency": "AZN",
+    "invoice_date": "2026-11-03",
+    "created_at": "2026-11-03T09:12:00+04:00",
+    "owner_id": "u1",
+    "version": 1,
+    "processing": false,
+    "invoice": {
+      "po_ref": null,
+      "po_raw": null,
+      "unreadable_fields": [],
+      "total": "12000.00",
+      "lines": [
+        {
+          "product_code": "GY-1L",
+          "qty": 800,
+          "unit_price": "9.00"
+        },
+        {
+          "product_code": "DY-5",
+          "qty": 400,
+          "unit_price": "12.00"
+        }
+      ]
+    },
+    "order_link": {
+      "po_number": "PO-381",
+      "confirmed": false,
+      "confirmed_by": null,
+      "method": null
+    },
+    "candidates": [
+      {
+        "po_number": "PO-381",
+        "reason": "Alıcı, hər iki məhsul kodu (GY-1L, DY-5) və miqdarlar uyğundur. Sifariş tarixi: 28.10.2026."
+      }
+    ],
+    "delivery": null,
+    "signature_reviewed": false,
+    "documents": [
+      {
+        "type": "invoice",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "INV-1042.pdf",
+            "sha256": "fae363ea4bf166090ca32a3be15d56904ea88528d1054569f5d20d13e35a8d67",
+            "source_kind": "pdf",
+            "uploaded_by": "u1",
+            "uploaded_at": "2026-11-03T09:12:00+04:00",
+            "status": "EXTRACTED"
+          }
+        ]
+      },
+      {
+        "type": "order",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "PO-381.pdf",
+            "sha256": "912a9de18acff8cb2be1ca09d2c9c5bf92c318d191c1714cfea78ef041c8846c",
+            "source_kind": "pdf",
+            "uploaded_by": "u1",
+            "uploaded_at": "2026-11-03T09:12:00+04:00",
+            "status": "EXTRACTED"
+          }
+        ]
+      }
+    ],
+    "approvals": [],
+    "exports": []
+  },
+  {
+    "id": "pkg_1038",
+    "invoice_number": "INV-1038",
+    "customer_id": "c1",
+    "currency": "AZN",
+    "invoice_date": "2026-10-30",
+    "created_at": "2026-10-30T11:40:00+04:00",
+    "owner_id": "u1",
+    "version": 1,
+    "processing": false,
+    "invoice": {
+      "po_ref": "PO-377",
+      "po_raw": null,
+      "unreadable_fields": [],
+      "total": "4860.00",
+      "lines": [
+        {
+          "product_code": "ST-1",
+          "qty": 1200,
+          "unit_price": "2.05"
+        },
+        {
+          "product_code": "CQ-250",
+          "qty": 300,
+          "unit_price": "8.00"
+        }
+      ]
+    },
+    "order_link": {
+      "po_number": "PO-377",
+      "confirmed": true,
+      "confirmed_by": "system",
+      "method": "exact_id"
+    },
+    "candidates": [],
+    "delivery": {
+      "note_number": "TS-5524",
+      "po_ref": "PO-377",
+      "customer_id": "c1",
+      "delivery_date": "2026-10-30",
+      "signed": true,
+      "lines": [
+        {
+          "product_code": "ST-1",
+          "qty": 1200
+        },
+        {
+          "product_code": "CQ-250",
+          "qty": 300
+        }
+      ]
+    },
+    "signature_reviewed": true,
+    "documents": [
+      {
+        "type": "invoice",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "INV-1038.pdf",
+            "sha256": "460c90605b4b1c320ef58941b882b95081ff46576caa6b46e6bd6585b914c1ee",
+            "source_kind": "pdf",
+            "uploaded_by": "u1",
+            "uploaded_at": "2026-10-30T11:40:00+04:00",
+            "status": "EXTRACTED"
+          }
+        ]
+      },
+      {
+        "type": "order",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "PO-377.xlsx",
+            "sha256": "0ef59f6319f749c1368555df62109c1a9e63be448919edabb1e002ce5a5ec8d3",
+            "source_kind": "spreadsheet",
+            "uploaded_by": "u1",
+            "uploaded_at": "2026-10-30T11:40:00+04:00",
+            "status": "EXTRACTED"
+          }
+        ]
+      },
+      {
+        "type": "delivery",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "TS-5524.pdf",
+            "sha256": "5e60ec5878b4cd628d745483a6560274d5ddfdd766342e6caa934a22c3bfdd65",
+            "source_kind": "pdf",
+            "uploaded_by": "u1",
+            "uploaded_at": "2026-10-30T11:40:00+04:00",
+            "status": "EXTRACTED",
+            "signed": true
+          }
+        ]
+      }
+    ],
+    "approvals": [],
+    "exports": []
+  },
+  {
+    "id": "pkg_1036",
+    "invoice_number": "INV-1036",
+    "customer_id": "c1",
+    "currency": "AZN",
+    "invoice_date": "2026-10-27",
+    "created_at": "2026-10-27T10:05:00+04:00",
+    "owner_id": "u1",
+    "version": 3,
+    "processing": false,
+    "invoice": {
+      "po_ref": "PO-336",
+      "po_raw": null,
+      "unreadable_fields": [],
+      "total": "6200.00",
+      "lines": [
+        {
+          "product_code": "ST-1",
+          "qty": 2000,
+          "unit_price": "2.05"
+        },
+        {
+          "product_code": "MK-500",
+          "qty": 1500,
+          "unit_price": "1.40"
+        }
+      ]
+    },
+    "order_link": {
+      "po_number": "PO-336",
+      "confirmed": true,
+      "confirmed_by": "system",
+      "method": "exact_id"
+    },
+    "candidates": [],
+    "delivery": {
+      "note_number": "TS-5518",
+      "po_ref": "PO-336",
+      "customer_id": "c1",
+      "delivery_date": "2026-10-27",
+      "signed": true,
+      "lines": [
+        {
+          "product_code": "ST-1",
+          "qty": 2000
+        },
+        {
+          "product_code": "MK-500",
+          "qty": 1500
+        }
+      ]
+    },
+    "signature_reviewed": true,
+    "documents": [
+      {
+        "type": "invoice",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "INV-1036.pdf",
+            "sha256": "eed2f56144a917676000caed8fa7b0a5fdaa74d3411867abad34b13107a8b456",
+            "source_kind": "pdf",
+            "uploaded_by": "u1",
+            "uploaded_at": "2026-10-27T10:05:00+04:00",
+            "status": "EXTRACTED"
+          }
+        ]
+      },
+      {
+        "type": "order",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "PO-336.pdf",
+            "sha256": "4d763d27c8454c936d044fcacb5eafd40f13880cf2deb67ded207e9a20760f9e",
+            "source_kind": "pdf",
+            "uploaded_by": "u1",
+            "uploaded_at": "2026-10-27T10:05:00+04:00",
+            "status": "EXTRACTED"
+          }
+        ]
+      },
+      {
+        "type": "delivery",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "TS-5518.jpg",
+            "sha256": "c9b2a4b41d95aeaf6955a245f7da2a268d8062d838008f0a845bb8b26d0a38f9",
+            "source_kind": "scan",
+            "uploaded_by": "u1",
+            "uploaded_at": "2026-10-27T10:05:00+04:00",
+            "status": "EXTRACTED",
+            "signed": false
+          },
+          {
+            "version_no": 2,
+            "file_name": "TS-5518_imzali.jpg",
+            "sha256": "23892b65a6adac526bb8a5fd317c2dd32a1ad5888508e2a25e0e1915dce43131",
+            "source_kind": "scan",
+            "uploaded_by": "u1",
+            "uploaded_at": "2026-10-30T15:20:00+04:00",
+            "status": "EXTRACTED",
+            "signed": true
+          },
+          {
+            "version_no": 3,
+            "file_name": "TS-5518_imzali_tam.pdf",
+            "sha256": "57c8caf1154da870245ae1333d9f29628e73012e6320d36728e84d4b24c29022",
+            "source_kind": "pdf",
+            "uploaded_by": "u1",
+            "uploaded_at": "2026-11-01T09:45:00+04:00",
+            "status": "EXTRACTED",
+            "signed": true
+          }
+        ]
+      }
+    ],
+    "approvals": [
+      {
+        "package_version": 2,
+        "requirement_set_version": 2,
+        "approver_id": "u2",
+        "created_at": "2026-10-31T12:30:00+04:00",
+        "valid": false,
+        "invalidated_reason": "Təhvil sənədinin yeni versiyası yükləndi",
+        "invalidated_at": "2026-11-01T09:46:00+04:00"
+      }
+    ],
+    "exports": []
+  },
+  {
+    "id": "pkg_1043",
+    "invoice_number": "INV-1043",
+    "customer_id": "c1",
+    "currency": "AZN",
+    "invoice_date": "2026-11-04",
+    "created_at": "2026-11-04T10:20:00+04:00",
+    "owner_id": "u1",
+    "version": 1,
+    "processing": false,
+    "invoice": {
+      "po_ref": "PO-328",
+      "po_raw": null,
+      "unreadable_fields": [],
+      "total": "1920.00",
+      "lines": [
+        {
+          "product_code": "PP-700",
+          "qty": 600,
+          "unit_price": "3.20"
+        }
+      ]
+    },
+    "order_link": {
+      "po_number": "PO-382",
+      "confirmed": true,
+      "confirmed_by": "u1",
+      "method": "human"
+    },
+    "candidates": [
+      {
+        "po_number": "PO-382",
+        "reason": "Alıcı, məhsul kodu PP-700 və miqdar uyğundur; fakturadakı PO-328 sistemdə tapılmadı."
+      }
+    ],
+    "delivery": {
+      "note_number": "TS-5533",
+      "po_ref": "PO-382",
+      "customer_id": "c1",
+      "delivery_date": "2026-11-04",
+      "signed": true,
+      "lines": [
+        {
+          "product_code": "PP-700",
+          "qty": 600
+        }
+      ]
+    },
+    "signature_reviewed": true,
+    "documents": [
+      {
+        "type": "invoice",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "INV-1043.pdf",
+            "sha256": "14a8868a72f6f99d1d450ad757854b608f52e62a7c03e16f5bd408b7ccfca4ce",
+            "source_kind": "pdf",
+            "uploaded_by": "u1",
+            "uploaded_at": "2026-11-04T10:20:00+04:00",
+            "status": "EXTRACTED"
+          }
+        ]
+      },
+      {
+        "type": "order",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "PO-382.pdf",
+            "sha256": "b722077355cd7349cfb8d3da577b195b48aec2c75566abbc42198252ebf0b730",
+            "source_kind": "pdf",
+            "uploaded_by": "u1",
+            "uploaded_at": "2026-11-04T10:20:00+04:00",
+            "status": "EXTRACTED"
+          }
+        ]
+      },
+      {
+        "type": "delivery",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "TS-5533.pdf",
+            "sha256": "cfbdd88c714e2437538cbdbb510badc12b7c9bffc95a98d8b48ddc4f68e72214",
+            "source_kind": "pdf",
+            "uploaded_by": "u1",
+            "uploaded_at": "2026-11-04T10:20:00+04:00",
+            "status": "EXTRACTED",
+            "signed": true
+          }
+        ]
+      }
+    ],
+    "approvals": [],
+    "exports": []
+  },
+  {
+    "id": "pkg_1044",
+    "invoice_number": "INV-1044",
+    "customer_id": "c1",
+    "currency": "AZN",
+    "invoice_date": "2026-11-04",
+    "created_at": "2026-11-04T14:05:00+04:00",
+    "owner_id": "u1",
+    "version": 1,
+    "processing": false,
+    "invoice": {
+      "po_ref": "PO-388",
+      "po_raw": null,
+      "unreadable_fields": [],
+      "total": "6900.00",
+      "lines": [
+        {
+          "product_code": "KY-10",
+          "qty": 50,
+          "unit_price": "110.00"
+        },
+        {
+          "product_code": "MK-500",
+          "qty": 1000,
+          "unit_price": "1.40"
+        }
+      ]
+    },
+    "order_link": {
+      "po_number": "PO-388",
+      "confirmed": true,
+      "confirmed_by": "system",
+      "method": "exact_id"
+    },
+    "candidates": [],
+    "delivery": {
+      "note_number": "TS-5536",
+      "po_ref": "PO-388",
+      "customer_id": "c1",
+      "delivery_date": "2026-11-04",
+      "signed": true,
+      "lines": [
+        {
+          "product_code": "KY-10",
+          "qty": 50
+        },
+        {
+          "product_code": "MK-500",
+          "qty": 1000
+        }
+      ]
+    },
+    "signature_reviewed": true,
+    "documents": [
+      {
+        "type": "invoice",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "INV-1044.pdf",
+            "sha256": "d1251f4b4ca5e16c36558d9383d17f13e44f8190aa9fd5e9dea30ae14e4941cd",
+            "source_kind": "pdf",
+            "uploaded_by": "u1",
+            "uploaded_at": "2026-11-04T14:05:00+04:00",
+            "status": "EXTRACTED"
+          }
+        ]
+      },
+      {
+        "type": "order",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "PO-388.pdf",
+            "sha256": "e62c770933312eb61731db4d042802666518a791330581e618efa39c33fe10f8",
+            "source_kind": "pdf",
+            "uploaded_by": "u1",
+            "uploaded_at": "2026-11-04T14:05:00+04:00",
+            "status": "EXTRACTED"
+          }
+        ]
+      },
+      {
+        "type": "delivery",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "TS-5536.pdf",
+            "sha256": "0fc0d05fdb7baba79e61598c67c88240a8d913c87945fd3a95ac3b324ed98c9f",
+            "source_kind": "pdf",
+            "uploaded_by": "u1",
+            "uploaded_at": "2026-11-04T14:05:00+04:00",
+            "status": "EXTRACTED",
+            "signed": true
+          }
+        ]
+      }
+    ],
+    "approvals": [],
+    "exports": []
+  },
+  {
+    "id": "pkg_1045",
+    "invoice_number": "INV-1045",
+    "customer_id": "c2",
+    "currency": "AZN",
+    "invoice_date": "2026-11-05",
+    "created_at": "2026-11-05T09:30:00+04:00",
+    "owner_id": "u7",
+    "version": 1,
+    "processing": false,
+    "invoice": {
+      "po_ref": "PO-390",
+      "po_raw": null,
+      "unreadable_fields": [],
+      "total": "2484.00",
+      "lines": [
+        {
+          "product_code": "MS-05",
+          "qty": 120,
+          "unit_price": "7.20"
+        },
+        {
+          "product_code": "CQ-250",
+          "qty": 200,
+          "unit_price": "8.10"
+        }
+      ]
+    },
+    "order_link": {
+      "po_number": "PO-390",
+      "confirmed": true,
+      "confirmed_by": "system",
+      "method": "exact_id"
+    },
+    "candidates": [],
+    "delivery": {
+      "note_number": "TS-5538",
+      "po_ref": "PO-390",
+      "customer_id": "c2",
+      "delivery_date": "2026-11-05",
+      "signed": true,
+      "lines": [
+        {
+          "product_code": "MS-05",
+          "qty": 100
+        },
+        {
+          "product_code": "CQ-250",
+          "qty": 200
+        }
+      ]
+    },
+    "signature_reviewed": false,
+    "documents": [
+      {
+        "type": "invoice",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "INV-1045.pdf",
+            "sha256": "8011cb59be210807804548f3d1b2133fe3595578386de37b9b0a37b642d225ef",
+            "source_kind": "pdf",
+            "uploaded_by": "u7",
+            "uploaded_at": "2026-11-05T09:30:00+04:00",
+            "status": "EXTRACTED"
+          }
+        ]
+      },
+      {
+        "type": "order",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "PO-390.csv",
+            "sha256": "062316cc78c40df099f995e80d050be6db6aa77a9ba2a45a0c7db7c3ea84429d",
+            "source_kind": "spreadsheet",
+            "uploaded_by": "u7",
+            "uploaded_at": "2026-11-05T09:30:00+04:00",
+            "status": "EXTRACTED"
+          }
+        ]
+      },
+      {
+        "type": "delivery",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "TS-5538.pdf",
+            "sha256": "c9f04478a0b395606e4d995fdb63a63a8ddcc62eb5462111d3bbc496b91e2ffe",
+            "source_kind": "pdf",
+            "uploaded_by": "u7",
+            "uploaded_at": "2026-11-05T09:30:00+04:00",
+            "status": "EXTRACTED",
+            "signed": true
+          }
+        ]
+      }
+    ],
+    "approvals": [],
+    "exports": []
+  },
+  {
+    "id": "pkg_1046",
+    "invoice_number": "INV-1046",
+    "customer_id": "c1",
+    "currency": "AZN",
+    "invoice_date": "2026-11-05",
+    "created_at": "2026-11-05T16:10:00+04:00",
+    "owner_id": "u1",
+    "version": 1,
+    "processing": false,
+    "invoice": {
+      "po_ref": "PO-386",
+      "po_raw": null,
+      "unreadable_fields": [],
+      "total": "1800.00",
+      "lines": [
+        {
+          "product_code": "DY-5",
+          "qty": 150,
+          "unit_price": "12.00"
+        }
+      ]
+    },
+    "order_link": {
+      "po_number": "PO-386",
+      "confirmed": true,
+      "confirmed_by": "system",
+      "method": "exact_id"
+    },
+    "candidates": [],
+    "delivery": {
+      "note_number": "TS-5529",
+      "po_ref": "PO-391",
+      "customer_id": "c2",
+      "delivery_date": "2026-11-05",
+      "signed": true,
+      "lines": [
+        {
+          "product_code": "DY-5",
+          "qty": 150
+        }
+      ]
+    },
+    "signature_reviewed": false,
+    "documents": [
+      {
+        "type": "invoice",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "INV-1046.pdf",
+            "sha256": "2f48c46da2fac8e5482f4798a94353f66c97cdd1883921307438b6334879ab92",
+            "source_kind": "pdf",
+            "uploaded_by": "u1",
+            "uploaded_at": "2026-11-05T16:10:00+04:00",
+            "status": "EXTRACTED"
+          }
+        ]
+      },
+      {
+        "type": "order",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "PO-386.pdf",
+            "sha256": "5638d74bbc33a949696d7d42c0ff208757242eb2174a3fe2da7df8318268ff95",
+            "source_kind": "pdf",
+            "uploaded_by": "u1",
+            "uploaded_at": "2026-11-05T16:10:00+04:00",
+            "status": "EXTRACTED"
+          }
+        ]
+      },
+      {
+        "type": "delivery",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "TS-5529.pdf",
+            "sha256": "58cc455f2586c51f6cf50724c46f84005321639df909e754d3708963752e8678",
+            "source_kind": "pdf",
+            "uploaded_by": "u1",
+            "uploaded_at": "2026-11-05T16:10:00+04:00",
+            "status": "EXTRACTED",
+            "signed": true
+          }
+        ]
+      }
+    ],
+    "approvals": [],
+    "exports": []
+  },
+  {
+    "id": "pkg_1047",
+    "invoice_number": "INV-1047",
+    "customer_id": "c2",
+    "currency": "AZN",
+    "invoice_date": "2026-11-06",
+    "created_at": "2026-11-06T11:25:00+04:00",
+    "owner_id": "u7",
+    "version": 1,
+    "processing": false,
+    "invoice": {
+      "po_ref": null,
+      "po_raw": "PO-3?7",
+      "unreadable_fields": ["po_ref"],
+      "total": "2730.00",
+      "lines": [
+        {
+          "product_code": "GY-1L",
+          "qty": 300,
+          "unit_price": "9.10"
+        }
+      ]
+    },
+    "order_link": {
+      "po_number": "PO-397",
+      "confirmed": true,
+      "confirmed_by": "u7",
+      "method": "human"
+    },
+    "candidates": [
+      {
+        "po_number": "PO-397",
+        "reason": "Alıcı, məhsul kodu və miqdar uyğundur; PO sahəsi skanda oxunmadı."
+      }
+    ],
+    "delivery": {
+      "note_number": "TS-5540",
+      "po_ref": "PO-397",
+      "customer_id": "c2",
+      "delivery_date": "2026-11-06",
+      "signed": true,
+      "lines": [
+        {
+          "product_code": "GY-1L",
+          "qty": 300
+        }
+      ]
+    },
+    "signature_reviewed": false,
+    "documents": [
+      {
+        "type": "invoice",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "INV-1047_skan.jpg",
+            "sha256": "4de1e85e8983bf3f43a6c14f889285b342c7c8be0ba1a8c2b2d5972bf5db6493",
+            "source_kind": "scan",
+            "uploaded_by": "u7",
+            "uploaded_at": "2026-11-06T11:25:00+04:00",
+            "status": "REVIEW_REQUIRED"
+          }
+        ]
+      },
+      {
+        "type": "order",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "PO-397.pdf",
+            "sha256": "bf93bc2a6ccd2e0f02492ffce0ee3464600d7355e878f86830302e7207f43ad0",
+            "source_kind": "pdf",
+            "uploaded_by": "u7",
+            "uploaded_at": "2026-11-06T11:25:00+04:00",
+            "status": "EXTRACTED"
+          }
+        ]
+      },
+      {
+        "type": "delivery",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "TS-5540.jpg",
+            "sha256": "5048473f9acbba632e833df9396dafa5e5b65538be997dd6e1540cfcd751aa2a",
+            "source_kind": "scan",
+            "uploaded_by": "u7",
+            "uploaded_at": "2026-11-06T11:25:00+04:00",
+            "status": "EXTRACTED",
+            "signed": true
+          }
+        ]
+      }
+    ],
+    "approvals": [],
+    "exports": []
+  },
+  {
+    "id": "pkg_1048",
+    "invoice_number": "INV-1048",
+    "customer_id": "c1",
+    "currency": "AZN",
+    "invoice_date": "2026-11-06",
+    "created_at": "2026-11-06T15:50:00+04:00",
+    "owner_id": "u1",
+    "version": 1,
+    "processing": false,
+    "invoice": {
+      "po_ref": null,
+      "po_raw": null,
+      "unreadable_fields": [],
+      "total": "1872.00",
+      "lines": [
+        {
+          "product_code": "KY-200",
+          "qty": 520,
+          "unit_price": "3.60"
+        }
+      ]
+    },
+    "order_link": {
+      "po_number": null,
+      "confirmed": false,
+      "confirmed_by": null,
+      "method": null
+    },
+    "candidates": [
+      {
+        "po_number": "PO-383",
+        "reason": "Alıcı, məhsul kodu KY-200 və miqdar (520) uyğundur. Sifariş tarixi: 29.10.2026."
+      },
+      {
+        "po_number": "PO-384",
+        "reason": "Alıcı, məhsul kodu KY-200 və miqdar (520) uyğundur. Sifariş tarixi: 01.11.2026. TS-5541 təhvil aktı bu sifarişə istinad edir."
+      }
+    ],
+    "delivery": {
+      "note_number": "TS-5541",
+      "po_ref": "PO-384",
+      "customer_id": "c1",
+      "delivery_date": "2026-11-06",
+      "signed": true,
+      "lines": [
+        {
+          "product_code": "KY-200",
+          "qty": 520
+        }
+      ]
+    },
+    "signature_reviewed": false,
+    "documents": [
+      {
+        "type": "invoice",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "INV-1048.pdf",
+            "sha256": "882465a4e7f358ef2b3809b8ea30303fef567d3abe19f7ebb29543cc6b41eec3",
+            "source_kind": "pdf",
+            "uploaded_by": "u1",
+            "uploaded_at": "2026-11-06T15:50:00+04:00",
+            "status": "EXTRACTED"
+          }
+        ]
+      },
+      {
+        "type": "order",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "Sifarisler_okt-noy.xlsx",
+            "sha256": "efb39da4338ca9fbbb957b740a42e9345a8b4b4b14c5af9354b2127bbf5652be",
+            "source_kind": "spreadsheet",
+            "uploaded_by": "u1",
+            "uploaded_at": "2026-11-06T15:50:00+04:00",
+            "status": "EXTRACTED"
+          }
+        ]
+      },
+      {
+        "type": "delivery",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "TS-5541.pdf",
+            "sha256": "10a9de28145d884222da3df2ca62986f7c963ddcceae7d83efa279cd41f56e05",
+            "source_kind": "pdf",
+            "uploaded_by": "u1",
+            "uploaded_at": "2026-11-06T15:50:00+04:00",
+            "status": "EXTRACTED",
+            "signed": true
+          }
+        ]
+      }
+    ],
+    "approvals": [],
+    "exports": []
+  },
+  {
+    "id": "pkg_1049",
+    "invoice_number": "INV-1049",
+    "customer_id": "c2",
+    "currency": "USD",
+    "invoice_date": "2026-11-07",
+    "created_at": "2026-11-07T10:15:00+04:00",
+    "owner_id": "u7",
+    "version": 1,
+    "processing": false,
+    "invoice": {
+      "po_ref": "PO-393",
+      "po_raw": null,
+      "unreadable_fields": [],
+      "total": "1800.00",
+      "lines": [
+        {
+          "product_code": "ZY-1L",
+          "qty": 240,
+          "unit_price": "7.50"
+        }
+      ]
+    },
+    "order_link": {
+      "po_number": "PO-393",
+      "confirmed": true,
+      "confirmed_by": "system",
+      "method": "exact_id"
+    },
+    "candidates": [],
+    "delivery": {
+      "note_number": "TS-5543",
+      "po_ref": "PO-393",
+      "customer_id": "c2",
+      "delivery_date": "2026-11-07",
+      "signed": true,
+      "lines": [
+        {
+          "product_code": "ZY-1L",
+          "qty": 240
+        }
+      ]
+    },
+    "signature_reviewed": false,
+    "documents": [
+      {
+        "type": "invoice",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "INV-1049.pdf",
+            "sha256": "fcc8f1aebff2c1fbf15261da691a28c5169cda4890beff51fc18616bdbc51d8d",
+            "source_kind": "pdf",
+            "uploaded_by": "u7",
+            "uploaded_at": "2026-11-07T10:15:00+04:00",
+            "status": "EXTRACTED"
+          }
+        ]
+      },
+      {
+        "type": "order",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "PO-393.pdf",
+            "sha256": "a5735fa8308e3f367c273491b8560da59558c7e04e91428e83b87ce309bee60f",
+            "source_kind": "pdf",
+            "uploaded_by": "u7",
+            "uploaded_at": "2026-11-07T10:15:00+04:00",
+            "status": "EXTRACTED"
+          }
+        ]
+      },
+      {
+        "type": "delivery",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "TS-5543.pdf",
+            "sha256": "e96c40e89c4ae3627a66d51f1761184f739461df1141d23d33d06e1c02462ce0",
+            "source_kind": "pdf",
+            "uploaded_by": "u7",
+            "uploaded_at": "2026-11-07T10:15:00+04:00",
+            "status": "EXTRACTED",
+            "signed": true
+          }
+        ]
+      }
+    ],
+    "approvals": [],
+    "exports": []
+  },
+  {
+    "id": "pkg_1050",
+    "invoice_number": "INV-1050",
+    "customer_id": "c2",
+    "currency": "USD",
+    "invoice_date": "2026-11-08",
+    "created_at": "2026-11-08T10:05:00+04:00",
+    "owner_id": "u7",
+    "version": 1,
+    "processing": true,
+    "invoice": {
+      "po_ref": "PO-395",
+      "po_raw": null,
+      "unreadable_fields": [],
+      "total": "900.00",
+      "lines": [
+        {
+          "product_code": "ZY-1L",
+          "qty": 120,
+          "unit_price": "7.50"
+        }
+      ]
+    },
+    "order_link": {
+      "po_number": "PO-395",
+      "confirmed": true,
+      "confirmed_by": "system",
+      "method": "exact_id"
+    },
+    "candidates": [],
+    "delivery": {
+      "note_number": "TS-5545",
+      "po_ref": "PO-395",
+      "customer_id": "c2",
+      "delivery_date": "2026-11-08",
+      "signed": true,
+      "lines": [
+        {
+          "product_code": "ZY-1L",
+          "qty": 120
+        }
+      ]
+    },
+    "signature_reviewed": false,
+    "documents": [
+      {
+        "type": "invoice",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "INV-1050.pdf",
+            "sha256": "60674f1dc8d3b346a16a92f5efbedab543493517ad7a666768702a3341073b3b",
+            "source_kind": "pdf",
+            "uploaded_by": "u7",
+            "uploaded_at": "2026-11-08T10:05:00+04:00",
+            "status": "PROCESSING"
+          }
+        ]
+      },
+      {
+        "type": "order",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "PO-395.pdf",
+            "sha256": "576209d8dc32d151efb4c3f17ae74ccb17276d929993b0af390e8fd4f574edf0",
+            "source_kind": "pdf",
+            "uploaded_by": "u7",
+            "uploaded_at": "2026-11-08T10:05:00+04:00",
+            "status": "PROCESSING"
+          }
+        ]
+      },
+      {
+        "type": "delivery",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "TS-5545.pdf",
+            "sha256": "62f34ff85ce235d3c2bc1a465cce27b5c0f61b40515601604fd555bb94f57e9f",
+            "source_kind": "pdf",
+            "uploaded_by": "u7",
+            "uploaded_at": "2026-11-08T10:05:00+04:00",
+            "status": "PROCESSING",
+            "signed": true
+          }
+        ]
+      }
+    ],
+    "approvals": [],
+    "exports": []
+  },
+  {
+    "id": "pkg_1035",
+    "invoice_number": "INV-1035",
+    "customer_id": "c2",
+    "currency": "AZN",
+    "invoice_date": "2026-10-25",
+    "created_at": "2026-10-25T12:00:00+04:00",
+    "owner_id": "u7",
+    "version": 1,
+    "processing": false,
+    "invoice": {
+      "po_ref": "PO-375",
+      "po_raw": null,
+      "unreadable_fields": [],
+      "total": "3100.00",
+      "lines": [
+        {
+          "product_code": "DY-5",
+          "qty": 250,
+          "unit_price": "12.40"
+        }
+      ]
+    },
+    "order_link": {
+      "po_number": "PO-375",
+      "confirmed": true,
+      "confirmed_by": "system",
+      "method": "exact_id"
+    },
+    "candidates": [],
+    "delivery": {
+      "note_number": "TS-5515",
+      "po_ref": "PO-375",
+      "customer_id": "c2",
+      "delivery_date": "2026-10-25",
+      "signed": true,
+      "lines": [
+        {
+          "product_code": "DY-5",
+          "qty": 250
+        }
+      ]
+    },
+    "signature_reviewed": false,
+    "documents": [
+      {
+        "type": "invoice",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "INV-1035.pdf",
+            "sha256": "7bf3d490a6997d69e7b176ce7088c4a351f48cfe07802c3e448e4c816ca48c2d",
+            "source_kind": "pdf",
+            "uploaded_by": "u7",
+            "uploaded_at": "2026-10-25T12:00:00+04:00",
+            "status": "EXTRACTED"
+          }
+        ]
+      },
+      {
+        "type": "order",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "PO-375.pdf",
+            "sha256": "ea07071d962baa907a257d3739af18ec37ccd211109540e39fcd5b9c7912a42c",
+            "source_kind": "pdf",
+            "uploaded_by": "u7",
+            "uploaded_at": "2026-10-25T12:00:00+04:00",
+            "status": "EXTRACTED"
+          }
+        ]
+      },
+      {
+        "type": "delivery",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "TS-5515.pdf",
+            "sha256": "d5fd60995ae5048acbc5f5e005f40aaa85eeeafbebfcaa6ad13045fb958488e3",
+            "source_kind": "pdf",
+            "uploaded_by": "u7",
+            "uploaded_at": "2026-10-25T12:00:00+04:00",
+            "status": "EXTRACTED",
+            "signed": true
+          }
+        ]
+      }
+    ],
+    "approvals": [
+      {
+        "package_version": 1,
+        "requirement_set_version": 1,
+        "approver_id": "u2",
+        "created_at": "2026-11-06T15:10:00+04:00",
+        "valid": true,
+        "invalidated_reason": null,
+        "invalidated_at": null
+      }
+    ],
+    "exports": []
+  },
+  {
+    "id": "pkg_1033",
+    "invoice_number": "INV-1033",
+    "customer_id": "c1",
+    "currency": "AZN",
+    "invoice_date": "2026-10-21",
+    "created_at": "2026-10-21T09:40:00+04:00",
+    "owner_id": "u1",
+    "version": 1,
+    "processing": false,
+    "invoice": {
+      "po_ref": "PO-371",
+      "po_raw": null,
+      "unreadable_fields": [],
+      "total": "4500.00",
+      "lines": [
+        {
+          "product_code": "GY-1L",
+          "qty": 500,
+          "unit_price": "9.00"
+        }
+      ]
+    },
+    "order_link": {
+      "po_number": "PO-371",
+      "confirmed": true,
+      "confirmed_by": "system",
+      "method": "exact_id"
+    },
+    "candidates": [],
+    "delivery": {
+      "note_number": "TS-5502",
+      "po_ref": "PO-371",
+      "customer_id": "c1",
+      "delivery_date": "2026-10-21",
+      "signed": true,
+      "lines": [
+        {
+          "product_code": "GY-1L",
+          "qty": 500
+        }
+      ]
+    },
+    "signature_reviewed": true,
+    "documents": [
+      {
+        "type": "invoice",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "INV-1033.pdf",
+            "sha256": "f56d7ec10301be9bbc392d846d47a50ce0c56b4fbbe6495b3c7762115bc7db78",
+            "source_kind": "pdf",
+            "uploaded_by": "u1",
+            "uploaded_at": "2026-10-21T09:40:00+04:00",
+            "status": "EXTRACTED"
+          }
+        ]
+      },
+      {
+        "type": "order",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "PO-371.pdf",
+            "sha256": "bc5d6751f527a7f36fd41367ee8c21a61a660ba12e466c9676738467b0652f0e",
+            "source_kind": "pdf",
+            "uploaded_by": "u1",
+            "uploaded_at": "2026-10-21T09:40:00+04:00",
+            "status": "EXTRACTED"
+          }
+        ]
+      },
+      {
+        "type": "delivery",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "TS-5502.pdf",
+            "sha256": "4f5a158e17c5a38c12b72ada55b8417056e8540e17437ae8c0602484116dce7b",
+            "source_kind": "pdf",
+            "uploaded_by": "u1",
+            "uploaded_at": "2026-10-21T09:40:00+04:00",
+            "status": "EXTRACTED",
+            "signed": true
+          }
+        ]
+      }
+    ],
+    "approvals": [
+      {
+        "package_version": 1,
+        "requirement_set_version": 2,
+        "approver_id": "u2",
+        "created_at": "2026-10-24T11:05:00+04:00",
+        "valid": true,
+        "invalidated_reason": null,
+        "invalidated_at": null
+      }
+    ],
+    "exports": [
+      {
+        "package_version": 1,
+        "requirement_set_version": 2,
+        "created_by": "u1",
+        "created_at": "2026-10-24T11:20:00+04:00",
+        "files": ["INV-1033.pdf", "PO-371.pdf", "TS-5502.pdf"]
+      }
+    ]
+  },
+  {
+    "id": "pkg_1031",
+    "invoice_number": "INV-1031",
+    "customer_id": "c2",
+    "currency": "AZN",
+    "invoice_date": "2026-10-18",
+    "created_at": "2026-10-18T13:15:00+04:00",
+    "owner_id": "u7",
+    "version": 1,
+    "processing": false,
+    "invoice": {
+      "po_ref": "PO-368",
+      "po_raw": null,
+      "unreadable_fields": [],
+      "total": "3240.00",
+      "lines": [
+        {
+          "product_code": "CQ-250",
+          "qty": 400,
+          "unit_price": "8.10"
+        }
+      ]
+    },
+    "order_link": {
+      "po_number": "PO-368",
+      "confirmed": true,
+      "confirmed_by": "system",
+      "method": "exact_id"
+    },
+    "candidates": [],
+    "delivery": {
+      "note_number": "TS-5497",
+      "po_ref": "PO-368",
+      "customer_id": "c2",
+      "delivery_date": "2026-10-18",
+      "signed": true,
+      "lines": [
+        {
+          "product_code": "CQ-250",
+          "qty": 400
+        }
+      ]
+    },
+    "signature_reviewed": false,
+    "documents": [
+      {
+        "type": "invoice",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "INV-1031.pdf",
+            "sha256": "d2b13d128d46021c79f0a9c80df4693308e7e564b272bae918312cbc886da542",
+            "source_kind": "pdf",
+            "uploaded_by": "u7",
+            "uploaded_at": "2026-10-18T13:15:00+04:00",
+            "status": "EXTRACTED"
+          }
+        ]
+      },
+      {
+        "type": "order",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "PO-368.pdf",
+            "sha256": "313f9f5d0e8fa6c807645579207aa98ddf3a3cad933152dd490cd10a233e8185",
+            "source_kind": "pdf",
+            "uploaded_by": "u7",
+            "uploaded_at": "2026-10-18T13:15:00+04:00",
+            "status": "EXTRACTED"
+          }
+        ]
+      },
+      {
+        "type": "delivery",
+        "versions": [
+          {
+            "version_no": 1,
+            "file_name": "TS-5497.pdf",
+            "sha256": "be0a6f6da4bcae3641cea41c3534cb02fceeaaa9ea5a67cc6e49e65850a34a12",
+            "source_kind": "pdf",
+            "uploaded_by": "u7",
+            "uploaded_at": "2026-10-18T13:15:00+04:00",
+            "status": "EXTRACTED",
+            "signed": true
+          }
+        ]
+      }
+    ],
+    "approvals": [
+      {
+        "package_version": 1,
+        "requirement_set_version": 1,
+        "approver_id": "u2",
+        "created_at": "2026-10-21T16:40:00+04:00",
+        "valid": true,
+        "invalidated_reason": null,
+        "invalidated_at": null
+      }
+    ],
+    "exports": [
+      {
+        "package_version": 1,
+        "requirement_set_version": 1,
+        "created_by": "u7",
+        "created_at": "2026-10-21T16:52:00+04:00",
+        "files": ["INV-1031.pdf", "PO-368.pdf", "TS-5497.pdf"]
+      }
+    ]
+  }
+]

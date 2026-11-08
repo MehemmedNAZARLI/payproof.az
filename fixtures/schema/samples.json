@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "samples.json",
+  "description": "Demo upload files; extraction is the pre-processed result the file produces (AI_PROVIDER=mock)",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["id", "package_id", "type", "file_name", "sha256", "note", "extraction"],
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^s[0-9]+$"
+      },
+      "package_id": {
+        "$ref": "defs.json#/$defs/package_id"
+      },
+      "type": {
+        "enum": ["invoice", "delivery"]
+      },
+      "file_name": {
+        "type": "string"
+      },
+      "note": {
+        "type": "string"
+      },
+      "extraction": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "po_ref": {
+            "$ref": "defs.json#/$defs/po_number"
+          },
+          "currency": {
+            "$ref": "defs.json#/$defs/currency"
+          },
+          "line": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["product_code"],
+            "minProperties": 2,
+            "properties": {
+              "product_code": {
+                "$ref": "defs.json#/$defs/product_code"
+              },
+              "unit_price": {
+                "$ref": "defs.json#/$defs/money"
+              },
+              "qty": {
+                "$ref": "defs.json#/$defs/qty"
+              }
+            }
+          },
+          "delivery": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["note_number", "po_ref", "signed"],
+            "properties": {
+              "note_number": {
+                "type": "string",
+                "pattern": "^TS-[0-9]+$"
+              },
+              "po_ref": {
+                "$ref": "defs.json#/$defs/po_number"
+              },
+              "signed": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      },
+      "sha256": {
+        "$ref": "defs.json#/$defs/sha256"
+      }
+    }
+  }
+}

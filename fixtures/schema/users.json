@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "users.json",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["id", "email", "full_name", "title", "role", "avatar_tone", "demo_login"],
+    "properties": {
+      "id": {
+        "$ref": "defs.json#/$defs/user_id"
+      },
+      "email": {
+        "type": "string",
+        "format": "email"
+      },
+      "full_name": {
+        "type": "string"
+      },
+      "title": {
+        "type": "string"
+      },
+      "role": {
+        "$ref": "defs.json#/$defs/role"
+      },
+      "avatar_tone": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 5
+      },
+      "demo_login": {
+        "type": "boolean",
+        "description": "Shown in the dev-login picker"
+      }
+    }
+  }
+}

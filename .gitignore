@@ -1,0 +1,36 @@
+# deps
+node_modules/
+.pnpm-store/
+.venv/
+__pycache__/
+*.pyc
+# build / cache
+.next/
+dist/
+build/
+.turbo/
+coverage/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+playwright-report/
+test-results/
+*.tsbuildinfo
+# env & secrets
+.env
+.env.local
+.env.*.local
+apps/*/.env
+apps/*/.env.local
+# local data
+.data/
+# os / editor
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+# claude code local overrides
+.claude/settings.local.json
+
+# graft's local graph cache — regenerable, not committed (run `graft build`).
+/graft/

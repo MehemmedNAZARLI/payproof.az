@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "company.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "name", "voen", "address"],
+  "properties": {
+    "id": { "type": "string" },
+    "name": { "type": "string" },
+    "voen": { "type": "string", "pattern": "^[0-9]{10}$" },
+    "address": { "type": "string" }
+  }
+}

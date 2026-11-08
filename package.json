@@ -1,0 +1,26 @@
+{
+  "name": "payproof",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=9"
+  },
+  "scripts": {
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "build": "turbo run build",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "fixtures:check": "node fixtures/validate.mjs",
+    "fixtures:generate": "node scripts/fixtures/generate.mjs && prettier --write \"fixtures/*.json\" && node fixtures/validate.mjs",
+    "contracts:lint": "pnpm --filter @payproof/contracts lint"
+  },
+  "devDependencies": {
+    "ajv": "^8",
+    "ajv-formats": "^3",
+    "prettier": "^3",
+    "turbo": "^2"
+  }
+}

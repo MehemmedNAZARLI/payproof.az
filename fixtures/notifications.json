@@ -1,0 +1,65 @@
+[
+  {
+    "user_id": "u1",
+    "package_id": "pkg_1048",
+    "text": "INV-1048: 2 mümkün sifariş tapıldı — seçim tələb olunur.",
+    "created_at": "2026-11-06T15:53:00+04:00",
+    "read": false
+  },
+  {
+    "user_id": "u2",
+    "package_id": "pkg_1035",
+    "text": "INV-1035 təsdiqləndi və ixrac gözləyir.",
+    "created_at": "2026-11-06T15:11:00+04:00",
+    "read": true
+  },
+  {
+    "user_id": "u1",
+    "package_id": "pkg_1044",
+    "text": "Nigar Hüseynova INV-1044 üzrə qiymət tapşırığını icraya götürdü.",
+    "created_at": "2026-11-05T09:10:00+04:00",
+    "read": false
+  },
+  {
+    "user_id": "u1",
+    "package_id": "pkg_1042",
+    "text": "INV-1042: fakturada PO yoxdur; PO-381 namizəd kimi tapıldı.",
+    "created_at": "2026-11-03T09:15:00+04:00",
+    "read": false
+  },
+  {
+    "user_id": "u2",
+    "package_id": "pkg_1036",
+    "text": "INV-1036: təhvil sənədinin yeni versiyası yükləndi. v2 təsdiqi etibarsızlaşdı — v3 yenidən təsdiq tələb edir.",
+    "created_at": "2026-11-01T09:47:00+04:00",
+    "read": false
+  },
+  {
+    "user_id": "u5",
+    "package_id": "pkg_1036",
+    "text": "INV-1036: əvvəlki təsdiq etibarsızlaşdı (audit qeydi).",
+    "created_at": "2026-11-01T09:47:00+04:00",
+    "read": false
+  },
+  {
+    "user_id": "u2",
+    "package_id": "pkg_1038",
+    "text": "INV-1038 təsdiqinizi gözləyir · 4.860,00 AZN",
+    "created_at": "2026-10-31T10:16:00+04:00",
+    "read": false
+  },
+  {
+    "user_id": "u1",
+    "package_id": "pkg_1038",
+    "text": "INV-1038 bütün yoxlamalardan keçdi və təsdiqçiyə göndərildi.",
+    "created_at": "2026-10-31T10:16:00+04:00",
+    "read": true
+  },
+  {
+    "user_id": "u2",
+    "package_id": "pkg_1033",
+    "text": "INV-1033 paketi ixrac edildi (v1).",
+    "created_at": "2026-10-24T11:21:00+04:00",
+    "read": true
+  }
+]

@@ -1,0 +1,106 @@
+[
+  {
+    "id": "s1",
+    "package_id": "pkg_1042",
+    "type": "invoice",
+    "file_name": "INV-1042_v2_PO-381.pdf",
+    "sha256": "0f148d02504d146112f0a96909be0c85a19ab1b5f096190679d89d3b0ebca56b",
+    "note": "Mühasibatlıqdan: mənbə sistemində düzəldilmiş faktura, PO-381 əlavə edilib",
+    "extraction": {
+      "po_ref": "PO-381"
+    }
+  },
+  {
+    "id": "s2",
+    "package_id": "pkg_1042",
+    "type": "delivery",
+    "file_name": "TS-5531_imzali.pdf",
+    "sha256": "ecac21dbe2e8a7906a25e252579b9c54084f251ee5bffd602075cc2f062e3b64",
+    "note": "Anbardan: imzalanmış təhvil-təslim aktı",
+    "extraction": {
+      "delivery": {
+        "note_number": "TS-5531",
+        "po_ref": "PO-381",
+        "signed": true
+      }
+    }
+  },
+  {
+    "id": "s3",
+    "package_id": "pkg_1042",
+    "type": "invoice",
+    "file_name": "INV-1042.pdf",
+    "sha256": "fae363ea4bf166090ca32a3be15d56904ea88528d1054569f5d20d13e35a8d67",
+    "note": "İlkin faktura faylı (təkrar yükləmə nümunəsi)",
+    "extraction": {}
+  },
+  {
+    "id": "s4",
+    "package_id": "pkg_1043",
+    "type": "invoice",
+    "file_name": "INV-1043_v2.pdf",
+    "sha256": "348aa1729a20c539a3d15ef1bcf97abe03803debd02ee092c92901b29089cfe4",
+    "note": "Sifariş nömrəsi PO-382 kimi düzəldilmiş faktura",
+    "extraction": {
+      "po_ref": "PO-382"
+    }
+  },
+  {
+    "id": "s5",
+    "package_id": "pkg_1044",
+    "type": "invoice",
+    "file_name": "INV-1044_v2.pdf",
+    "sha256": "ef1a88caac249d9b29a747f45e92eaeb6bc9c337d36617f7983d5c6e479f8476",
+    "note": "KY-10 qiyməti 100,00 AZN-ə düzəldilmiş faktura",
+    "extraction": {
+      "line": {
+        "product_code": "KY-10",
+        "unit_price": "100.00"
+      }
+    }
+  },
+  {
+    "id": "s6",
+    "package_id": "pkg_1045",
+    "type": "invoice",
+    "file_name": "INV-1045_v2.pdf",
+    "sha256": "737390728aa752b44e0c3bb3449fc7c1319bb8214546ffba99adb9c432961f6b",
+    "note": "MS-05 miqdarı faktiki təhvilə (100 qutu) uyğunlaşdırılıb",
+    "extraction": {
+      "line": {
+        "product_code": "MS-05",
+        "qty": 100
+      }
+    }
+  },
+  {
+    "id": "s7",
+    "package_id": "pkg_1046",
+    "type": "delivery",
+    "file_name": "TS-5534_imzali.pdf",
+    "sha256": "2aa865f88d40f38ad28b3d54dd45260cd6e79c60f39a4a2cd3f300422966c256",
+    "note": "B Mağazalar Şəbəkəsinə aid düzgün təhvil aktı",
+    "extraction": {
+      "delivery": {
+        "note_number": "TS-5534",
+        "po_ref": "PO-386",
+        "signed": true
+      }
+    }
+  },
+  {
+    "id": "s8",
+    "package_id": "pkg_1049",
+    "type": "invoice",
+    "file_name": "INV-1049_v2_AZN.pdf",
+    "sha256": "c94365f65538eb74c0e665dd2b84c3f046955abfa094185ede4b9f4b467fb2a4",
+    "note": "Sifarişə uyğun olaraq AZN ilə yenidən tərtib edilmiş faktura",
+    "extraction": {
+      "currency": "AZN",
+      "line": {
+        "product_code": "ZY-1L",
+        "unit_price": "12.75"
+      }
+    }
+  }
+]

@@ -1,0 +1,25 @@
+{
+  "name": "@payproof/design-tokens",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./tokens.css": "./tokens.css",
+    "./tailwind-preset": "./src/tailwind-preset.ts"
+  },
+  "files": [
+    "tokens.css",
+    "src"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "vitest": "^5"
+  }
+}
