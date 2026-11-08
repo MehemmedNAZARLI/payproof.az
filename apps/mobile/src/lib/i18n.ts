@@ -66,7 +66,7 @@ export const t = {
   },
   permission: {
     VIEW: "Paketlərə baxmaq",
-    EDIT_PACKAGE: "Sənəd yükləmək və çıxarışı düzəltmək",
+    EDIT_PACKAGE: "Sənəd yükləmək, düzəliş etmək",
     MANAGE_TASKS: "Tapşırıq yaratmaq",
     MANAGE_REQUIREMENTS: "Müştəri qaydasını təsdiqləmək",
     APPROVE_PACKAGE: "Hazır paketi təsdiqləmək",

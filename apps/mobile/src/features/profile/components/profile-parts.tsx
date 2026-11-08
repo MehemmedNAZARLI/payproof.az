@@ -16,12 +16,10 @@ export function Identity({ me }: { me: Schemas["Me"] }) {
       <div className="min-w-0">
         <h2 className="truncate text-xl font-bold tracking-tight">{me.full_name}</h2>
         <p className="text-text-2 truncate text-sm">{me.title}</p>
-        <div className="mt-2 flex flex-wrap gap-1.5">
-          <Badge tone="brand" icon="user">
-            {t.role[me.role]}
-          </Badge>
-          <Badge tone="neutral">{me.company.name}</Badge>
-        </div>
+        <p className="text-text-3 truncate text-sm">{me.company.name}</p>
+        <Badge tone="brand" icon="user" className="mt-2">
+          {t.role[me.role]}
+        </Badge>
       </div>
     </Card>
   );

@@ -44,12 +44,12 @@ export function LoginScreen() {
     <div className="bg-bg flex min-h-dvh flex-col">
       <header className="hero pt-safe">
         <div className="px-safe mx-auto max-w-app pt-12 pb-14">
-          <span className="grid size-14 place-items-center rounded-[16px] bg-white text-[#0d5d6b] shadow-2">
+          <span className="grid size-14 place-items-center rounded-[16px] bg-[#fff] text-[#0d5d6b] shadow-2">
             <Icon name="shield" size={32} strokeWidth={1.9} />
           </span>
           <h1 className="mt-5 text-[34px] leading-tight font-bold tracking-tight">{appName}</h1>
-          <p className="mt-1 text-md text-white/80">{appDescription}</p>
-          <span className="mt-4 inline-flex h-7 items-center gap-1.5 rounded-full bg-white/15 px-3 text-xs font-semibold ring-1 ring-white/20 backdrop-blur">
+          <p className="mt-1 text-md text-[rgb(255_255_255/0.82)]">{appDescription}</p>
+          <span className="mt-4 inline-flex h-7 items-center gap-1.5 rounded-full bg-[rgb(255_255_255/0.16)] px-3 text-xs font-semibold ring-1 ring-[rgb(255_255_255/0.22)] backdrop-blur">
             <Icon name="info" size={14} strokeWidth={2} />
             {t.auth.demoBadge}
           </span>
