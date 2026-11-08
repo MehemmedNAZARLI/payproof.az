@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "@payproof/design-tokens/tokens.css";
+@import "../styles/tokens.css";
 @config "../../tailwind.config.ts";
 
 /* Safe areas (notch, home indicator) — needs viewport-fit=cover, set in layout.tsx. */
@@ -13,7 +13,7 @@
   /* iOS bar metrics: compact navigation bar and tab bar (without safe areas). */
   --navbar-h: 44px;
   --tabbar-h: 50px;
-  --sheet-radius: 26px;
+  --sheet-radius: 28px;
   /* Underdamped spring (ζ≈0.62, ~8% overshoot) sampled for CSS linear(). */
   --ease-spring: linear(
     0,
@@ -44,21 +44,17 @@
     0.994,
     1
   );
-  /* Translucent bar material: tinted surface + blur, like UIKit's system chrome. */
-  --material: color-mix(in srgb, var(--surface) 72%, transparent);
-  --hairline: color-mix(in srgb, var(--text) 16%, transparent);
+  /* Translucent bar material: tinted canvas + blur, like UIKit's system chrome. */
+  --material: color-mix(in srgb, var(--bg) 78%, transparent);
+  --hairline: var(--separator);
   /* Skeleton shimmer: a lighter band in light mode, a brighter one in dark. */
-  --skel-base: var(--surface-3);
-  --skel-band: color-mix(in srgb, var(--surface-3), var(--surface) 75%);
-}
-:root[data-theme="dark"] {
-  --material: color-mix(in srgb, var(--surface) 70%, transparent);
-  --skel-band: color-mix(in srgb, var(--surface-3), var(--text) 10%);
+  --skel-base: var(--surface-2);
+  --skel-band: color-mix(in srgb, var(--surface-2), var(--surface) 80%);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --material: color-mix(in srgb, var(--surface) 70%, transparent);
-    --skel-band: color-mix(in srgb, var(--surface-3), var(--text) 10%);
+    --material: color-mix(in srgb, var(--bg) 72%, transparent);
+    --skel-band: color-mix(in srgb, var(--surface-2), var(--text) 8%);
   }
 }
 
@@ -161,6 +157,19 @@
   overflow: clip;
 }
 
+/* Press feedback: sinks fast under the finger, springs back on release (spring easing). */
+@utility press {
+  transition:
+    transform 420ms var(--ease-spring),
+    opacity 200ms var(--ease),
+    background-color 200ms var(--ease);
+  &:active {
+    transform: scale(0.97);
+    opacity: 0.9;
+    transition-duration: 90ms;
+  }
+}
+
 @utility max-w-app {
   max-width: var(--app-max-w);
 }
@@ -190,9 +199,6 @@
     text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
   }
-  :root[data-theme="dark"] {
-    color-scheme: dark;
-  }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       color-scheme: dark;
@@ -218,7 +224,7 @@
     touch-action: manipulation;
   }
   :focus-visible {
-    outline: 2px solid var(--brand-500);
+    outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
   @media (prefers-reduced-motion: reduce) {
@@ -233,13 +239,35 @@
   }
 }
 
-/* Brand hero (login, home): deep teal in both themes, so white text keeps its contrast. */
+/* Hero card (login, home, success): navy in both themes with one soft accent glow, so white
+   text keeps its contrast. A faint top highlight gives the card an edge on the dark canvas. */
 @utility hero {
   color: #fff;
   background:
-    radial-gradient(120% 90% at 100% 0%, rgb(58 169 186 / 0.55), transparent 60%),
-    radial-gradient(90% 80% at 0% 100%, rgb(4 38 45 / 0.6), transparent 70%),
-    linear-gradient(160deg, #11707f 0%, #0d5d6b 45%, #08414b 100%);
+    radial-gradient(90% 70% at 100% 0%, var(--hero-glow), transparent 62%),
+    radial-gradient(70% 60% at 0% 100%, rgb(110 134 255 / 0.16), transparent 70%),
+    linear-gradient(155deg, var(--hero-from) 0%, var(--hero-to) 100%);
+  box-shadow:
+    inset 0 0.5px 0 rgb(255 255 255 / 0.14),
+    0 12px 32px rgb(11 16 38 / 0.28);
+}
+
+/* Continuous (squircle) corners where the engine supports corner-shape; a superellipse needs a
+   larger radius to read the same size as a circular one. Elsewhere the plain radius stays. */
+@supports (corner-shape: squircle) {
+  :root {
+    --r-md: 18px;
+    --r-lg: 24px;
+    --r-xl: 32px;
+    --sheet-radius: 40px;
+  }
+  .rounded-md,
+  .rounded-lg,
+  .rounded-xl,
+  .rounded-t-xl,
+  .rounded-t-\(--sheet-radius\) {
+    corner-shape: squircle;
+  }
 }
 
 /* A step the user still has to do, pointed out when they tap a locked "Təsdiqlə". */
