@@ -276,6 +276,7 @@ export const t = {
       "PayProof MVP · sintetik demo məlumatları · real ödəniş, e-poçt və ERP əməliyyatı yoxdur",
     loadFailed: "Profil yüklənmədi",
   },
+  time: { today: "Bu gün", yesterday: "Dünən" },
   nav: {
     label: "Mobil naviqasiya",
     home: "Əsas",
