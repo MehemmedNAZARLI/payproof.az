@@ -21,10 +21,11 @@ export const t = {
     operator: "Operator",
     approver: "Təsdiqçi",
     readonly: "Yalnız baxış",
-    admin: "Administrator",
-    assignee: "İcraçı",
+    admin: "Admin",
+    assignee: "Tapşırıq icraçısı",
   },
   packageFilter: {
+    label: "Status filtri",
     all: "Hamısı",
     ready: "Təsdiq gözləyir",
     problem: "Problemli",
@@ -64,6 +65,8 @@ export const t = {
     unexpected: "Gözlənilməz xəta baş verdi. Bir az sonra yenidən cəhd edin.",
     refreshFailed: "Məlumat yenilənmədi",
     loadFailed: "Məlumat yüklənmədi",
+    offline: "İnternet bağlantısı yoxdur",
+    offlineHint: "Bağlantı bərpa olunanda siyahı özü yüklənəcək.",
   },
   common: {
     close: "Bağla",
@@ -73,5 +76,6 @@ export const t = {
     refresh: "Yenilə",
     empty: "Heç nə tapılmadı",
     unread: (n: number) => `${n} oxunmamış`,
+    notificationsUnread: (n: number) => `Bildirişlər, ${n} oxunmamış`,
   },
 } as const;

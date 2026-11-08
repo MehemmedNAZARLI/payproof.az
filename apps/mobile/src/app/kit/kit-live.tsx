@@ -19,7 +19,7 @@ import { type PackageStatus, t } from "@/lib/i18n";
 import { errorMessage } from "@/lib/query-client";
 
 // The prototype's mobile filter chips (M_CHIPS).
-const filters: [keyof typeof t.packageFilter, PackageStatus[] | undefined][] = [
+const filters: [Exclude<keyof typeof t.packageFilter, "label">, PackageStatus[] | undefined][] = [
   ["all", undefined],
   ["ready", ["READY_FOR_APPROVAL"]],
   ["problem", ["NEEDS_FIX", "NEEDS_REVIEW"]],
@@ -42,7 +42,7 @@ export function LivePackagesSection() {
     <>
       <div
         role="group"
-        aria-label="Status filtri"
+        aria-label={t.packageFilter.label}
         className="-mx-4 flex gap-2 overflow-x-auto px-4 py-2 [scrollbar-width:none]"
       >
         {filters.map(([key, s], i) => (
@@ -62,7 +62,11 @@ export function LivePackagesSection() {
           />
         }
       />
-      {list.isPending ? (
+      {list.isPending && list.fetchStatus === "paused" ? (
+        <Card className="p-0">
+          <EmptyState icon="alert" title={t.errors.offline} description={t.errors.offlineHint} />
+        </Card>
+      ) : list.isPending ? (
         <ListSkeleton rows={SHOWN} />
       ) : list.isError ? (
         <Card className="p-0">

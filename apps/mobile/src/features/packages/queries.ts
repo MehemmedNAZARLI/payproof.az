@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 import { api, type PackageListQuery, unwrap } from "@/lib/api";
 
@@ -13,5 +13,7 @@ export function usePackages(query: PackageListQuery = {}) {
   return useQuery({
     queryKey: packageKeys.list(query),
     queryFn: ({ signal }) => unwrap(api.GET("/v1/packages", { params: { query }, signal })),
+    // Switching filters keeps the current rows until the new page arrives (no skeleton flash).
+    placeholderData: keepPreviousData,
   });
 }

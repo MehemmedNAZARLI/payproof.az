@@ -30,7 +30,7 @@ export function KitScreen() {
           me ? `${me.full_name} · ${t.role[me.role]} · ${me.company.name}` : t.common.loading
         }
         trailing={
-          <IconButton icon="bell" label={`Bildirişlər, ${UNREAD} oxunmamış`} count={UNREAD} />
+          <IconButton icon="bell" label={t.common.notificationsUnread(UNREAD)} count={UNREAD} />
         }
       />
       <main className="px-safe pb-tabbar mx-auto max-w-app">

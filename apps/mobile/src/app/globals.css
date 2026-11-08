@@ -14,8 +14,7 @@
   --navbar-h: 44px;
   --tabbar-h: 50px;
   --sheet-radius: 26px;
-  /* Underdamped spring (ζ≈0.62, ~8% overshoot) sampled for CSS; cubic-bezier is the fallback. */
-  --ease-spring: cubic-bezier(0.2, 1.2, 0.35, 1);
+  /* Underdamped spring (ζ≈0.62, ~8% overshoot) sampled for CSS linear(). */
   --ease-spring: linear(
     0,
     0.053,
@@ -60,6 +59,13 @@
   :root:not([data-theme="light"]) {
     --material: color-mix(in srgb, var(--surface) 70%, transparent);
     --skel-band: color-mix(in srgb, var(--surface-3), var(--text) 10%);
+  }
+}
+
+/* Custom properties are not validated, so the fallback for Safari < 17.2 needs its own block. */
+@supports not (transition-timing-function: linear(0, 1)) {
+  :root {
+    --ease-spring: cubic-bezier(0.2, 1.2, 0.35, 1);
   }
 }
 
