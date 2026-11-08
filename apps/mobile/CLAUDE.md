@@ -21,6 +21,8 @@ src/
   lib/api/generated/  openapi.yaml-dan generasiya (`pnpm api:generate`; gitignore-dadır, dev/build/typecheck-dən əvvəl işləyir)
   lib/api/mock/       fixtures-dan store + MSW handler-ləri + createMockFetch (S-06 gələnə qədər; yalnız oxuma)
   lib/{query-client.ts,env.ts,format.ts,i18n.ts,spring.ts,cx.ts,brand.ts}
+  lib/session.ts      dev-login sessiyası (localStorage), useSession, watchUserChange; lib/runtime-caches.ts — çıxışda SW keşləri
+  app/(tabs)/layout.tsx · app/packages/layout.tsx   SessionGate + (tabs üçün) TabBar
   features/<f>/queries.ts  query key factory + hook-lar (useMe, usePackages)
   app/kit/            UI dəstinin önizləməsi (/kit, yalnız mock rejimində; robots noindex)
   app/manifest.ts     → /manifest.webmanifest (rənglər lib/brand.ts-dən; brand.test.ts tokens.css ilə tutuşdurur)
@@ -45,7 +47,9 @@ Mock: `NEXT_PUBLIC_API_MOCK=1` (default). Real: `NEXT_PUBLIC_API_MOCK=0`, `NEXT_
 ## Sessiya və naviqasiya (M-04…M-06)
 - Sessiya `lib/session.ts`: dev-login JWT + `Me` localStorage-da (`payproof.session`), `useSession()` (`useSyncExternalStore`; hidrasiyada `undefined`), başqa tabdakı çıxışı izləyir. Token `api`-yə buradan gedir.
 - `SessionGate` (`(tabs)/layout.tsx`, `packages/layout.tsx`, `/kit`): sessiya yoxdursa `/login?next=<yol>`; istifadəçi özü çıxıbsa `next`-siz. `safeNextPath` yalnız tətbiqdaxili yolu qəbul edir. Bu yalnız naviqasiyanı qoruyur — səlahiyyət serverdədir.
-- 401 (istənilən query/mutation) → sessiya bitir (`expired`), bir dəfə toast, guard girişə aparır.
+- 401 (istənilən query/mutation, vaxtı keçmiş token da) → sessiya bitir (`expired`); token vaxtında özü də bitir (timer + `visibilitychange`). Giriş ekranı səbəbi banner ilə deyir.
+- İstifadəçi dəyişəndə (çıxış, vaxt bitməsi, başqa tabda giriş/çıxış) `watchUserChange` → Query keşi və SW runtime keşləri təmizlənir (`providers.tsx`).
+- Ekranlar əvvəl `data`-ya baxır: fon yeniləməsi uğursuz olsa məlumat qalır (toast), xəta kartı yalnız heç nə yüklənməyibsə. Offline "Yenilə" sorğu göndərmir — toast.
 - Çıxış (`useSignOut`): sessiya → Query keşi `clear()` → SW runtime keşləri (`clearRuntimeCaches`; Serwist precache saxlanılır — o yalnız ictimai app shell-dir). Girişdə də Query keşi təmizlənir.
 - Paket filtri və axtarış URL-dədir (`features/packages/filters.ts`: `?status=ready|problem|approved|exported&q=`); çip sayları `/v1/dashboard`-un `status_counts`-undan.
 - Tarixlər Bakı vaxtı ilə (`formatDateTime`, `formatLongDate`, `greeting` — `lib/format.ts`).
