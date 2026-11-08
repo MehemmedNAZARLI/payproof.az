@@ -17,6 +17,7 @@ export function useSheetMotion(open: boolean) {
   const offset = useRef(Number.POSITIVE_INFINITY);
   const velocity = useRef(0);
   const cancel = useRef(() => {});
+  const isOpen = useRef(open);
 
   const apply = useCallback((y: number) => {
     offset.current = y;
@@ -54,13 +55,17 @@ export function useSheetMotion(open: boolean) {
   );
 
   useLayoutEffect(() => {
+    isOpen.current = open;
     if (!present) return;
     const height = sheetRef.current?.offsetHeight ?? 0;
     if (open) {
       apply(Math.min(offset.current, height));
       animateTo(0);
     } else {
-      animateTo(height, () => setPresent(false));
+      animateTo(height, () => {
+        offset.current = Number.POSITIVE_INFINITY; // next open starts fully off-screen
+        setPresent(false);
+      });
     }
     return () => cancel.current();
   }, [open, present, apply, animateTo]);
@@ -71,5 +76,8 @@ export function useSheetMotion(open: boolean) {
     velocity.current = v;
   }, []);
 
-  return { present, sheetRef, backdropRef, offset, apply, animateTo, stop, carryVelocity };
+  // Read by gesture handlers: a closing sheet must not be grabbed back.
+  const openNow = useCallback(() => isOpen.current, []);
+
+  return { present, sheetRef, backdropRef, offset, apply, animateTo, stop, carryVelocity, openNow };
 }

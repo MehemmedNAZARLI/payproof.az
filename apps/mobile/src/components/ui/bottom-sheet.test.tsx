@@ -123,4 +123,23 @@ describe("BottomSheet swipe-down", () => {
     fireEvent.click(close);
     await closed();
   });
+
+  it("ignores a grab while the sheet is already closing", async () => {
+    const { dialog } = openSheet();
+    fireEvent.click(screen.getByRole("button", { name: "Bağla" }));
+    swipe(handleOf(dialog), -80);
+    await closed();
+    expect(document.documentElement.style.overflow).toBe("");
+  });
+
+  it("settles back when its owner keeps it open after a swipe", async () => {
+    render(
+      <BottomSheet open onClose={() => {}} title="Təsdiq göndərilir">
+        <p>…</p>
+      </BottomSheet>,
+    );
+    const dialog = screen.getByRole("dialog");
+    swipe(handleOf(dialog), 300);
+    await waitFor(() => expect(dialog.style.transform).toBe("translate3d(0px, 0px, 0px)"));
+  });
 });

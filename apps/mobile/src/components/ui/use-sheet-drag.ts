@@ -29,16 +29,26 @@ export function useSheetDrag(motion: SheetMotion, onClose: () => void) {
     if (!d || e.pointerId !== d.id) return;
     drag.current = null;
     if (!d.active) return;
+    // The release point counts too: a finger that rested before lifting has no velocity left.
+    d.tracker.add(e.timeStamp, e.clientY);
     const velocity = d.tracker.velocity();
     const height = motion.sheetRef.current?.offsetHeight ?? 0;
     motion.carryVelocity(velocity);
-    if (!cancelled && shouldDismiss(motion.offset.current, velocity, height)) onClose();
-    else motion.animateTo(0);
+    if (cancelled || !shouldDismiss(motion.offset.current, velocity, height)) {
+      motion.animateTo(0);
+      return;
+    }
+    onClose();
+    // If the owner keeps the sheet open (e.g. a request is running), settle back instead of
+    // freezing mid-drag. When it does close, the exit spring has already taken over.
+    requestAnimationFrame(() => {
+      if (motion.openNow()) motion.animateTo(0);
+    });
   };
 
   return {
     onPointerDown(e: PointerEvent<HTMLElement>) {
-      if (!e.isPrimary || e.button !== 0) return;
+      if (!e.isPrimary || e.button !== 0 || !motion.openNow()) return;
       const tracker = createVelocityTracker();
       tracker.add(e.timeStamp, e.clientY);
       const startOffset = Number.isFinite(motion.offset.current) ? motion.offset.current : 0;

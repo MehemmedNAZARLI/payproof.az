@@ -70,6 +70,13 @@ describe("createVelocityTracker", () => {
     tracker.add(416, 30);
     expect(tracker.velocity()).toBe(0);
   });
+
+  it("reads no velocity when the finger rests, then lifts with no moves in between", () => {
+    const tracker = createVelocityTracker();
+    for (let t = 0; t <= 64; t += 16) tracker.add(t, t * 1.5);
+    tracker.add(564, 96); // the pointerup, half a second later
+    expect(tracker.velocity()).toBe(0);
+  });
 });
 
 describe("shouldDismiss", () => {
