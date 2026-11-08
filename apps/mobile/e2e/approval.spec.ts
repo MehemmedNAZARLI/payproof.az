@@ -74,3 +74,19 @@ test("approval says plainly that it needs a connection", async ({ page, context 
   await context.setOffline(false);
   await expect(sheetOf(page).getByRole("alert")).toHaveCount(0);
 });
+
+test("ticking the acknowledgement on a phone on its side keeps the sheet in place", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 844, height: 390 });
+  await signIn(page);
+  await page.goto(`/packages/${ID}`);
+  await page.getByRole("button", { name: "Sübutlara baxıb təsdiqlə" }).click();
+  await review(page);
+  await sheetOf(page)
+    .getByText(/Cari v1 versiyasının/)
+    .click();
+  // Focus on the visually hidden checkbox must not scroll the panel itself off screen.
+  expect(await sheetOf(page).evaluate((d) => d.scrollTop)).toBe(0);
+  await expect(confirm(page)).toBeInViewport();
+});
