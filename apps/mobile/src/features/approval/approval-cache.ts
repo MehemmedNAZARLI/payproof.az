@@ -88,7 +88,8 @@ export async function applyApproval(qc: QueryClient, pkg: Detail, approval: Appr
   }
   if (wasReady)
     qc.setQueryData<Dashboard>(homeKeys.dashboard(), (d) => d && approvedDashboard(d, pkg.total));
-  await Promise.all([
+  // Not awaited: the user moves on to the success screen while the views confirm.
+  void Promise.all([
     qc.invalidateQueries({ queryKey: packageKeys.all }),
     qc.invalidateQueries({ queryKey: homeKeys.dashboard() }),
     qc.invalidateQueries({ queryKey: ["audit"] }),
