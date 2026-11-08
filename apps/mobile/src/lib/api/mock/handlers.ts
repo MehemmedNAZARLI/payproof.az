@@ -3,6 +3,7 @@ import { http, HttpResponse } from "msw";
 
 import type { Schemas } from "../client";
 import { MOCK_FILE_SCHEME } from "../mock-file";
+import { approve } from "./approve";
 import { liveAuditLog } from "./audit";
 import { dashboard } from "./dashboard";
 import { findVersion } from "./documents";
@@ -117,6 +118,16 @@ export const handlers = [
     if (!slug) return unauthenticated();
     const detail = packageDetail(String(params.id), slug);
     return detail ? HttpResponse.json(detail) : notFound();
+  }),
+  http.post("*/v1/packages/:id/approve", async ({ request, params }) => {
+    const slug = sessionSlug(request);
+    if (!slug) return unauthenticated();
+    const body: unknown = await request.json().catch(() => undefined);
+    const key = request.headers.get("Idempotency-Key");
+    const result = approve({ userSlug: slug, packageId: String(params.id), key, body });
+    return result.status === 200
+      ? HttpResponse.json(result.approval)
+      : apiError(result.status, result.error.code, result.error.message, result.error.details);
   }),
   http.get("*/v1/documents/versions/:id/file", ({ request, params }) => {
     if (!sessionUser(request)) return unauthenticated();
