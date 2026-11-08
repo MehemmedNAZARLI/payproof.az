@@ -97,6 +97,37 @@
     animation: shimmer 1.4s ease-in-out infinite;
   }
 }
+/* A phone on its side: little height, so sheets and documents take the whole screen. */
+@custom-variant short (@media (orientation: landscape) and (max-height: 540px));
+
+/* Navigation inside a sheet (check → document → back): the incoming page slides in. */
+@keyframes sheet-push {
+  from {
+    opacity: 0;
+    transform: translateX(28%);
+  }
+}
+@keyframes sheet-pop {
+  from {
+    opacity: 0;
+    transform: translateX(-28%);
+  }
+}
+
+/* The cited region on a document draws the eye twice, then rests (prototype pulse). */
+@keyframes paper-pulse {
+  0% {
+    box-shadow:
+      0 0 0 2px var(--paper-hl-ring),
+      0 0 0 0 var(--paper-hl-ring);
+  }
+  100% {
+    box-shadow:
+      0 0 0 2px var(--paper-hl-ring),
+      0 0 0 10px transparent;
+  }
+}
+
 @keyframes toast-in {
   from {
     opacity: 0;

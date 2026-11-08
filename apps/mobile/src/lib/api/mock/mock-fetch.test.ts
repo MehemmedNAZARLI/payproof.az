@@ -167,3 +167,62 @@ describe("createMockFetch", () => {
     expect(error).toMatchObject({ code: "NETWORK_ERROR" });
   });
 });
+
+describe("mock GET /v1/packages/{id}", () => {
+  const INV_1038 = "0193a000-0000-7000-8002-000000001038";
+
+  it("returns the detail with permissions for the signed-in user", async () => {
+    const get = (token: string) =>
+      unwrap(
+        apiAs(token).GET("/v1/packages/{package_id}", {
+          params: { path: { package_id: INV_1038 } },
+        }),
+      );
+    expect((await get(mockToken("u2"))).permissions.can_approve).toBe(true);
+    expect((await get(mockToken("u1"))).permissions.can_approve).toBe(false);
+  });
+
+  it("answers 404 for an unknown package and 401 without a session", async () => {
+    const get = (token: string | null, id: string) =>
+      fail(
+        unwrap(
+          apiAs(token).GET("/v1/packages/{package_id}", { params: { path: { package_id: id } } }),
+        ),
+      );
+    expect(await get(mockToken("u2"), "0193a000-0000-7000-8002-000000009999")).toMatchObject({
+      status: 404,
+      code: "NOT_FOUND",
+    });
+    expect(await get(null, INV_1038)).toMatchObject({ status: 401 });
+  });
+});
+
+describe("mock GET /v1/documents/versions/{id}/file", () => {
+  const version = "0193a000-0000-7000-8005-000010420001";
+  afterEach(() => vi.useRealTimers());
+
+  it("links to the version as mock paper, valid for five minutes", async () => {
+    vi.useFakeTimers({ now: Date.UTC(2026, 10, 8, 6, 30), toFake: ["Date"] });
+    const link = await unwrap(
+      apiAs().GET("/v1/documents/versions/{version_id}/file", {
+        params: { path: { version_id: version } },
+      }),
+    );
+    expect(link).toEqual({
+      url: `mock:paper/${version}`,
+      expires_at: "2026-11-08T06:35:00Z",
+    });
+  });
+
+  it("answers 404 for an unknown version", async () => {
+    expect(
+      await fail(
+        unwrap(
+          apiAs().GET("/v1/documents/versions/{version_id}/file", {
+            params: { path: { version_id: "0193a000-0000-7000-8005-000099990001" } },
+          }),
+        ),
+      ),
+    ).toMatchObject({ status: 404 });
+  });
+});

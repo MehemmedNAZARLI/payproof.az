@@ -19,3 +19,7 @@ Object.defineProperty(window, "matchMedia", {
     dispatchEvent: () => false,
   }),
 });
+
+// jsdom does not scroll elements; the document viewer scrolls its pane to the cited region.
+Element.prototype.scrollBy ??= () => {};
+Element.prototype.scrollTo ??= () => {};

@@ -61,6 +61,13 @@ function bakuParts(date: Date) {
   return { year, month, day, hour: Number(get("hour")), minute: get("minute"), weekday };
 }
 
+/** A calendar date as the contract sends it ("2026-11-03") → "03.11.2026". */
+export function formatDate(date: string): string {
+  const [year, month, day] = date.split("-");
+  if (!year || !month || !day) throw new Error(`Not a contract date: ${date}`);
+  return `${day}.${month}.${year}`;
+}
+
 /** "06.11.2026, 15:10" */
 export function formatDateTime(iso: string): string {
   const p = bakuParts(new Date(iso));

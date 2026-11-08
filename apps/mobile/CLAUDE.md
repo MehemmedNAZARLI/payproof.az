@@ -19,7 +19,8 @@ src/
   lib/api.ts          `api` (openapi-fetch) + `unwrap` + `ApiError`; mock rejimində fetch səhifədaxili mock-a gedir
   lib/api/client.ts   createApiClient/ApiError — S-05 imzası ilə (shortcut: S-05 gələndə import dəyişir)
   lib/api/generated/  openapi.yaml-dan generasiya (`pnpm api:generate`; gitignore-dadır, dev/build/typecheck-dən əvvəl işləyir)
-  lib/api/mock/       fixtures-dan store + MSW handler-ləri + createMockFetch (S-06 gələnə qədər; yalnız oxuma)
+  lib/api/mock/       fixtures-dan store + MSW handler-ləri + createMockFetch (S-06 gələnə qədər; yalnız oxuma);
+                      engine/ — prototip qayda mühərrikinin portu (mesaj, sübut), paper.ts — mock sənəd kağızı
   lib/{query-client.ts,env.ts,format.ts,i18n.ts,spring.ts,cx.ts,brand.ts}
   lib/session.ts      dev-login sessiyası (localStorage), useSession, watchUserChange; lib/runtime-caches.ts — çıxışda SW keşləri
   app/(tabs)/layout.tsx · app/packages/layout.tsx   SessionGate + (tabs üçün) TabBar
@@ -53,7 +54,15 @@ Mock: `NEXT_PUBLIC_API_MOCK=1` (default). Real: `NEXT_PUBLIC_API_MOCK=0`, `NEXT_
 - Çıxış (`useSignOut`): sessiya → Query keşi `clear()` → SW runtime keşləri (`clearRuntimeCaches`; Serwist precache saxlanılır — o yalnız ictimai app shell-dir). Girişdə də Query keşi təmizlənir.
 - Paket filtri və axtarış URL-dədir (`features/packages/filters.ts`: `?status=ready|problem|approved|exported&q=`); çip sayları `/v1/dashboard`-un `status_counts`-undan.
 - Tarixlər Bakı vaxtı ilə (`formatDateTime`, `formatLongDate`, `greeting` — `lib/format.ts`).
-- `/notifications` və `/packages/[id]` hələlik yer tutucudur (M-10, M-07 əvəz edir).
+- `/notifications` hələlik yer tutucudur (M-10).
+
+## Paket detalı və sübut (M-07, M-08)
+- `features/package-detail/`: `usePackage(id)` (`packageKeys.all` altında — paketlər yenilənəndə detal da yenilənir), `useDocumentFile(versionId)` (imzalı link 5 dəq; 4 dəq təzə sayılır), `cta.ts` (CTA vəziyyəti status + serverin `permissions`-ından, rol cihazda yoxlanmır).
+- Mock detal: `lib/api/mock/package-detail.ts` + `engine/` (prototipin `runChecks` portu; nəticələr `expected.json` ilə golden, sitatlar `engine/quotes.ts`-də). Bütün mock cavabları `src/test/contract.ts` ilə `openapi.yaml`-a qarşı yoxlanır.
+- Sübut sheet-i (`components/evidence-sheet.tsx` + `sheet-stack.ts`): bir `BottomSheet`, səhifələr yığını (yoxlama → sənəd → Geri). `BottomSheet`-in `page`/`direction` prop-ları səhifəni sürüşdürür və hündürlüyü morph edir; `size="large"` sənəd üçündür (landşaftda tam ekran, footer gizlənir, "Geri" başlığa keçir — `short:` variantı, `globals.css`).
+- Sənəd görüntüləyici (`features/document-viewer/`): link `mock:paper/` ilə başlayırsa (`lib/api/mock-file.ts`) fixtures-dan kağız (`lib/api/mock/paper.ts` → `paper.tsx`, lazy chunk); əks halda `source_kind`-ə görə react-pdf (`pdf-pages.tsx`, lazy; worker `pdfjs-dist`-dən `new URL(..., import.meta.url)`), skan şəkli və ya cədvəl üçün "Faylı aç". Vurğu: kağızda sitat bərabərliyi, PDF/skanda `bbox`; tapılmırsa "səhifə + sitat" göstərilir (təxmini vurğu yoxdur).
+- `ZoomPane`: səhifə enə sığır (geniş ekranda 640px-də dayanır), pinch/double-tap/ctrl+wheel/± düymələri fokus nöqtəsini saxlayır; pinch zamanı yalnız transform, buraxanda bir dəfə layout. Sitatdan açılanda mətn ~12.5px olana qədər böyüdülür.
+- Baxılma (`seen-store.ts`): sessionStorage `payproof.seen`, açar istifadəçi + paket, dəyər paket versiyası + baxılmış sənəd versiyaları; versiya dəyişəndə boş sayılır; istifadəçi dəyişəndə `providers.tsx` silir. Sənəd ekranda göründükdən sonra işarələnir (açılış deyil). Yalnız UX qoruyucusudur.
 
 ## UI dəsti qaydaları (M-03)
 - Bar materialı: `material` (yarımşəffaf surface + blur), ayırıcılar `hairline-t/b` (0.5px). Tab bar üçün səhifə `pb-tabbar` istifadə edir.

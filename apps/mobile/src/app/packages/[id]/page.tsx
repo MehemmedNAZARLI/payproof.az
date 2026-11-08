@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 
-import { PackagePreview } from "@/features/packages/components/package-preview";
+import { PackageDetailScreen } from "@/features/package-detail/components/package-detail-screen";
 
 export const metadata: Metadata = { title: "Paket" };
 
 export default async function PackagePage({ params }: PageProps<"/packages/[id]">) {
   const { id } = await params;
-  return <PackagePreview id={id} />;
+  return <PackageDetailScreen id={id} />;
 }

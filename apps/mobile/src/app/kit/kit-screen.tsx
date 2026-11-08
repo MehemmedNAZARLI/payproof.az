@@ -14,6 +14,7 @@ import { t } from "@/lib/i18n";
 import { ChecksSection } from "./kit-checks";
 import { BadgesSection, BannersSection, FeedbackSection } from "./kit-feedback";
 import { LivePackagesSection } from "./kit-live";
+import { PdfSection } from "./kit-pdf";
 
 const UNREAD = 3;
 
@@ -38,6 +39,7 @@ export function KitScreen() {
         <ChecksSection onOpen={() => setSheetOpen(true)} />
         <BadgesSection />
         <BannersSection />
+        <PdfSection />
         <FeedbackSection />
       </main>
       <BottomSheet
