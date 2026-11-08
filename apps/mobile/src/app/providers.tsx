@@ -3,6 +3,8 @@
 import { SerwistProvider } from "@serwist/turbopack/react";
 import { type ReactNode, useEffect } from "react";
 
+import { Toaster } from "@/components/ui/toaster";
+
 // The service worker would serve stale bundles during development, so it only runs in builds.
 const isDev = process.env.NODE_ENV === "development";
 
@@ -29,6 +31,7 @@ export function Providers({ children }: { children: ReactNode }) {
       cacheOnNavigation={false}
     >
       {children}
+      <Toaster />
     </SerwistProvider>
   );
 }

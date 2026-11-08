@@ -43,6 +43,7 @@ export const t = {
   },
   common: {
     close: "Bağla",
+    dismiss: "Bildirişi bağla",
     loading: "Yüklənir…",
     unread: (n: number) => `${n} oxunmamış`,
   },
