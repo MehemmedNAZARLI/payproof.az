@@ -33,7 +33,7 @@ export function AppHeader({ title, subtitle, large = false, back, trailing }: Ap
             {back && (
               <Link
                 href={back.href}
-                className="text-brand-600 -ml-1 flex min-h-11 items-center pr-2 text-lg active:opacity-50"
+                className="text-accent -ml-1 flex min-h-11 items-center pr-2 text-body active:opacity-50"
               >
                 <Icon name="chev-l" size={28} strokeWidth={2.2} />
                 <span className="-ml-0.5">{back.label ?? t.nav.back}</span>
@@ -43,7 +43,7 @@ export function AppHeader({ title, subtitle, large = false, back, trailing }: Ap
           {large ? (
             <span
               aria-hidden="true"
-              className="truncate text-lg font-semibold"
+              className="truncate text-headline"
               style={{ opacity: "clamp(0, calc((var(--p) - 0.7) * 3.4), 1)" }}
             >
               {title}
@@ -51,11 +51,11 @@ export function AppHeader({ title, subtitle, large = false, back, trailing }: Ap
           ) : subtitle ? (
             // Detail screens: a compact two-line title (number over customer), as in UINavigationBar.
             <div className="min-w-0 text-center leading-tight">
-              <h1 className="truncate text-md font-semibold">{title}</h1>
-              <p className="text-text-3 truncate text-xs">{subtitle}</p>
+              <h1 className="truncate text-subhead font-semibold">{title}</h1>
+              <p className="text-text-3 truncate text-caption">{subtitle}</p>
             </div>
           ) : (
-            <h1 className="truncate text-lg font-semibold">{title}</h1>
+            <h1 className="truncate text-headline">{title}</h1>
           )}
           <div className="flex items-center justify-self-end">{trailing}</div>
         </div>
@@ -63,8 +63,8 @@ export function AppHeader({ title, subtitle, large = false, back, trailing }: Ap
       </header>
       {large && (
         <div ref={largeRef} className="px-safe pull-shift mx-auto max-w-app pt-1 pb-2">
-          <h1 className="text-4xl leading-tight font-bold tracking-tight">{title}</h1>
-          {subtitle && <p className="text-text-3 text-sm">{subtitle}</p>}
+          <h1 className="text-large">{title}</h1>
+          {subtitle && <p className="text-text-3 text-footnote">{subtitle}</p>}
         </div>
       )}
     </>
@@ -78,7 +78,7 @@ function OfflineStrip() {
   return (
     <div role="status" className="relative">
       {!online && (
-        <p className="bg-warning-bg text-warning flex h-7 animate-[fade-in_200ms_var(--ease)] items-center justify-center gap-1.5 px-4 text-xs font-semibold">
+        <p className="bg-warning-soft text-warning-ink flex h-7 animate-[fade-in_200ms_var(--ease)] items-center justify-center gap-1.5 px-4 text-caption font-semibold">
           <Icon name="wifi-off" size={14} strokeWidth={2.2} />
           {t.offline.strip}
         </p>

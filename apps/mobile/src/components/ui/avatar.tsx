@@ -11,7 +11,7 @@ const tones = [
   "bg-avatar-5 text-avatar-5-text",
 ] as const;
 
-const sizes = { sm: "size-8 text-xs", md: "size-11 text-[15px]", lg: "size-16 text-[22px]" };
+const sizes = { sm: "size-8 text-caption", md: "size-11 text-[15px]", lg: "size-16 text-[22px]" };
 
 /** A stable tone per user id, so a person keeps one colour across screens. */
 export function avatarTone(id: string): number {

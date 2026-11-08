@@ -10,8 +10,8 @@ export function EmptyState({ icon = "info", title, description, action }: EmptyS
       <span className="bg-surface-2 text-text-3 mb-2 grid size-16 place-items-center rounded-full">
         <Icon name={icon} size={30} strokeWidth={1.6} />
       </span>
-      <h3 className="text-lg font-semibold">{title}</h3>
-      {description && <p className="text-text-2 max-w-72 text-sm leading-snug">{description}</p>}
+      <h3 className="text-headline">{title}</h3>
+      {description && <p className="text-text-2 max-w-72 text-footnote leading-snug">{description}</p>}
       {action && <div className="mt-3">{action}</div>}
     </div>
   );

@@ -6,15 +6,15 @@ export function Skeleton({ className }: { className?: string }) {
   return <span aria-hidden="true" className={cx("shimmer block rounded-sm", className)} />;
 }
 
-// Loading stand-in for a "cards" list; announced once as a busy status, rows stay silent.
+// Loading stand-in for an inset grouped list; announced once as a busy status, rows stay silent.
 export function ListSkeleton({ rows = 4 }: { rows?: number }) {
   return (
-    <div role="status" aria-busy="true" className="flex flex-col gap-2">
+    <div role="status" aria-busy="true" className="bg-surface overflow-hidden rounded-lg shadow-1">
       <span className="sr-only">{t.common.loading}</span>
       {Array.from({ length: rows }, (_, i) => (
         <div
           key={i}
-          className="bg-surface flex min-h-14 flex-col gap-2 rounded-lg px-4 py-3 shadow-1"
+          className="not-first:hairline-t flex min-h-14 flex-col gap-2 px-4 py-3.5"
         >
           <Skeleton className="h-4 w-2/5" />
           <Skeleton className="h-3 w-3/5" />

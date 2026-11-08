@@ -12,7 +12,7 @@ export function CountBadge({ count, className }: { count: number; className?: st
     <span
       aria-hidden="true"
       className={cx(
-        "bg-danger text-danger-foreground ring-surface h-4.5 min-w-4.5 rounded-full px-1 text-center text-[11px] leading-4.5 font-bold tabular-nums ring-2",
+        "bg-danger-fill text-danger-foreground ring-surface h-4.5 min-w-4.5 rounded-full px-1 text-center text-[11px] leading-4.5 font-bold tabular-nums ring-2",
         className,
       )}
     >
@@ -34,7 +34,7 @@ export function IconButton({ icon, label, count = 0, className, ...rest }: IconB
       type="button"
       aria-label={label}
       className={cx(
-        "text-brand-600 relative grid size-11 place-items-center rounded-full transition-opacity active:opacity-50",
+        "text-accent relative grid size-11 place-items-center rounded-full transition-opacity active:opacity-50",
         className,
       )}
       {...rest}
