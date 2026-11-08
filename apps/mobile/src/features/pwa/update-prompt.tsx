@@ -8,6 +8,8 @@ import { t } from "@/lib/i18n";
 
 import { watchForUpdate } from "./sw-update";
 
+const reload = () => window.location.reload();
+
 /** Offers a downloaded app update as a sticky toast; renders nothing itself. */
 export function UpdatePrompt() {
   const { serwist } = useSerwist();
@@ -22,10 +24,17 @@ export function UpdatePrompt() {
           title: t.pwa.updateTitle,
           description: t.pwa.updateBody,
           sticky: true,
-          action: { label: t.common.refresh, onPress: apply },
+          action: {
+            label: t.common.refresh,
+            onPress: () => {
+              // Whichever worker takes over once accepted, the page reloads onto it.
+              navigator.serviceWorker.addEventListener("controllerchange", reload, { once: true });
+              apply();
+            },
+          },
         });
       },
-      reload: () => window.location.reload(),
+      reload,
     });
     return () => {
       dispose();
