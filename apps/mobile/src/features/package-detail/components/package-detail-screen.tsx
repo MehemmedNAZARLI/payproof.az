@@ -11,12 +11,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ApiError, type Schemas } from "@/lib/api";
 import { t } from "@/lib/i18n";
 import { errorMessage } from "@/lib/query-client";
+import { useSession } from "@/lib/session";
 
 import { packageCta } from "../cta";
 import { usePackage } from "../queries";
+import { useSeen } from "../seen-store";
+import { useSheetStack } from "../sheet-stack";
 import { ChecksList } from "./checks-list";
 import { CtaBar, OpenOnWeb } from "./cta-bar";
 import { DocumentsList } from "./documents-list";
+import { EvidenceSheet } from "./evidence-sheet";
 import { SummaryCard } from "./summary-card";
 import { TasksList } from "./tasks-list";
 
@@ -42,6 +46,9 @@ function DetailSkeleton() {
 }
 
 export function PackageDetailView({ pkg }: { pkg: Schemas["PackageDetail"] }) {
+  const userId = useSession()?.user.id;
+  const seen = useSeen(userId, pkg);
+  const sheet = useSheetStack();
   return (
     <>
       <AppHeader
@@ -63,11 +70,18 @@ export function PackageDetailView({ pkg }: { pkg: Schemas["PackageDetail"] }) {
             {t.detail.linkPendingBody}
           </Banner>
         )}
-        {!pkg.processing && <ChecksList pkg={pkg} />}
-        <DocumentsList pkg={pkg} />
+        {!pkg.processing && (
+          <ChecksList pkg={pkg} onOpen={(c) => sheet.open({ kind: "check", ruleId: c.rule_id })} />
+        )}
+        <DocumentsList
+          pkg={pkg}
+          isSeen={(d) => seen.isSeen(d.current.id)}
+          onOpen={(d) => sheet.open({ kind: "document", documentId: d.id, evidence: null })}
+        />
         <TasksList tasks={pkg.tasks} />
       </main>
       <CtaBar cta={packageCta(pkg)} id={pkg.id} />
+      <EvidenceSheet pkg={pkg} stack={sheet} onViewed={seen.markSeen} />
     </>
   );
 }
