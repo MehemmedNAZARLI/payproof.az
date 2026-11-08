@@ -29,6 +29,14 @@ describe("createApiClient", () => {
     expect(seen[0]?.headers.get("Authorization")).toBe("Bearer tok-1");
   });
 
+  it("sends array query parameters comma-separated, as the contract specifies", async () => {
+    const { api, seen } = clientWith(() => json({ items: [], next_cursor: null, total_count: 0 }));
+    await api.GET("/v1/packages", { params: { query: { status: ["NEEDS_FIX", "NEEDS_REVIEW"] } } });
+    expect(new URL(seen[0]?.url ?? "").searchParams.getAll("status")).toEqual([
+      "NEEDS_FIX,NEEDS_REVIEW",
+    ]);
+  });
+
   it("sends no Authorization header without a session", async () => {
     const { api, seen } = clientWith(() => json({}));
     await api.GET("/v1/me");

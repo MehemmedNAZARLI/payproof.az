@@ -28,7 +28,9 @@ type ClientOptions = {
 };
 
 export function createApiClient({ baseUrl, getToken, fetch }: ClientOptions) {
-  const client = createClient<paths>({ baseUrl, fetch });
+  // The contract's array parameters are `style: form, explode: false` (status=A,B).
+  const querySerializer = { array: { style: "form", explode: false } } as const;
+  const client = createClient<paths>({ baseUrl, fetch, querySerializer });
   client.use({
     onRequest({ request }) {
       const token = getToken();
