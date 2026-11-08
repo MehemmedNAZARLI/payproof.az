@@ -4,6 +4,7 @@ import { toast } from "@/components/ui/toast-store";
 
 import { ApiError } from "./api/client";
 import { createQueryClient, errorMessage, shouldRetry } from "./query-client";
+import { getSession, signOutReason, startSession } from "./session";
 
 const forbidden = new ApiError("FORBIDDEN", "İcazə yoxdur.", 403);
 const offline = new ApiError("NETWORK_ERROR", "İnternet bağlantısı yoxdur.", 0);
@@ -61,5 +62,28 @@ describe("createQueryClient error toasts", () => {
     expect(spy).not.toHaveBeenCalled();
     await run(false);
     expect(spy).toHaveBeenCalledWith("İcazə yoxdur.");
+  });
+});
+
+describe("createQueryClient on 401", () => {
+  afterEach(() => vi.restoreAllMocks());
+  const expired = new ApiError("UNAUTHENTICATED", "Sessiya bitib.", 401);
+
+  it("ends the session once and says why, however many requests were rejected", async () => {
+    startSession({
+      access_token: "mock.u2",
+      token_type: "bearer",
+      expires_in: 60,
+      user: {} as never,
+    });
+    const spy = vi.spyOn(toast, "info");
+    const client = createQueryClient();
+    const reject = () => Promise.reject(expired);
+    await Promise.all(
+      ["a", "b"].map((k) => client.fetchQuery({ queryKey: [k], queryFn: reject }).catch(() => {})),
+    );
+    expect(getSession()).toBeNull();
+    expect(signOutReason()).toBe("expired");
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 });
