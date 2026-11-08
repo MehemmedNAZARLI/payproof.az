@@ -62,4 +62,15 @@ describe("toast store", () => {
     act(() => vi.advanceTimersByTime(200));
     expect(result.current).toEqual([]);
   });
+
+  it("never pushes a sticky toast out to make room", () => {
+    const { result } = renderHook(() => useToasts());
+    act(() => {
+      toast.show({ tone: "info", title: "Yeni versiya", sticky: true });
+      toast.info("a");
+      toast.info("b");
+      toast.info("c");
+    });
+    expect(result.current.map((x) => x.title)).toEqual(["Yeni versiya", "b", "c"]);
+  });
 });

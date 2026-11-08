@@ -42,12 +42,25 @@ function remove(id: number) {
   set(toasts.filter((x) => x.id !== id));
 }
 
+// Over the limit, the oldest report goes; a sticky notice waits on the user and stays.
+function trim(list: Toast[]): Toast[] {
+  const next = [...list];
+  while (next.length > MAX_VISIBLE) {
+    const i = next.findIndex((x) => !x.sticky);
+    if (i < 0) break;
+    const [gone] = next.splice(i, 1);
+    if (gone) clearTimeout(timers.get(gone.id));
+    if (gone) timers.delete(gone.id);
+  }
+  return next;
+}
+
 function show(input: Omit<Toast, "id" | "leaving">): number {
   // The same message twice (e.g. several requests failing offline) shows once.
   const same = toasts.find((x) => !x.leaving && x.tone === input.tone && x.title === input.title);
   if (same) return same.id;
   const id = ++seq;
-  set([...toasts, { ...input, id }].slice(-MAX_VISIBLE));
+  set(trim([...toasts, { ...input, id }]));
   if (!input.sticky)
     timers.set(
       id,
