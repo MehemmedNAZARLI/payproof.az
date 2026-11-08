@@ -7,9 +7,9 @@ Bu faylı yalnız bu track-in sessiyası yeniləyir (`/step` başlayanda 🟡, `
 
 | Step | Ad | Status | Branch | Tarix | Qeyd |
 |---|---|---|---|---|---|
-| M-01 | Mobil PWA skeleti | ⬜ | | | |
+| M-01 | Mobil PWA skeleti | 🟡 | `claude/elegant-thompson-4x8c77` | 2026-11-08 | S-08 (CI) hələ ⬜ — istifadəçinin qərarı ilə gözləmədən başlanıb; sessiya branch-ı (feat/ əvəzinə) |
 | M-02 | Data qatı | ⬜ | | | |
-| M-03 | Mobil UI dəsti | ⬜ | | | |
+| M-03 | Mobil UI dəsti | ⬜ | | | Sıra: M-01 → M-03 → M-02 (istifadəçinin qərarı; roadmap-də M-03 M-02-dən asılıdır) |
 | M-04 | Giriş, sessiya, profil | ⬜ | | | |
 | M-05 | Əsas ekran | ⬜ | | | |
 | M-06 | Paketlər siyahısı | ⬜ | | | |
