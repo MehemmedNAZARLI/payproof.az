@@ -5,9 +5,10 @@
 
 // The slice of @serwist/window's Serwist used here (an EventTarget in tests).
 type Lifecycle = "waiting" | "controlling";
+type LifecycleEvent = { type: string; isUpdate?: boolean };
 type UpdateSource = {
-  addEventListener(type: Lifecycle, listener: () => void): void;
-  removeEventListener(type: Lifecycle, listener: () => void): void;
+  addEventListener(type: Lifecycle, listener: (event: LifecycleEvent) => void): void;
+  removeEventListener(type: Lifecycle, listener: (event: LifecycleEvent) => void): void;
   messageSkipWaiting(): void;
 };
 
@@ -24,7 +25,9 @@ export function watchForUpdate(sw: UpdateSource, { offer, reload }: Handlers): (
       requested = true;
       sw.messageSkipWaiting();
     });
-  const onControlling = () => {
+  const onControlling = (event: LifecycleEvent) => {
+    // The very first install also takes control (clientsClaim); that is not an update.
+    if (!event.isUpdate) return;
     if (requested) reload();
     else offer(reload);
   };

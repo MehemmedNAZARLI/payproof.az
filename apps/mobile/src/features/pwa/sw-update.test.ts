@@ -7,7 +7,9 @@ function fakeSerwist() {
   return Object.assign(target, { messageSkipWaiting: vi.fn() });
 }
 
-const fire = (sw: EventTarget, type: string) => sw.dispatchEvent(new Event(type));
+// @serwist/window marks lifecycle events with isUpdate when a worker already controlled the page.
+const fire = (sw: EventTarget, type: string, isUpdate = true) =>
+  sw.dispatchEvent(Object.assign(new Event(type), { isUpdate }));
 
 describe("service worker update", () => {
   it("offers a waiting version instead of taking over by itself", () => {
@@ -44,6 +46,16 @@ describe("service worker update", () => {
     offer.mock.calls[0]![0]();
     expect(reload).toHaveBeenCalledOnce();
     expect(sw.messageSkipWaiting).not.toHaveBeenCalled();
+  });
+
+  it("stays quiet when the first install takes control (nothing to update from)", () => {
+    const sw = fakeSerwist();
+    const offer = vi.fn();
+    const reload = vi.fn();
+    watchForUpdate(sw, { offer, reload });
+    fire(sw, "controlling", false);
+    expect(offer).not.toHaveBeenCalled();
+    expect(reload).not.toHaveBeenCalled();
   });
 
   it("stops listening when disposed", () => {
