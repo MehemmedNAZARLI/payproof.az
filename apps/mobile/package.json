@@ -20,8 +20,10 @@
     "msw": "^3.0.4",
     "next": "16.4.5",
     "openapi-fetch": "^0.17.0",
+    "pdfjs-dist": "5.4.296",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "react-pdf": "^10"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",
