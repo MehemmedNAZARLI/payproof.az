@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "newsets.json",
+  "description": "Complete document sets for creating a new package in the demo",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "invoice_number",
+      "customer_id",
+      "currency",
+      "invoice_date",
+      "po_number",
+      "lines",
+      "delivery",
+      "files",
+      "note"
+    ],
+    "properties": {
+      "id": { "type": "string", "pattern": "^n[0-9]+$" },
+      "invoice_number": { "$ref": "defs.json#/$defs/invoice_number" },
+      "customer_id": { "$ref": "defs.json#/$defs/customer_id" },
+      "currency": { "$ref": "defs.json#/$defs/currency" },
+      "invoice_date": { "$ref": "defs.json#/$defs/date" },
+      "po_number": { "$ref": "defs.json#/$defs/po_number" },
+      "lines": {
+        "type": "array",
+        "minItems": 1,
+        "items": { "$ref": "defs.json#/$defs/priced_line" }
+      },
+      "delivery": {
+        "oneOf": [
+          { "type": "null" },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["note_number", "po_ref"],
+            "properties": {
+              "note_number": { "type": "string" },
+              "po_ref": { "$ref": "defs.json#/$defs/po_number" }
+            }
+          }
+        ]
+      },
+      "files": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+      "note": { "type": "string" }
+    }
+  }
+}

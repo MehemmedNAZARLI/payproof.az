@@ -1,0 +1,563 @@
+{
+  "generated_from": "docs/product/prototype/payproof-prototype.html (runChecks/info)",
+  "demo_now": "2026-11-08T10:30:00+04:00",
+  "counts": {
+    "packages": 14,
+    "orders": 18,
+    "customers": 2,
+    "users": 7,
+    "products": 10,
+    "tasks": 9,
+    "samples": 8,
+    "newsets": 2
+  },
+  "packages": {
+    "INV-1042": {
+      "package_id": "pkg_1042",
+      "status": "NEEDS_REVIEW",
+      "version": 1,
+      "requirement_set_version": 2,
+      "blockers": [
+        {
+          "rule_id": "R-001",
+          "outcome": "FAIL"
+        },
+        {
+          "rule_id": "R-002",
+          "outcome": "UNKNOWN"
+        },
+        {
+          "rule_id": "R-007",
+          "outcome": "FAIL"
+        }
+      ],
+      "checks": {
+        "R-001": "FAIL",
+        "R-002": "UNKNOWN",
+        "R-003": "UNKNOWN",
+        "R-004": "UNKNOWN",
+        "R-005": "UNKNOWN",
+        "R-006": "UNKNOWN",
+        "R-007": "FAIL",
+        "R-008": "NOT_APPLICABLE",
+        "R-009": "PASS"
+      }
+    },
+    "INV-1038": {
+      "package_id": "pkg_1038",
+      "status": "READY_FOR_APPROVAL",
+      "version": 1,
+      "requirement_set_version": 2,
+      "blockers": [],
+      "checks": {
+        "R-001": "PASS",
+        "R-002": "PASS",
+        "R-003": "PASS",
+        "R-004": "PASS",
+        "R-005": "PASS",
+        "R-006": "PASS",
+        "R-007": "PASS",
+        "R-008": "PASS",
+        "R-009": "PASS"
+      }
+    },
+    "INV-1036": {
+      "package_id": "pkg_1036",
+      "status": "READY_FOR_APPROVAL",
+      "version": 3,
+      "requirement_set_version": 2,
+      "blockers": [],
+      "checks": {
+        "R-001": "PASS",
+        "R-002": "PASS",
+        "R-003": "PASS",
+        "R-004": "PASS",
+        "R-005": "PASS",
+        "R-006": "PASS",
+        "R-007": "PASS",
+        "R-008": "PASS",
+        "R-009": "PASS"
+      }
+    },
+    "INV-1043": {
+      "package_id": "pkg_1043",
+      "status": "NEEDS_FIX",
+      "version": 1,
+      "requirement_set_version": 2,
+      "blockers": [
+        {
+          "rule_id": "R-002",
+          "outcome": "FAIL"
+        }
+      ],
+      "checks": {
+        "R-001": "PASS",
+        "R-002": "FAIL",
+        "R-003": "PASS",
+        "R-004": "PASS",
+        "R-005": "PASS",
+        "R-006": "PASS",
+        "R-007": "PASS",
+        "R-008": "PASS",
+        "R-009": "PASS"
+      }
+    },
+    "INV-1044": {
+      "package_id": "pkg_1044",
+      "status": "NEEDS_FIX",
+      "version": 1,
+      "requirement_set_version": 2,
+      "blockers": [
+        {
+          "rule_id": "R-005",
+          "outcome": "FAIL"
+        }
+      ],
+      "checks": {
+        "R-001": "PASS",
+        "R-002": "PASS",
+        "R-003": "PASS",
+        "R-004": "PASS",
+        "R-005": "FAIL",
+        "R-006": "PASS",
+        "R-007": "PASS",
+        "R-008": "PASS",
+        "R-009": "PASS"
+      },
+      "r005_diff": "500.00"
+    },
+    "INV-1045": {
+      "package_id": "pkg_1045",
+      "status": "NEEDS_FIX",
+      "version": 1,
+      "requirement_set_version": 1,
+      "blockers": [
+        {
+          "rule_id": "R-006",
+          "outcome": "FAIL"
+        }
+      ],
+      "checks": {
+        "R-001": "PASS",
+        "R-002": "PASS",
+        "R-003": "PASS",
+        "R-004": "PASS",
+        "R-005": "PASS",
+        "R-006": "FAIL",
+        "R-007": "PASS",
+        "R-008": "NOT_APPLICABLE",
+        "R-009": "PASS"
+      }
+    },
+    "INV-1046": {
+      "package_id": "pkg_1046",
+      "status": "NEEDS_FIX",
+      "version": 1,
+      "requirement_set_version": 2,
+      "blockers": [
+        {
+          "rule_id": "R-003",
+          "outcome": "FAIL"
+        },
+        {
+          "rule_id": "R-007",
+          "outcome": "UNKNOWN"
+        }
+      ],
+      "checks": {
+        "R-001": "PASS",
+        "R-002": "PASS",
+        "R-003": "FAIL",
+        "R-004": "PASS",
+        "R-005": "PASS",
+        "R-006": "PASS",
+        "R-007": "UNKNOWN",
+        "R-008": "UNKNOWN",
+        "R-009": "PASS"
+      }
+    },
+    "INV-1047": {
+      "package_id": "pkg_1047",
+      "status": "NEEDS_REVIEW",
+      "version": 1,
+      "requirement_set_version": 1,
+      "blockers": [
+        {
+          "rule_id": "R-001",
+          "outcome": "UNKNOWN"
+        }
+      ],
+      "checks": {
+        "R-001": "UNKNOWN",
+        "R-002": "UNKNOWN",
+        "R-003": "PASS",
+        "R-004": "PASS",
+        "R-005": "PASS",
+        "R-006": "PASS",
+        "R-007": "PASS",
+        "R-008": "NOT_APPLICABLE",
+        "R-009": "PASS"
+      }
+    },
+    "INV-1048": {
+      "package_id": "pkg_1048",
+      "status": "NEEDS_REVIEW",
+      "version": 1,
+      "requirement_set_version": 2,
+      "blockers": [
+        {
+          "rule_id": "R-001",
+          "outcome": "FAIL"
+        },
+        {
+          "rule_id": "R-002",
+          "outcome": "UNKNOWN"
+        }
+      ],
+      "checks": {
+        "R-001": "FAIL",
+        "R-002": "UNKNOWN",
+        "R-003": "UNKNOWN",
+        "R-004": "UNKNOWN",
+        "R-005": "UNKNOWN",
+        "R-006": "UNKNOWN",
+        "R-007": "UNKNOWN",
+        "R-008": "UNKNOWN",
+        "R-009": "PASS"
+      }
+    },
+    "INV-1049": {
+      "package_id": "pkg_1049",
+      "status": "NEEDS_REVIEW",
+      "version": 1,
+      "requirement_set_version": 1,
+      "blockers": [
+        {
+          "rule_id": "R-004",
+          "outcome": "UNKNOWN"
+        }
+      ],
+      "checks": {
+        "R-001": "PASS",
+        "R-002": "PASS",
+        "R-003": "PASS",
+        "R-004": "UNKNOWN",
+        "R-005": "UNKNOWN",
+        "R-006": "UNKNOWN",
+        "R-007": "PASS",
+        "R-008": "NOT_APPLICABLE",
+        "R-009": "PASS"
+      }
+    },
+    "INV-1050": {
+      "package_id": "pkg_1050",
+      "status": "PROCESSING",
+      "version": 1,
+      "requirement_set_version": 1,
+      "blockers": [],
+      "checks": {}
+    },
+    "INV-1035": {
+      "package_id": "pkg_1035",
+      "status": "APPROVED_READY",
+      "version": 1,
+      "requirement_set_version": 1,
+      "blockers": [],
+      "checks": {
+        "R-001": "PASS",
+        "R-002": "PASS",
+        "R-003": "PASS",
+        "R-004": "PASS",
+        "R-005": "PASS",
+        "R-006": "PASS",
+        "R-007": "PASS",
+        "R-008": "NOT_APPLICABLE",
+        "R-009": "PASS"
+      }
+    },
+    "INV-1033": {
+      "package_id": "pkg_1033",
+      "status": "EXPORTED",
+      "version": 1,
+      "requirement_set_version": 2,
+      "blockers": [],
+      "checks": {
+        "R-001": "PASS",
+        "R-002": "PASS",
+        "R-003": "PASS",
+        "R-004": "PASS",
+        "R-005": "PASS",
+        "R-006": "PASS",
+        "R-007": "PASS",
+        "R-008": "PASS",
+        "R-009": "PASS"
+      }
+    },
+    "INV-1031": {
+      "package_id": "pkg_1031",
+      "status": "EXPORTED",
+      "version": 1,
+      "requirement_set_version": 1,
+      "blockers": [],
+      "checks": {
+        "R-001": "PASS",
+        "R-002": "PASS",
+        "R-003": "PASS",
+        "R-004": "PASS",
+        "R-005": "PASS",
+        "R-006": "PASS",
+        "R-007": "PASS",
+        "R-008": "NOT_APPLICABLE",
+        "R-009": "PASS"
+      }
+    }
+  },
+  "dashboard": {
+    "status_counts": {
+      "NEEDS_REVIEW": 4,
+      "READY_FOR_APPROVAL": 2,
+      "NEEDS_FIX": 4,
+      "PROCESSING": 1,
+      "APPROVED_READY": 1,
+      "EXPORTED": 2
+    },
+    "open_problem_amounts": [
+      {
+        "currency": "AZN",
+        "amount": "29706.00",
+        "packages": 7
+      },
+      {
+        "currency": "USD",
+        "amount": "1800.00",
+        "packages": 1
+      }
+    ],
+    "avg_problem_days": "3.0",
+    "longest_problem": {
+      "invoice_number": "INV-1042",
+      "days": 5
+    }
+  },
+  "flows": {
+    "INV-1042": [
+      {
+        "step": "initial",
+        "status": "NEEDS_REVIEW",
+        "version": 1,
+        "blockers": [
+          {
+            "rule_id": "R-001",
+            "outcome": "FAIL"
+          },
+          {
+            "rule_id": "R-002",
+            "outcome": "UNKNOWN"
+          },
+          {
+            "rule_id": "R-007",
+            "outcome": "FAIL"
+          }
+        ]
+      },
+      {
+        "step": "approve_blocked",
+        "status": "NEEDS_REVIEW",
+        "version": 1,
+        "blockers": [
+          {
+            "rule_id": "R-001",
+            "outcome": "FAIL"
+          },
+          {
+            "rule_id": "R-002",
+            "outcome": "UNKNOWN"
+          },
+          {
+            "rule_id": "R-007",
+            "outcome": "FAIL"
+          }
+        ],
+        "actor": "u2",
+        "result": "rejected"
+      },
+      {
+        "step": "confirm_link",
+        "status": "NEEDS_FIX",
+        "version": 2,
+        "blockers": [
+          {
+            "rule_id": "R-001",
+            "outcome": "FAIL"
+          },
+          {
+            "rule_id": "R-007",
+            "outcome": "FAIL"
+          }
+        ],
+        "actor": "u1",
+        "po_number": "PO-381"
+      },
+      {
+        "step": "create_tasks",
+        "status": "NEEDS_FIX",
+        "version": 2,
+        "blockers": [
+          {
+            "rule_id": "R-001",
+            "outcome": "FAIL"
+          },
+          {
+            "rule_id": "R-007",
+            "outcome": "FAIL"
+          }
+        ],
+        "actor": "u1",
+        "tasks": [
+          {
+            "number": "T-125",
+            "rule_id": "R-007",
+            "assignee_id": "u3",
+            "status": "OPEN"
+          },
+          {
+            "number": "T-124",
+            "rule_id": "R-001",
+            "assignee_id": "u6",
+            "status": "OPEN"
+          }
+        ]
+      },
+      {
+        "step": "upload_invoice",
+        "status": "NEEDS_FIX",
+        "version": 3,
+        "blockers": [
+          {
+            "rule_id": "R-007",
+            "outcome": "FAIL"
+          }
+        ],
+        "actor": "u1",
+        "sample_id": "s1",
+        "file_name": "INV-1042_v2_PO-381.pdf",
+        "checks": {
+          "R-001": "PASS",
+          "R-002": "PASS"
+        }
+      },
+      {
+        "step": "upload_duplicate",
+        "status": "NEEDS_FIX",
+        "version": 3,
+        "blockers": [
+          {
+            "rule_id": "R-007",
+            "outcome": "FAIL"
+          }
+        ],
+        "actor": "u1",
+        "sample_id": "s3",
+        "file_name": "INV-1042.pdf",
+        "duplicate": true
+      },
+      {
+        "step": "upload_delivery",
+        "status": "NEEDS_REVIEW",
+        "version": 4,
+        "blockers": [
+          {
+            "rule_id": "R-008",
+            "outcome": "UNKNOWN"
+          }
+        ],
+        "actor": "u1",
+        "sample_id": "s2",
+        "file_name": "TS-5531_imzali.pdf",
+        "checks": {
+          "R-007": "PASS",
+          "R-008": "UNKNOWN"
+        }
+      },
+      {
+        "step": "review_signature",
+        "status": "READY_FOR_APPROVAL",
+        "version": 4,
+        "blockers": [],
+        "actor": "u1",
+        "tasks": [
+          {
+            "number": "T-125",
+            "rule_id": "R-007",
+            "assignee_id": "u3",
+            "status": "RESOLVED"
+          },
+          {
+            "number": "T-124",
+            "rule_id": "R-001",
+            "assignee_id": "u6",
+            "status": "RESOLVED"
+          }
+        ]
+      },
+      {
+        "step": "approve_as_operator",
+        "status": "READY_FOR_APPROVAL",
+        "version": 4,
+        "blockers": [],
+        "actor": "u1",
+        "result": "forbidden",
+        "http_status": 403
+      },
+      {
+        "step": "approve",
+        "status": "APPROVED_READY",
+        "version": 4,
+        "blockers": [],
+        "actor": "u2",
+        "result": "ok"
+      },
+      {
+        "step": "approve_repeat",
+        "status": "APPROVED_READY",
+        "version": 4,
+        "blockers": [],
+        "actor": "u2",
+        "idempotent": true,
+        "approvals": 1
+      },
+      {
+        "step": "export",
+        "status": "EXPORTED",
+        "version": 4,
+        "blockers": [],
+        "actor": "u1",
+        "files": ["INV-1042_v2_PO-381.pdf", "PO-381.pdf", "TS-5531_imzali.pdf"]
+      },
+      {
+        "step": "export_repeat",
+        "status": "EXPORTED",
+        "version": 4,
+        "blockers": [],
+        "actor": "u1",
+        "idempotent": true,
+        "exports": 1
+      }
+    ]
+  },
+  "newsets": {
+    "INV-1051": {
+      "status": "READY_FOR_APPROVAL",
+      "blockers": []
+    },
+    "INV-1052": {
+      "status": "NEEDS_FIX",
+      "blockers": [
+        {
+          "rule_id": "R-007",
+          "outcome": "FAIL"
+        }
+      ]
+    }
+  }
+}

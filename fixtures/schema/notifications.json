@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "notifications.json",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["user_id", "package_id", "text", "created_at", "read"],
+    "properties": {
+      "user_id": { "$ref": "defs.json#/$defs/user_id" },
+      "package_id": { "$ref": "defs.json#/$defs/package_id" },
+      "text": { "type": "string" },
+      "created_at": { "$ref": "defs.json#/$defs/datetime" },
+      "read": { "type": "boolean" }
+    }
+  }
+}

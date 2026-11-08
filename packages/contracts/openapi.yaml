@@ -1,0 +1,2646 @@
+openapi: 3.1.0
+info:
+  title: PayProof API
+  version: 0.1.1
+  description: |
+    PayProof P0 API contract — the single source of truth (docs/architecture/api-contract.md).
+    Conventions: `snake_case` fields; money is a decimal **string** with its currency, never a float;
+    quantities are strings; timestamps are ISO 8601 UTC. Changes only via `/contract-change`
+    (docs/progress/CONTRACT-CHANGELOG.md). Example IDs are illustrative and mirror fixtures/.
+servers:
+  - url: http://localhost:8000
+    description: Local API
+security:
+  - bearerAuth: []
+tags:
+  - name: auth
+    description: Session and current user
+  - name: dashboard
+    description: Overview KPIs
+  - name: packages
+    description: Invoice packages (invoice + order + delivery documents)
+  - name: documents
+    description: Document upload, versions and processing jobs
+  - name: review
+    description: Order link, field corrections, signature review and re-validation
+  - name: tasks
+    description: Resolution tasks routed to the responsible person
+  - name: approval
+    description: Version-bound approval, idempotent export and the internal report
+  - name: audit
+    description: Append-only audit log
+  - name: customers
+    description: Customers and their versioned requirement sets
+  - name: notifications
+    description: In-app notifications of the current user
+  - name: demo
+    description: Demo utilities (ENV=dev only)
+  - name: users
+    description: Company members (for assignee, owner and filter pickers)
+paths:
+  /v1/auth/dev-users:
+    get:
+      tags: [auth]
+      operationId: listDevUsers
+      summary: Demo users for the dev login picker (ENV=dev only; 404 otherwise)
+      security: []
+      responses:
+        "200":
+          description: Demo users
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [items]
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/DevUser" } }
+              example:
+                items:
+                  - {
+                      id: 0193a000-0000-7000-8000-000000000001,
+                      full_name: Aygün Məmmədova,
+                      title: Maliyyə əməkdaşı,
+                      role: operator,
+                    }
+                  - {
+                      id: 0193a000-0000-7000-8000-000000000002,
+                      full_name: Rəşad Əliyev,
+                      title: Maliyyə direktoru,
+                      role: approver,
+                    }
+                  - {
+                      id: 0193a000-0000-7000-8000-000000000005,
+                      full_name: Kamran Babayev,
+                      title: Daxili auditor,
+                      role: readonly,
+                    }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /v1/auth/dev-login:
+    post:
+      tags: [auth]
+      operationId: devLogin
+      summary: Issue a JWT for a demo user (ENV=dev only; 404 otherwise)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [user_id]
+              properties:
+                user_id: { $ref: "#/components/schemas/Uuid" }
+            example: { user_id: 0193a000-0000-7000-8000-000000000001 }
+      responses:
+        "200":
+          description: Token issued
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Session" }
+              example:
+                access_token: eyJhbGciOiJIUzI1NiJ9.demo.signature
+                token_type: bearer
+                expires_in: 28800
+                user: &me_u1
+                  id: 0193a000-0000-7000-8000-000000000001
+                  email: aygun.mammadova@a-distribusiya.test
+                  full_name: Aygün Məmmədova
+                  title: Maliyyə əməkdaşı
+                  role: operator
+                  company:
+                    {
+                      id: 0193a000-0000-7000-8000-00000000c0a1,
+                      name: A Distribusiya MMC,
+                      voen: "1700123451",
+                    }
+                  permissions: [VIEW, EDIT_PACKAGE, MANAGE_TASKS, EXPORT_PACKAGE, DELETE_PACKAGE]
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "422": { $ref: "#/components/responses/ValidationError" }
+  /v1/me:
+    get:
+      tags: [auth]
+      operationId: getMe
+      summary: Current user, company and permissions
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Me" }
+              example: *me_u1
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+  /v1/dashboard:
+    get:
+      tags: [dashboard]
+      operationId: getDashboard
+      summary: KPIs — status counts, open problem amounts per currency, problem types and age
+      responses:
+        "200":
+          description: Dashboard
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Dashboard" }
+              example:
+                as_of: "2026-11-08T06:30:00Z"
+                package_count: 14
+                customer_count: 2
+                status_counts:
+                  {
+                    PROCESSING: 1,
+                    NEEDS_REVIEW: 4,
+                    NEEDS_FIX: 4,
+                    READY_FOR_APPROVAL: 2,
+                    APPROVED_READY: 1,
+                    EXPORTED: 2,
+                  }
+                open_problem_amounts:
+                  - { total: { amount: "29706.00", currency: AZN }, package_count: 7 }
+                  - { total: { amount: "1800.00", currency: USD }, package_count: 1 }
+                ready_amounts:
+                  - { total: { amount: "11060.00", currency: AZN }, package_count: 2 }
+                top_issue:
+                  {
+                    category: PO istinadı,
+                    rule_ids: [R-001, R-002],
+                    package_count: 4,
+                    invoice_numbers: [INV-1042, INV-1043, INV-1047, INV-1048],
+                  }
+                rule_counts:
+                  - { rule_id: R-001, fail: 2, unknown: 1 }
+                  - { rule_id: R-002, fail: 1, unknown: 2 }
+                problem_age:
+                  {
+                    average_days: "3.0",
+                    longest:
+                      {
+                        package:
+                          { id: 0193a000-0000-7000-8002-000000001042, invoice_number: INV-1042 },
+                        days: 5,
+                      },
+                  }
+                tasks: { resolved: 3, total: 9 }
+                recent_approvals:
+                  - package: { id: 0193a000-0000-7000-8002-000000001035, invoice_number: INV-1035 }
+                    version: 1
+                    approver:
+                      {
+                        id: 0193a000-0000-7000-8000-000000000002,
+                        full_name: Rəşad Əliyev,
+                        title: Maliyyə direktoru,
+                        role: approver,
+                      }
+                    approved_at: "2026-11-06T11:10:00Z"
+                    total: { amount: "3100.00", currency: AZN }
+                    valid: true
+                    exported: false
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+  /v1/packages:
+    get:
+      tags: [packages]
+      operationId: listPackages
+      summary: List packages with filters and sorting
+      parameters:
+        - name: status
+          in: query
+          description: One or more statuses, comma-separated (`status=NEEDS_FIX,NEEDS_REVIEW`).
+          style: form
+          explode: false
+          schema:
+            {
+              type: array,
+              items: { $ref: "#/components/schemas/PackageStatus" },
+              uniqueItems: true,
+            }
+        - { name: customer_id, in: query, schema: { $ref: "#/components/schemas/Uuid" } }
+        - { name: owner_id, in: query, schema: { $ref: "#/components/schemas/Uuid" } }
+        - name: issue
+          in: query
+          description: Only packages whose primary (non-cascade) blockers include this rule.
+          schema: { $ref: "#/components/schemas/RuleId" }
+        - {
+            name: from,
+            in: query,
+            description: Invoice date from (inclusive),
+            schema: { type: string, format: date },
+          }
+        - {
+            name: to,
+            in: query,
+            description: Invoice date to (inclusive),
+            schema: { type: string, format: date },
+          }
+        - name: q
+          in: query
+          description: Search in invoice number, customer name, PO and delivery note numbers.
+          schema: { type: string, maxLength: 100 }
+        - name: sort
+          in: query
+          schema:
+            type: string
+            default: -updated_at
+            enum:
+              [
+                invoice_number,
+                -invoice_number,
+                customer,
+                -customer,
+                invoice_date,
+                -invoice_date,
+                total,
+                -total,
+                status,
+                -status,
+                blocking,
+                -blocking,
+                owner,
+                -owner,
+                updated_at,
+                -updated_at,
+                problem_age,
+                -problem_age,
+              ]
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: A page of packages
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PackagePage" }
+              example:
+                items:
+                  - id: 0193a000-0000-7000-8002-000000001042
+                    invoice_number: INV-1042
+                    version: 1
+                    status: NEEDS_REVIEW
+                    customer:
+                      { id: 0193a000-0000-7000-8001-000000000001, name: B Mağazalar Şəbəkəsi }
+                    invoice_date: "2026-11-03"
+                    total: { amount: "12000.00", currency: AZN }
+                    po_ref: null
+                    po_unreadable: false
+                    blocking:
+                      [
+                        { rule_id: R-001, outcome: FAIL },
+                        { rule_id: R-002, outcome: UNKNOWN },
+                        { rule_id: R-007, outcome: FAIL },
+                      ]
+                    problem_since: "2026-11-03T05:12:00Z"
+                    owner:
+                      {
+                        id: 0193a000-0000-7000-8000-000000000001,
+                        full_name: Aygün Məmmədova,
+                        title: Maliyyə əməkdaşı,
+                        role: operator,
+                      }
+                    updated_at: "2026-11-03T05:18:00Z"
+                next_cursor: eyJ1IjoiMjAyNi0xMS0wM1QwNToxODowMFoifQ
+                total_count: 14
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "422": { $ref: "#/components/responses/ValidationError" }
+    post:
+      tags: [packages]
+      operationId: createPackage
+      summary: Create a package from a document set (invoice required) — extraction runs as a job
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [customer_id, owner_id, invoice]
+              properties:
+                customer_id: { $ref: "#/components/schemas/Uuid" }
+                owner_id:
+                  {
+                    $ref: "#/components/schemas/Uuid",
+                    description: Responsible person (see GET /v1/users?assignable=true),
+                  }
+                invoice: { type: string, contentEncoding: binary }
+                order: { type: string, contentEncoding: binary }
+                delivery: { type: string, contentEncoding: binary }
+      responses:
+        "202":
+          description: Accepted — the package is PROCESSING until the job finishes
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/JobAccepted" }
+              example:
+                {
+                  job_id: 0193a000-0000-7000-8007-000010510001,
+                  package_id: 0193a000-0000-7000-8002-000000001051,
+                }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "409":
+          description: IDEMPOTENCY_IN_PROGRESS. A duplicate invoice is only known after extraction and is reported as `Job.error.code = DUPLICATE_INVOICE`.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              example:
+                {
+                  error:
+                    {
+                      code: IDEMPOTENCY_IN_PROGRESS,
+                      message: "Eyni sorğu hələ emal olunur.",
+                      details: {},
+                    },
+                }
+        "413": { $ref: "#/components/responses/FileTooLarge" }
+        "415": { $ref: "#/components/responses/UnsupportedFileType" }
+        "422": { $ref: "#/components/responses/ValidationError" }
+  /v1/packages/{package_id}:
+    parameters:
+      - $ref: "#/components/parameters/PackageId"
+    get:
+      tags: [packages]
+      operationId: getPackage
+      summary: Package detail — version, documents, comparison, checks, tasks, approvals
+      responses:
+        "200":
+          description: Package detail (the example lists only some checks; a real response has all of R-001…R-009, matching `summary`)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PackageDetail" }
+              example:
+                id: 0193a000-0000-7000-8002-000000001042
+                invoice_number: INV-1042
+                version: 1
+                status: NEEDS_REVIEW
+                processing: false
+                customer: { id: 0193a000-0000-7000-8001-000000000001, name: B Mağazalar Şəbəkəsi }
+                invoice_date: "2026-11-03"
+                owner:
+                  &u1 {
+                    id: 0193a000-0000-7000-8000-000000000001,
+                    full_name: Aygün Məmmədova,
+                    title: Maliyyə əməkdaşı,
+                    role: operator,
+                  }
+                created_at: "2026-11-03T05:12:00Z"
+                updated_at: "2026-11-03T05:18:00Z"
+                total: { amount: "12000.00", currency: AZN }
+                requirement_set:
+                  id: 0193a000-0000-7000-800d-000000000102
+                  version: 2
+                  require_po: true
+                  require_delivery: true
+                  require_signature: true
+                  tolerance: "0.01"
+                  effective_from: "2026-10-01"
+                  approved_by:
+                    {
+                      id: 0193a000-0000-7000-8000-000000000002,
+                      full_name: Rəşad Əliyev,
+                      title: Maliyyə direktoru,
+                      role: approver,
+                    }
+                  reason: Müştəri 01.10.2026-dan imzalanmış təhvil-təslim aktı tələb edir.
+                  created_at: "2026-09-25T08:00:00Z"
+                link:
+                  confirmed: false
+                  order_id: null
+                  order_po: null
+                  method: null
+                  confirmed_by: null
+                  candidates:
+                    - order_id: 0193a000-0000-7000-8003-000000000381
+                      po_number: PO-381
+                      order_date: "2026-10-28"
+                      total: { amount: "12000.00", currency: AZN }
+                      reason: "Alıcı, hər iki məhsul kodu (GY-1L, DY-5) və miqdarlar uyğundur. Sifariş tarixi: 28.10.2026."
+                documents:
+                  - id: 0193a000-0000-7000-8004-000010420001
+                    type: invoice
+                    current: &inv_v1
+                      id: 0193a000-0000-7000-8005-000010420001
+                      version_no: 1
+                      file_name: INV-1042.pdf
+                      source_kind: pdf
+                      status: EXTRACTED
+                      sha256: 3f0a1c9e5b7d2468ace0f1b3d5e7092a4c6e8f0b2d4f6a8c0e2a4c6e8f0b2d4f
+                      uploaded_by: *u1
+                      uploaded_at: "2026-11-03T05:12:00Z"
+                      package_version_at_upload: 1
+                    history: []
+                fields:
+                  - id: 0193a000-0000-7000-800c-000010420001
+                    document_version_id: 0193a000-0000-7000-8005-000010420001
+                    field_path: invoice.po_ref
+                    label: Sifariş № (PO)
+                    raw_value: null
+                    value: null
+                    review_status: EXTRACTED
+                    evidence:
+                      &ev_po {
+                        document_version_id: 0193a000-0000-7000-8005-000010420001,
+                        page: 1,
+                        quote: "Sifariş №: —",
+                        bbox: null,
+                      }
+                comparison:
+                  rows:
+                    - key: po_ref
+                      group: null
+                      label: Sifariş № (PO)
+                      invoice:
+                        {
+                          value: null,
+                          currency: null,
+                          state: mismatch,
+                          field_id: 0193a000-0000-7000-800c-000010420001,
+                          evidence: *ev_po,
+                        }
+                      order:
+                        {
+                          value: null,
+                          currency: null,
+                          state: empty,
+                          field_id: null,
+                          evidence: null,
+                        }
+                      delivery:
+                        {
+                          value: null,
+                          currency: null,
+                          state: empty,
+                          field_id: null,
+                          evidence: null,
+                        }
+                checks:
+                  - {
+                      rule_id: R-001,
+                      title: Məcburi sifariş nömrəsi (PO),
+                      outcome: FAIL,
+                      cascade: false,
+                      message: "Müştəri qaydası fakturada sifariş nömrəsi tələb edir, fakturada isə PO göstərilməyib.",
+                      evidence: [*ev_po],
+                      fix_hint: upload_invoice,
+                      data: {},
+                    }
+                  - {
+                      rule_id: R-002,
+                      title: PO təsdiqlənmiş sifarişə uyğundur,
+                      outcome: UNKNOWN,
+                      cascade: false,
+                      message: Təklif olunan sifariş əlaqəsi hələ insan tərəfindən təsdiqlənməyib.,
+                      evidence: [],
+                      fix_hint: link_order,
+                      data: {},
+                    }
+                  - {
+                      rule_id: R-007,
+                      title: Məcburi təhvil sənədi,
+                      outcome: FAIL,
+                      cascade: false,
+                      message: Müştəri qaydası imzalanmış təhvil sənədi tələb edir; paketdə təhvil sənədi yoxdur.,
+                      evidence: [],
+                      fix_hint: upload_delivery,
+                      data: {},
+                    }
+                summary:
+                  pass: 1
+                  fail: 2
+                  unknown: 5
+                  not_applicable: 1
+                  blocking:
+                    [
+                      { rule_id: R-001, outcome: FAIL },
+                      { rule_id: R-002, outcome: UNKNOWN },
+                      { rule_id: R-007, outcome: FAIL },
+                    ]
+                current_approval: null
+                approvals: []
+                exports: []
+                tasks: []
+                permissions:
+                  {
+                    can_edit: true,
+                    can_manage_tasks: true,
+                    can_approve: false,
+                    can_export: false,
+                    can_delete: true,
+                  }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [packages]
+      operationId: deletePackage
+      summary: Soft-delete a package that was never approved (PROCESSING / NEEDS_* only)
+      parameters:
+        - {
+            name: expected_version,
+            in: query,
+            required: true,
+            schema: { type: integer, minimum: 1 },
+          }
+      responses:
+        "204": { description: Deleted (kept for audit) }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409":
+          description: VERSION_CONFLICT or PACKAGE_NOT_DELETABLE (approved at least once, or ready/exported)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              example:
+                {
+                  error:
+                    {
+                      code: PACKAGE_NOT_DELETABLE,
+                      message: "Təsdiqlənmiş paket silinə bilməz.",
+                      details: {},
+                    },
+                }
+  /v1/documents/versions/{version_id}/file:
+    parameters:
+      - {
+          name: version_id,
+          in: path,
+          required: true,
+          schema: { $ref: "#/components/schemas/Uuid" },
+        }
+    get:
+      tags: [documents]
+      operationId: getDocumentFileUrl
+      summary: Short-lived (5 min) signed download link, issued after a permission check
+      responses:
+        "200":
+          description: Signed link
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SignedUrl" }
+              example:
+                {
+                  url: "http://localhost:9000/payproof-docs/0193a000/INV-1042.pdf?X-Amz-Signature=demo",
+                  expires_at: "2026-11-08T06:35:00Z",
+                }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /v1/jobs/{job_id}:
+    parameters:
+      - { name: job_id, in: path, required: true, schema: { $ref: "#/components/schemas/Uuid" } }
+    get:
+      tags: [documents]
+      operationId: getJob
+      summary: Processing state of an asynchronous job
+      responses:
+        "200":
+          description: Job
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Job" }
+              example:
+                id: 0193a000-0000-7000-8007-000010420002
+                kind: extract_document
+                status: SUCCEEDED
+                created_at: "2026-11-08T06:31:00Z"
+                updated_at: "2026-11-08T06:31:04Z"
+                result:
+                  {
+                    package_id: 0193a000-0000-7000-8002-000000001042,
+                    package_version: 3,
+                    document_version_id: 0193a000-0000-7000-8005-000010420002,
+                  }
+                error: null
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /v1/packages/{package_id}/documents:
+    parameters:
+      - $ref: "#/components/parameters/PackageId"
+    post:
+      tags: [documents]
+      operationId: uploadDocument
+      summary: Upload a document into the package (starts extraction; bumps package version)
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [type, file, expected_version]
+              properties:
+                type: { $ref: "#/components/schemas/DocumentType" }
+                file:
+                  {
+                    type: string,
+                    contentEncoding: binary,
+                    description: "PDF, PNG, JPEG, CSV or XLSX (checked by content); ≤ 20 MB, ≤ 50 pages",
+                  }
+                expected_version: { type: integer, minimum: 1 }
+      responses:
+        "202": &job_accepted
+          description: Accepted — poll the job
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/JobAccepted" }
+              example:
+                job_id: 0193a000-0000-7000-8007-000010420002
+                document_id: 0193a000-0000-7000-8004-000010420001
+                document_version_id: 0193a000-0000-7000-8005-000010420002
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409":
+          description: VERSION_CONFLICT, DUPLICATE_FILE (same sha256 already in this package — no new version) or IDEMPOTENCY_IN_PROGRESS
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              example:
+                error:
+                  code: DUPLICATE_FILE
+                  message: "INV-1042.pdf: Faktura v1 ilə eyni fayldır — yeni versiya yaradılmadı."
+                  details:
+                    { document_version_id: 0193a000-0000-7000-8005-000010420001, version_no: 1 }
+        "413": { $ref: "#/components/responses/FileTooLarge" }
+        "415": { $ref: "#/components/responses/UnsupportedFileType" }
+        "422": { $ref: "#/components/responses/ValidationError" }
+  /v1/documents/{document_id}/versions:
+    parameters:
+      - {
+          name: document_id,
+          in: path,
+          required: true,
+          schema: { $ref: "#/components/schemas/Uuid" },
+        }
+    post:
+      tags: [documents]
+      operationId: uploadDocumentVersion
+      summary: Upload a new version of an existing document (bumps package version, invalidates approval)
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [file, expected_version]
+              properties:
+                file: { type: string, contentEncoding: binary }
+                expected_version: { type: integer, minimum: 1, description: Package version }
+      responses:
+        "202": *job_accepted
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "413": { $ref: "#/components/responses/FileTooLarge" }
+        "415": { $ref: "#/components/responses/UnsupportedFileType" }
+        "422": { $ref: "#/components/responses/ValidationError" }
+  /v1/packages/{package_id}/match-candidates:
+    parameters:
+      - $ref: "#/components/parameters/PackageId"
+    get:
+      tags: [review]
+      operationId: listMatchCandidates
+      summary: Order candidates with the reason (AI suggestion — a human confirms)
+      responses:
+        "200":
+          description: Candidates
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [items]
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/MatchCandidate" } }
+              example:
+                items:
+                  - order_id: 0193a000-0000-7000-8003-000000000383
+                    po_number: PO-383
+                    order_date: "2026-10-29"
+                    total: { amount: "1872.00", currency: AZN }
+                    reason: "Alıcı, məhsul kodu KY-200 və miqdar (520) uyğundur. Sifariş tarixi: 29.10.2026."
+                  - order_id: 0193a000-0000-7000-8003-000000000384
+                    po_number: PO-384
+                    order_date: "2026-11-01"
+                    total: { amount: "1872.00", currency: AZN }
+                    reason: "Alıcı, məhsul kodu KY-200 və miqdar (520) uyğundur. Sifariş tarixi: 01.11.2026. TS-5541 təhvil aktı bu sifarişə istinad edir."
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /v1/packages/{package_id}/matches:
+    parameters:
+      - $ref: "#/components/parameters/PackageId"
+    post:
+      tags: [review]
+      operationId: confirmMatch
+      summary: Confirm the order link (human decision; bumps version and re-validates)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [order_id, expected_version]
+              properties:
+                order_id: { $ref: "#/components/schemas/Uuid" }
+                expected_version: { type: integer, minimum: 1 }
+            example: { order_id: 0193a000-0000-7000-8003-000000000381, expected_version: 1 }
+      responses: &package_mutation_responses
+        "200":
+          description: Updated package (re-validated)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PackageDetail" }
+              examples:
+                inv1042_linked: { $ref: "#/components/examples/PackageDetailInv1042Linked" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/ValidationError" }
+  /v1/fields/{field_id}:
+    parameters:
+      - { name: field_id, in: path, required: true, schema: { $ref: "#/components/schemas/Uuid" } }
+    patch:
+      tags: [review]
+      operationId: correctField
+      summary: Correct an extracted field from the source (reason required; the document itself does not change)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [value, reason, expected_version]
+              properties:
+                value:
+                  {
+                    type: string,
+                    description: New normalised value (decimal string for money/quantity),
+                  }
+                reason: { type: string, minLength: 3, maxLength: 500 }
+                expected_version: { type: integer, minimum: 1, description: Package version }
+            example:
+              { value: PO-397, reason: Skanda PO mənbəyə baxaraq təsdiqləndi, expected_version: 1 }
+      responses: *package_mutation_responses
+  /v1/packages/{package_id}/signature-review:
+    parameters:
+      - $ref: "#/components/parameters/PackageId"
+    post:
+      tags: [review]
+      operationId: reviewSignature
+      summary: Record that a person saw the signature (visual presence only — not legal authentication)
+      requestBody: &versioned_body
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/VersionedRequest" }
+            example: { expected_version: 4 }
+      responses: *package_mutation_responses
+  /v1/packages/{package_id}/validate:
+    parameters:
+      - $ref: "#/components/parameters/PackageId"
+    post:
+      tags: [review]
+      operationId: validatePackage
+      summary: Re-run the deterministic rule engine for the current version
+      requestBody: *versioned_body
+      responses: *package_mutation_responses
+  /v1/tasks:
+    get:
+      tags: [tasks]
+      operationId: listTasks
+      summary: List tasks (default — all open ones)
+      parameters:
+        - name: status
+          in: query
+          description: "`active` = every status except RESOLVED."
+          schema:
+            {
+              type: string,
+              enum: [active, OPEN, IN_PROGRESS, SUBMITTED_FOR_RECHECK, RESOLVED],
+              default: active,
+            }
+        - { name: assignee_id, in: query, schema: { $ref: "#/components/schemas/Uuid" } }
+        - { name: package_id, in: query, schema: { $ref: "#/components/schemas/Uuid" } }
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: A page of tasks (open first, then by due date)
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [items, next_cursor, status_counts]
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/Task" } }
+                  next_cursor: { type: ["string", "null"] }
+                  status_counts:
+                    type: object
+                    description: Counts per status for the other filters (ignores `status`) — tabs and the sidebar badge.
+                    additionalProperties: false
+                    required: [OPEN, IN_PROGRESS, SUBMITTED_FOR_RECHECK, RESOLVED]
+                    properties:
+                      OPEN: { type: integer }
+                      IN_PROGRESS: { type: integer }
+                      SUBMITTED_FOR_RECHECK: { type: integer }
+                      RESOLVED: { type: integer }
+              example:
+                items:
+                  - id: 0193a000-0000-7000-8006-000000000118
+                    number: T-118
+                    package: { id: 0193a000-0000-7000-8002-000000001044, invoice_number: INV-1044 }
+                    rule_id: R-005
+                    assignee:
+                      {
+                        id: 0193a000-0000-7000-8000-000000000004,
+                        full_name: Nigar Hüseynova,
+                        title: Satış meneceri,
+                        role: assignee,
+                      }
+                    step: "KY-10 üçün aktual qiymət razılaşmasını yoxlayın: fakturada 110,00 AZN, sifarişdə 100,00 AZN. Düzgün qiyməti təsdiqləyin."
+                    due_date: "2026-11-10"
+                    status: IN_PROGRESS
+                    comment: Müştəri ilə oktyabr qiymət əlavəsi müzakirə olunub.
+                    created_at: "2026-11-04T11:00:00Z"
+                    created_by:
+                      {
+                        id: 0193a000-0000-7000-8000-000000000001,
+                        full_name: Aygün Məmmədova,
+                        title: Maliyyə əməkdaşı,
+                        role: operator,
+                      }
+                    resolved_at: null
+                next_cursor: null
+                status_counts: { OPEN: 4, IN_PROGRESS: 2, SUBMITTED_FOR_RECHECK: 0, RESOLVED: 3 }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+  /v1/packages/{package_id}/tasks:
+    parameters:
+      - $ref: "#/components/parameters/PackageId"
+    post:
+      tags: [tasks]
+      operationId: createTask
+      summary: Create a task for a failing or unknown check
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [rule_id, assignee_id, step, due_date]
+              properties:
+                rule_id: { $ref: "#/components/schemas/RuleId" }
+                assignee_id: { $ref: "#/components/schemas/Uuid" }
+                step: { type: string, minLength: 3, maxLength: 1000 }
+                due_date: { type: string, format: date }
+                comment: { type: string, maxLength: 1000 }
+            example:
+              rule_id: R-001
+              assignee_id: 0193a000-0000-7000-8000-000000000006
+              step: Fakturaya PO-381 sifariş nömrəsini mənbə sistemində əlavə edin və yeni versiyanı yükləyin.
+              due_date: "2026-11-09"
+      responses:
+        "201":
+          description: Created (the assignee is notified)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Task" }
+              examples: { t118: { $ref: "#/components/examples/TaskT118" } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409":
+          description: TASK_ALREADY_OPEN — this package already has an open task for the rule
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              example:
+                error:
+                  code: TASK_ALREADY_OPEN
+                  message: "Bu qayda üçün açıq tapşırıq artıq var: T-119."
+                  details: { task_id: 0193a000-0000-7000-8006-000000000119, number: T-119 }
+        "422": { $ref: "#/components/responses/ValidationError" }
+  /v1/tasks/{task_id}:
+    parameters:
+      - { name: task_id, in: path, required: true, schema: { $ref: "#/components/schemas/Uuid" } }
+    patch:
+      tags: [tasks]
+      operationId: updateTask
+      summary: Move a task forward or change its assignee/due date (RESOLVED is set only by the system)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              minProperties: 1
+              properties:
+                status: { type: string, enum: [OPEN, IN_PROGRESS, SUBMITTED_FOR_RECHECK] }
+                assignee_id: { $ref: "#/components/schemas/Uuid" }
+                step: { type: string, minLength: 3, maxLength: 1000 }
+                due_date: { type: string, format: date }
+                comment: { type: ["string", "null"], maxLength: 1000 }
+            example: { status: IN_PROGRESS }
+      responses:
+        "200":
+          description: Updated task
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Task" }
+              examples: { t118: { $ref: "#/components/examples/TaskT118" } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "422":
+          description: VALIDATION_ERROR or TASK_STATUS_NOT_ALLOWED (e.g. RESOLVED, or a skipped transition)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              example:
+                error:
+                  code: TASK_STATUS_NOT_ALLOWED
+                  message: "Tapşırığı yalnız sistem həll edilmiş kimi bağlayır — uyğun qayda keçəndə."
+                  details: { requested: RESOLVED }
+    delete:
+      tags: [tasks]
+      operationId: cancelTask
+      summary: Cancel (soft-delete) an open task; the check result does not change
+      responses:
+        "204": { description: Cancelled (audited) }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "422":
+          description: TASK_STATUS_NOT_ALLOWED — a RESOLVED task cannot be cancelled
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              example:
+                {
+                  error:
+                    {
+                      code: TASK_STATUS_NOT_ALLOWED,
+                      message: "Həll edilmiş tapşırıq ləğv edilə bilməz.",
+                      details: {},
+                    },
+                }
+  /v1/packages/{package_id}/approve:
+    parameters:
+      - $ref: "#/components/parameters/PackageId"
+    post:
+      tags: [approval]
+      operationId: approvePackage
+      summary: Approve the current version (approver only). "Ready to send" — not a payment approval
+      description: |
+        Checks in this order: 403 (role is not approver) → 409 VERSION_CONFLICT (`expected_version` or
+        `expected_requirement_set_version` is not current) → 200 with the existing approval if the current version
+        is already validly approved under the current rule set (no new audit event, whatever the Idempotency-Key)
+        → 409 PACKAGE_NOT_READY if the status is not READY_FOR_APPROVAL → 200 with a new approval.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [expected_version, expected_requirement_set_version, documents_reviewed]
+              properties:
+                expected_version: { type: integer, minimum: 1 }
+                expected_requirement_set_version:
+                  {
+                    type: integer,
+                    minimum: 1,
+                    description: Rule set version the user saw (PackageDetail.requirement_set.version),
+                  }
+                documents_reviewed:
+                  { const: true, description: The approver confirms every document was opened }
+            example:
+              { expected_version: 4, expected_requirement_set_version: 2, documents_reviewed: true }
+      responses:
+        "200":
+          description: Approval of the current version (new or existing)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApprovalRecord" }
+              example:
+                id: 0193a000-0000-7000-8008-000010420004
+                package_version: 4
+                requirement_set_version: 2
+                approver:
+                  {
+                    id: 0193a000-0000-7000-8000-000000000002,
+                    full_name: Rəşad Əliyev,
+                    title: Maliyyə direktoru,
+                    role: approver,
+                  }
+                approved_at: "2026-11-08T06:40:00Z"
+                valid: true
+                invalidated_reason: null
+                invalidated_at: null
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409":
+          description: PACKAGE_NOT_READY (status is not READY_FOR_APPROVAL), VERSION_CONFLICT or IDEMPOTENCY_IN_PROGRESS
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              example:
+                error:
+                  code: PACKAGE_NOT_READY
+                  message: Bloklayan və ya naməlum yoxlama var — paket təsdiqlənə bilməz.
+                  details: { status: NEEDS_FIX, blocking: [R-001, R-007] }
+        "422": { $ref: "#/components/responses/ValidationError" }
+  /v1/packages/{package_id}/export:
+    parameters:
+      - $ref: "#/components/parameters/PackageId"
+    post:
+      tags: [approval]
+      operationId: exportPackage
+      summary: Export the approved current version with the selected documents (manifest + zip)
+      description: |
+        Internal AI explanations and audit records are never included. Checks in this order: 403 → 409
+        VERSION_CONFLICT → 200 with the existing export if the current version is already exported (no new audit
+        event) → 409 PACKAGE_NOT_READY if the status is not APPROVED_READY → 422 INVOICE_REQUIRED if no current
+        invoice version is selected (an empty list is a 422 VALIDATION_ERROR) → 200 with a new export.
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [expected_version, expected_requirement_set_version, document_version_ids]
+              properties:
+                expected_version: { type: integer, minimum: 1 }
+                expected_requirement_set_version:
+                  {
+                    type: integer,
+                    minimum: 1,
+                    description: Rule set version the user saw (PackageDetail.requirement_set.version),
+                  }
+                document_version_ids:
+                  type: array
+                  minItems: 1
+                  uniqueItems: true
+                  description: Current document versions to include; the invoice is mandatory.
+                  items: { $ref: "#/components/schemas/Uuid" }
+            example:
+              expected_version: 4
+              expected_requirement_set_version: 2
+              document_version_ids:
+                [
+                  0193a000-0000-7000-8005-000010420002,
+                  0193a000-0000-7000-8005-000010420003,
+                  0193a000-0000-7000-8005-000010420004,
+                ]
+      responses:
+        "200":
+          description: Export of the current version (new or existing) with a short-lived download link
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ExportResult" }
+              example:
+                export:
+                  id: 0193a000-0000-7000-8009-000010420004
+                  package_version: 4
+                  requirement_set_version: 2
+                  created_by:
+                    {
+                      id: 0193a000-0000-7000-8000-000000000001,
+                      full_name: Aygün Məmmədova,
+                      title: Maliyyə əməkdaşı,
+                      role: operator,
+                    }
+                  created_at: "2026-11-08T06:42:00Z"
+                  files:
+                    - {
+                        document_version_id: 0193a000-0000-7000-8005-000010420002,
+                        type: invoice,
+                        file_name: INV-1042_v2_PO-381.pdf,
+                      }
+                    - {
+                        document_version_id: 0193a000-0000-7000-8005-000010420003,
+                        type: order,
+                        file_name: PO-381.pdf,
+                      }
+                    - {
+                        document_version_id: 0193a000-0000-7000-8005-000010420004,
+                        type: delivery,
+                        file_name: TS-5531_imzali.pdf,
+                      }
+                download:
+                  {
+                    url: "http://localhost:9000/payproof-docs/exports/INV-1042_v4.zip?X-Amz-Signature=demo",
+                    expires_at: "2026-11-08T06:47:00Z",
+                  }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409":
+          description: PACKAGE_NOT_READY (not APPROVED_READY), VERSION_CONFLICT or IDEMPOTENCY_IN_PROGRESS
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              example:
+                {
+                  error:
+                    {
+                      code: PACKAGE_NOT_READY,
+                      message: "İxrac üçün cari versiyanın təsdiqi tələb olunur.",
+                      details: { status: READY_FOR_APPROVAL },
+                    },
+                }
+        "422":
+          description: INVOICE_REQUIRED or VALIDATION_ERROR (e.g. a non-current document version)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              example:
+                {
+                  error:
+                    {
+                      code: INVOICE_REQUIRED,
+                      message: "İxrac paketində faktura məcburidir.",
+                      details: {},
+                    },
+                }
+  /v1/packages/{package_id}/internal-report:
+    parameters:
+      - $ref: "#/components/parameters/PackageId"
+    get:
+      tags: [approval]
+      operationId: getInternalReport
+      summary: Internal validation report for the current version (not shared with the customer)
+      responses:
+        "200":
+          description: Report
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/InternalReport" }
+              example:
+                package: { id: 0193a000-0000-7000-8002-000000001044, invoice_number: INV-1044 }
+                version: 1
+                status: NEEDS_FIX
+                requirement_set_version: 2
+                generated_at: "2026-11-08T06:30:00Z"
+                summary:
+                  {
+                    pass: 7,
+                    fail: 1,
+                    unknown: 0,
+                    not_applicable: 1,
+                    blocking: [{ rule_id: R-005, outcome: FAIL }],
+                  }
+                checks:
+                  - rule_id: R-005
+                    title: Vahid qiymət uyğunluğu
+                    outcome: FAIL
+                    cascade: false
+                    message: "KY-10: fakturada 110,00 AZN, sifarişdə 100,00 AZN × 50 = 500,00 AZN fərq. Aktual qiymət əlavəsini yoxlayın. Fərq itki və ya gəlir sayılmır."
+                    evidence: []
+                    fix_hint: upload_invoice
+                    data: { line_difference: { amount: "500.00", currency: AZN } }
+                approvals: []
+                exports: []
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /v1/packages/{package_id}/audit:
+    parameters:
+      - $ref: "#/components/parameters/PackageId"
+    get:
+      tags: [audit]
+      operationId: listPackageAudit
+      summary: Audit events of one package, newest first
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: A page of events
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuditPage" }
+              examples: { inv1036: { $ref: "#/components/examples/AuditPageInv1036" } }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /v1/audit:
+    get:
+      tags: [audit]
+      operationId: listAudit
+      summary: Company-wide audit log with search; `format=csv` downloads it
+      parameters:
+        - { name: q, in: query, schema: { type: string, maxLength: 100 } }
+        - {
+            name: actor_id,
+            in: query,
+            description: "`system` for system events",
+            schema: { type: string },
+          }
+        - { name: package_id, in: query, schema: { $ref: "#/components/schemas/Uuid" } }
+        - { name: from, in: query, schema: { type: string, format: date-time } }
+        - { name: to, in: query, schema: { type: string, format: date-time } }
+        - { name: format, in: query, schema: { type: string, enum: [json, csv], default: json } }
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: A page of events (JSON) or the full filtered log (CSV)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuditPage" }
+              examples: { inv1036: { $ref: "#/components/examples/AuditPageInv1036" } }
+            text/csv:
+              schema: { type: string }
+              example: |
+                created_at,actor,action,invoice_number,package_version,message
+                2026-11-01T05:46:00Z,Sistem,approval.invalidated,INV-1036,3,"v2 təsdiqi qüvvədən düşdü: təhvil sənədinin yeni versiyası yükləndi."
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "422": { $ref: "#/components/responses/ValidationError" }
+  /v1/customers:
+    get:
+      tags: [customers]
+      operationId: listCustomers
+      summary: Customers with their current requirement set
+      responses:
+        "200":
+          description: Customers
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [items]
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/Customer" } }
+              example:
+                items:
+                  - id: 0193a000-0000-7000-8001-000000000002
+                    name: C Restoran Qrupu
+                    external_id: CRQ-014
+                    voen: "1305884421"
+                    current_requirements: &rs_c2_v1
+                      id: 0193a000-0000-7000-800d-000000000201
+                      version: 1
+                      require_po: true
+                      require_delivery: true
+                      require_signature: false
+                      tolerance: "0.01"
+                      effective_from: "2026-08-15"
+                      approved_by:
+                        &rashad {
+                          id: 0193a000-0000-7000-8000-000000000002,
+                          full_name: Rəşad Əliyev,
+                          title: Maliyyə direktoru,
+                          role: approver,
+                        }
+                      reason: Müştərinin satınalma şöbəsi ilə razılaşdırılmış tələblər.
+                      created_at: "2026-08-10T08:00:00Z"
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+  /v1/customers/{customer_id}/requirements:
+    parameters:
+      - {
+          name: customer_id,
+          in: path,
+          required: true,
+          schema: { $ref: "#/components/schemas/Uuid" },
+        }
+    get:
+      tags: [customers]
+      operationId: listRequirementSets
+      summary: All requirement set versions of a customer, newest first
+      responses:
+        "200":
+          description: Requirement sets
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [items]
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/RequirementSet" } }
+              example: { items: [*rs_c2_v1] }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    post:
+      tags: [customers]
+      operationId: createRequirementSet
+      summary: Approve a new requirement set version (approver only; existing approvals become invalid)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                [
+                  require_po,
+                  require_delivery,
+                  require_signature,
+                  tolerance,
+                  effective_from,
+                  reason,
+                  expected_version,
+                ]
+              properties:
+                require_po: { type: boolean }
+                require_delivery: { type: boolean }
+                require_signature: { type: boolean }
+                tolerance: { $ref: "#/components/schemas/Tolerance" }
+                effective_from: { type: string, format: date }
+                reason: { type: string, minLength: 10, maxLength: 500 }
+                expected_version:
+                  { type: integer, minimum: 1, description: Current requirement set version }
+            example:
+              require_po: true
+              require_delivery: true
+              require_signature: true
+              tolerance: "0.01"
+              effective_from: "2026-12-01"
+              reason: Müştəri dekabrdan imzalı təhvil aktı tələb edir.
+              expected_version: 1
+      responses:
+        "201":
+          description: Created — packages are re-validated under the new version
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RequirementSet" }
+              example:
+                id: 0193a000-0000-7000-800d-000000000202
+                version: 2
+                require_po: true
+                require_delivery: true
+                require_signature: true
+                tolerance: "0.01"
+                effective_from: "2026-12-01"
+                approved_by: *rashad
+                reason: Müştəri dekabrdan imzalı təhvil aktı tələb edir.
+                created_at: "2026-11-08T06:50:00Z"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/ValidationError" }
+  /v1/notifications:
+    get:
+      tags: [notifications]
+      operationId: listNotifications
+      summary: Notifications of the current user, newest first
+      parameters:
+        - { name: unread_only, in: query, schema: { type: boolean, default: false } }
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: A page of notifications
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [items, next_cursor, unread_count]
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/Notification" } }
+                  next_cursor: { type: ["string", "null"] }
+                  unread_count: { type: integer }
+              example:
+                items:
+                  - id: 0193a000-0000-7000-800b-000000001036
+                    text: "INV-1036: təhvil sənədinin yeni versiyası yükləndi. v2 təsdiqi etibarsızlaşdı — v3 yenidən təsdiq tələb edir."
+                    package: { id: 0193a000-0000-7000-8002-000000001036, invoice_number: INV-1036 }
+                    created_at: "2026-11-01T05:47:00Z"
+                    read_at: null
+                next_cursor: null
+                unread_count: 2
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+  /v1/notifications/{notification_id}/read:
+    parameters:
+      - {
+          name: notification_id,
+          in: path,
+          required: true,
+          schema: { $ref: "#/components/schemas/Uuid" },
+        }
+    post:
+      tags: [notifications]
+      operationId: markNotificationRead
+      summary: Mark one notification as read (idempotent)
+      responses:
+        "204": { description: Marked as read }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /v1/notifications/read-all:
+    post:
+      tags: [notifications]
+      operationId: markAllNotificationsRead
+      summary: Mark all notifications of the current user as read (idempotent)
+      responses:
+        "204": { description: All marked as read }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+  /v1/demo/reset:
+    post:
+      tags: [demo]
+      operationId: resetDemo
+      summary: Reset the demo company to the fixtures dataset (ENV=dev only; 404 otherwise)
+      responses:
+        "204": { description: Demo data restored }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /v1/users:
+    get:
+      tags: [users]
+      operationId: listUsers
+      summary: Active members of the current company
+      parameters:
+        - name: assignable
+          in: query
+          description: Only users who can be task assignees or package owners (excludes readonly).
+          schema: { type: boolean, default: false }
+      responses:
+        "200":
+          description: Users
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [items]
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/UserRef" } }
+              example:
+                items:
+                  - {
+                      id: 0193a000-0000-7000-8000-000000000001,
+                      full_name: Aygün Məmmədova,
+                      title: Maliyyə əməkdaşı,
+                      role: operator,
+                    }
+                  - {
+                      id: 0193a000-0000-7000-8000-000000000003,
+                      full_name: Elvin Qasımov,
+                      title: Anbar və logistika,
+                      role: assignee,
+                    }
+                  - {
+                      id: 0193a000-0000-7000-8000-000000000006,
+                      full_name: Leyla Rzayeva,
+                      title: Mühasib,
+                      role: assignee,
+                    }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+  /v1/exports/{export_id}/download:
+    parameters:
+      - { name: export_id, in: path, required: true, schema: { $ref: "#/components/schemas/Uuid" } }
+    get:
+      tags: [approval]
+      operationId: getExportDownload
+      summary: Fresh short-lived link to an existing export's zip (VIEW permission; no new export event)
+      responses:
+        "200":
+          description: Signed link
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SignedUrl" }
+              example:
+                {
+                  url: "http://localhost:9000/payproof-docs/exports/INV-1033_v1.zip?X-Amz-Signature=demo",
+                  expires_at: "2026-11-08T06:55:00Z",
+                }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Tenant comes from the membership in the token; `company_id` is never accepted in a body.
+
+  parameters:
+    PackageId:
+      name: package_id
+      in: path
+      required: true
+      schema: { $ref: "#/components/schemas/Uuid" }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: |
+        Client-generated UUID, created once per user intent and reused on retries. A replay returns the
+        original response without a new event. Same key with a different body → 422 `IDEMPOTENCY_KEY_REUSED`;
+        while the first request is still running → 409 `IDEMPOTENCY_IN_PROGRESS`.
+      schema: { type: string, format: uuid }
+      example: 6f1d2c3b-4a5e-4f60-9a7b-8c9d0e1f2a3b
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+    Cursor:
+      name: cursor
+      in: query
+      description: Opaque cursor from `next_cursor` of the previous page.
+      schema: { type: string }
+
+  responses:
+    BadRequest:
+      description: Malformed JSON or multipart body.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          example:
+            {
+              error:
+                { code: VALIDATION_ERROR, message: "Sorğunun formatı yanlışdır.", details: {} },
+            }
+    FileTooLarge:
+      description: FILE_TOO_LARGE
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          example:
+            {
+              error:
+                {
+                  code: FILE_TOO_LARGE,
+                  message: "Fayl 20 MB-dan böyükdür.",
+                  details: { max_mb: 20 },
+                },
+            }
+    UnsupportedFileType:
+      description: UNSUPPORTED_FILE_TYPE (checked by file content, not extension)
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          example:
+            {
+              error:
+                {
+                  code: UNSUPPORTED_FILE_TYPE,
+                  message: "Yalnız PDF, PNG, JPEG, CSV və XLSX qəbul olunur.",
+                  details: {},
+                },
+            }
+    Unauthenticated:
+      description: Missing or invalid token.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          example:
+            {
+              error:
+                {
+                  code: UNAUTHENTICATED,
+                  message: "Sessiya bitib. Yenidən daxil olun.",
+                  details: {},
+                },
+            }
+    Forbidden:
+      description: The role has no permission for this action (checked on the server).
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          example:
+            {
+              error:
+                {
+                  code: FORBIDDEN,
+                  message: "Hazır paketi yalnız təsdiqçi rolu təsdiqləyə bilər.",
+                  details: {},
+                },
+            }
+    NotFound:
+      description: Not found — also returned for objects of another tenant (never 403).
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          example: { error: { code: NOT_FOUND, message: "Obyekt tapılmadı.", details: {} } }
+    Conflict:
+      description: Version conflict, wrong state, duplicate or an idempotent request still in progress.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          example:
+            error:
+              code: VERSION_CONFLICT
+              message: "Paket v3-ə yenilənib; səhifəni yeniləyin."
+              details: { current_version: 3, expected_version: 2 }
+    ValidationError:
+      description: Request is syntactically valid but not acceptable.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+          example:
+            error:
+              code: VALIDATION_ERROR
+              message: "Sorğuda xəta var."
+              details: { fields: { reason: "Səbəb məcburidir." } }
+
+  examples:
+    AuditPageInv1036:
+      summary: A new delivery version invalidated the v2 approval of INV-1036
+      value:
+        items:
+          - id: 0193a000-0000-7000-800a-000010360002
+            created_at: "2026-11-01T05:46:00Z"
+            actor: null
+            action: approval.invalidated
+            message: "v2 təsdiqi qüvvədən düşdü: təhvil sənədinin yeni versiyası yükləndi. Əvvəlki təsdiq auditdə saxlanılır."
+            package: { id: 0193a000-0000-7000-8002-000000001036, invoice_number: INV-1036 }
+            package_version: 3
+            object_type: approval
+            object_id: 0193a000-0000-7000-8008-000010360002
+            details: { approval_version: 2 }
+          - id: 0193a000-0000-7000-800a-000010360001
+            created_at: "2026-11-01T05:45:00Z"
+            actor:
+              {
+                id: 0193a000-0000-7000-8000-000000000001,
+                full_name: Aygün Məmmədova,
+                title: Maliyyə əməkdaşı,
+                role: operator,
+              }
+            action: document.uploaded
+            message: "Təhvil sənədi: TS-5518_imzali_tam.pdf (sənəd v3) · paket v3"
+            package: { id: 0193a000-0000-7000-8002-000000001036, invoice_number: INV-1036 }
+            package_version: 3
+            object_type: document_version
+            object_id: 0193a000-0000-7000-8005-000010360003
+            details: { document_type: delivery, version_no: 3 }
+        next_cursor: null
+    TaskT118:
+      summary: Price task for INV-1044 (R-005)
+      value:
+        id: 0193a000-0000-7000-8006-000000000118
+        number: T-118
+        package: { id: 0193a000-0000-7000-8002-000000001044, invoice_number: INV-1044 }
+        rule_id: R-005
+        assignee:
+          {
+            id: 0193a000-0000-7000-8000-000000000004,
+            full_name: Nigar Hüseynova,
+            title: Satış meneceri,
+            role: assignee,
+          }
+        step: "KY-10 üçün aktual qiymət razılaşmasını yoxlayın: fakturada 110,00 AZN, sifarişdə 100,00 AZN. Düzgün qiyməti təsdiqləyin."
+        due_date: "2026-11-10"
+        status: IN_PROGRESS
+        comment: Müştəri ilə oktyabr qiymət əlavəsi müzakirə olunub.
+        created_at: "2026-11-04T11:00:00Z"
+        created_by:
+          {
+            id: 0193a000-0000-7000-8000-000000000001,
+            full_name: Aygün Məmmədova,
+            title: Maliyyə əməkdaşı,
+            role: operator,
+          }
+        resolved_at: null
+    PackageDetailInv1042Linked:
+      summary: INV-1042 after the PO-381 link was confirmed — v2, NEEDS_FIX (R-001, R-007) — checks abbreviated to the blockers
+      value:
+        id: 0193a000-0000-7000-8002-000000001042
+        invoice_number: INV-1042
+        version: 2
+        status: NEEDS_FIX
+        processing: false
+        customer: { id: 0193a000-0000-7000-8001-000000000001, name: B Mağazalar Şəbəkəsi }
+        invoice_date: "2026-11-03"
+        owner:
+          &ex_u1 {
+            id: 0193a000-0000-7000-8000-000000000001,
+            full_name: Aygün Məmmədova,
+            title: Maliyyə əməkdaşı,
+            role: operator,
+          }
+        created_at: "2026-11-03T05:12:00Z"
+        updated_at: "2026-11-08T06:32:00Z"
+        total: { amount: "12000.00", currency: AZN }
+        requirement_set:
+          id: 0193a000-0000-7000-800d-000000000102
+          version: 2
+          require_po: true
+          require_delivery: true
+          require_signature: true
+          tolerance: "0.01"
+          effective_from: "2026-10-01"
+          approved_by:
+            {
+              id: 0193a000-0000-7000-8000-000000000002,
+              full_name: Rəşad Əliyev,
+              title: Maliyyə direktoru,
+              role: approver,
+            }
+          reason: Müştəri 01.10.2026-dan imzalanmış təhvil-təslim aktı tələb edir.
+          created_at: "2026-09-25T08:00:00Z"
+        link:
+          {
+            confirmed: true,
+            order_id: 0193a000-0000-7000-8003-000000000381,
+            order_po: PO-381,
+            method: human,
+            confirmed_by: *ex_u1,
+            candidates: [],
+          }
+        documents: []
+        fields: []
+        comparison: { rows: [] }
+        checks:
+          - {
+              rule_id: R-001,
+              title: Məcburi sifariş nömrəsi (PO),
+              outcome: FAIL,
+              cascade: false,
+              message: "Müştəri qaydası fakturada sifariş nömrəsi tələb edir, fakturada isə PO göstərilməyib.",
+              evidence: [],
+              fix_hint: upload_invoice,
+              data: {},
+            }
+          - {
+              rule_id: R-007,
+              title: Məcburi təhvil sənədi,
+              outcome: FAIL,
+              cascade: false,
+              message: Müştəri qaydası imzalanmış təhvil sənədi tələb edir; paketdə təhvil sənədi yoxdur.,
+              evidence: [],
+              fix_hint: upload_delivery,
+              data: {},
+            }
+        summary:
+          {
+            pass: 5,
+            fail: 2,
+            unknown: 0,
+            not_applicable: 2,
+            blocking: [{ rule_id: R-001, outcome: FAIL }, { rule_id: R-007, outcome: FAIL }],
+          }
+        current_approval: null
+        approvals: []
+        exports: []
+        tasks: []
+        permissions:
+          {
+            can_edit: true,
+            can_manage_tasks: true,
+            can_approve: false,
+            can_export: false,
+            can_delete: true,
+          }
+  schemas:
+    Uuid:
+      type: string
+      format: uuid
+    Decimal:
+      type: string
+      description: Decimal amount as a string with exactly 2 fraction digits — never a float.
+      pattern: "^-?(0|[1-9][0-9]*)\\.[0-9]{2}$"
+      examples: ["12000.00"]
+    Currency:
+      type: string
+      enum: [AZN, USD]
+      description: Amounts in different currencies are never summed or converted.
+    Tolerance:
+      type: string
+      description: R-009 rounding tolerance in the invoice currency, 0.00–1.00.
+      pattern: "^(0\\.[0-9]{2}|1\\.00)$"
+      examples: ["0.01"]
+    Money:
+      type: object
+      additionalProperties: false
+      required: [amount, currency]
+      properties:
+        amount: { $ref: "#/components/schemas/Decimal" }
+        currency: { $ref: "#/components/schemas/Currency" }
+    RuleId:
+      type: string
+      pattern: "^R-0(0[1-9]|10)$"
+      examples: ["R-001"]
+    PackageStatus:
+      type: string
+      enum: [PROCESSING, NEEDS_REVIEW, NEEDS_FIX, READY_FOR_APPROVAL, APPROVED_READY, EXPORTED]
+      description: Derived from the latest validation run, approvals and exports — never stored as truth. There is no PAID.
+    CheckOutcome:
+      type: string
+      enum: [PASS, FAIL, UNKNOWN, NOT_APPLICABLE]
+      description: UNKNOWN is never treated as PASS and blocks the package.
+    TaskStatus:
+      type: string
+      enum: [OPEN, IN_PROGRESS, SUBMITTED_FOR_RECHECK, RESOLVED]
+      description: Only the system sets RESOLVED, when the task's rule passes.
+    DocumentType:
+      type: string
+      enum: [invoice, order, delivery]
+    DocumentVersionStatus:
+      type: string
+      enum: [UPLOADED, PROCESSING, EXTRACTED, REVIEW_REQUIRED, FAILED]
+      description: FAILED is a technical processing error, not a business FAIL.
+    Role:
+      type: string
+      enum: [operator, approver, readonly, admin, assignee]
+      description: |
+        `assignee` (ADR-0008) — task assignee only (warehouse, sales, accounting staff): cannot sign in, has no
+        permissions, never an audit actor. Operators upload their documents and move their tasks.
+    Permission:
+      type: string
+      enum:
+        [
+          VIEW,
+          EDIT_PACKAGE,
+          MANAGE_TASKS,
+          MANAGE_REQUIREMENTS,
+          APPROVE_PACKAGE,
+          EXPORT_PACKAGE,
+          DELETE_PACKAGE,
+        ]
+      description: Server-side permission matrix (docs/architecture/security.md); the UI only mirrors it.
+    UserRef:
+      type: object
+      additionalProperties: false
+      required: [id, full_name, title, role]
+      properties:
+        id: { $ref: "#/components/schemas/Uuid" }
+        full_name: { type: string }
+        title: { type: string }
+        role: { $ref: "#/components/schemas/Role" }
+    PackageRef:
+      type: object
+      additionalProperties: false
+      required: [id, invoice_number]
+      properties:
+        id: { $ref: "#/components/schemas/Uuid" }
+        invoice_number: { type: string, examples: ["INV-1042"] }
+    ErrorCode:
+      type: string
+      enum:
+        - VALIDATION_ERROR
+        - TASK_STATUS_NOT_ALLOWED
+        - INVOICE_REQUIRED
+        - IDEMPOTENCY_KEY_REUSED
+        - UNAUTHENTICATED
+        - FORBIDDEN
+        - NOT_FOUND
+        - VERSION_CONFLICT
+        - PACKAGE_NOT_READY
+        - PACKAGE_NOT_DELETABLE
+        - TASK_ALREADY_OPEN
+        - DUPLICATE_FILE
+        - DUPLICATE_INVOICE
+        - IDEMPOTENCY_IN_PROGRESS
+        - FILE_TOO_LARGE
+        - UNSUPPORTED_FILE_TYPE
+        - INTERNAL_ERROR
+    Error:
+      type: object
+      additionalProperties: false
+      required: [error]
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required: [code, message, details]
+          properties:
+            code: { $ref: "#/components/schemas/ErrorCode" }
+            message: { type: string, description: "Azerbaijani; safe to show in the UI." }
+            details: { type: object, additionalProperties: true }
+    DevUser:
+      type: object
+      additionalProperties: false
+      required: [id, full_name, title, role]
+      properties:
+        id: { $ref: "#/components/schemas/Uuid" }
+        full_name: { type: string }
+        title: { type: string }
+        role: { $ref: "#/components/schemas/Role" }
+    Me:
+      type: object
+      additionalProperties: false
+      required: [id, email, full_name, title, role, company, permissions]
+      properties:
+        id: { $ref: "#/components/schemas/Uuid" }
+        email: { type: string, format: email }
+        full_name: { type: string }
+        title: { type: string }
+        role: { $ref: "#/components/schemas/Role" }
+        company:
+          type: object
+          additionalProperties: false
+          required: [id, name, voen]
+          properties:
+            id: { $ref: "#/components/schemas/Uuid" }
+            name: { type: string }
+            voen: { type: string, pattern: "^[0-9]{10}$" }
+        permissions:
+          type: array
+          uniqueItems: true
+          items: { $ref: "#/components/schemas/Permission" }
+    Session:
+      type: object
+      additionalProperties: false
+      required: [access_token, token_type, expires_in, user]
+      properties:
+        access_token: { type: string }
+        token_type: { const: bearer }
+        expires_in: { type: integer, description: Seconds }
+        user: { $ref: "#/components/schemas/Me" }
+    Dashboard:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          as_of,
+          package_count,
+          customer_count,
+          status_counts,
+          open_problem_amounts,
+          ready_amounts,
+          top_issue,
+          rule_counts,
+          problem_age,
+          tasks,
+          recent_approvals,
+        ]
+      properties:
+        as_of: { type: string, format: date-time }
+        package_count:
+          { type: integer, description: Unique invoice packages (each invoice counted once) }
+        customer_count: { type: integer }
+        status_counts:
+          type: object
+          additionalProperties: false
+          required:
+            [PROCESSING, NEEDS_REVIEW, NEEDS_FIX, READY_FOR_APPROVAL, APPROVED_READY, EXPORTED]
+          properties:
+            PROCESSING: { type: integer }
+            NEEDS_REVIEW: { type: integer }
+            NEEDS_FIX: { type: integer }
+            READY_FOR_APPROVAL: { type: integer }
+            APPROVED_READY: { type: integer }
+            EXPORTED: { type: integer }
+        open_problem_amounts:
+          type: array
+          description: NEEDS_FIX + NEEDS_REVIEW invoice totals, one entry per currency (never converted). Not a financial loss.
+          items: { $ref: "#/components/schemas/CurrencyTotal" }
+        ready_amounts:
+          type: array
+          description: READY_FOR_APPROVAL invoice totals per currency (mobile approver home).
+          items: { $ref: "#/components/schemas/CurrencyTotal" }
+        top_issue:
+          description: Most frequent primary (non-cascade) problem category among non-exported packages.
+          oneOf:
+            - type: "null"
+            - type: object
+              additionalProperties: false
+              required: [category, rule_ids, package_count, invoice_numbers]
+              properties:
+                category: { type: string }
+                rule_ids: { type: array, items: { $ref: "#/components/schemas/RuleId" } }
+                package_count: { type: integer }
+                invoice_numbers: { type: array, items: { type: string } }
+        rule_counts:
+          type: array
+          description: Primary blockers per rule (cascade results are not counted).
+          items:
+            type: object
+            additionalProperties: false
+            required: [rule_id, fail, unknown]
+            properties:
+              rule_id: { $ref: "#/components/schemas/RuleId" }
+              fail: { type: integer }
+              unknown: { type: integer }
+        problem_age:
+          type: object
+          additionalProperties: false
+          required: [average_days, longest]
+          properties:
+            average_days: { type: string, pattern: "^[0-9]+\\.[0-9]$" }
+            longest:
+              oneOf:
+                - type: "null"
+                - type: object
+                  additionalProperties: false
+                  required: [package, days]
+                  properties:
+                    package: { $ref: "#/components/schemas/PackageRef" }
+                    days: { type: integer }
+        tasks:
+          type: object
+          additionalProperties: false
+          required: [resolved, total]
+          properties:
+            resolved: { type: integer }
+            total: { type: integer }
+        recent_approvals:
+          type: array
+          maxItems: 5
+          items:
+            type: object
+            additionalProperties: false
+            required: [package, version, approver, approved_at, total, valid, exported]
+            properties:
+              package: { $ref: "#/components/schemas/PackageRef" }
+              version: { type: integer }
+              approver: { $ref: "#/components/schemas/UserRef" }
+              approved_at: { type: string, format: date-time }
+              total: { $ref: "#/components/schemas/Money" }
+              valid:
+                { type: boolean, description: false once a new version or rule set invalidated it }
+              exported: { type: boolean }
+    CurrencyTotal:
+      type: object
+      additionalProperties: false
+      required: [total, package_count]
+      description: Sum of invoice totals in one currency — computed on the server, never across currencies.
+      properties:
+        total: { $ref: "#/components/schemas/Money" }
+        package_count: { type: integer }
+    CustomerRef:
+      type: object
+      additionalProperties: false
+      required: [id, name]
+      properties:
+        id: { $ref: "#/components/schemas/Uuid" }
+        name: { type: string }
+    Blocker:
+      type: object
+      additionalProperties: false
+      required: [rule_id, outcome]
+      description: A primary (non-cascade) FAIL or UNKNOWN result.
+      properties:
+        rule_id: { $ref: "#/components/schemas/RuleId" }
+        outcome: { type: string, enum: [FAIL, UNKNOWN] }
+    PackageListItem:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          invoice_number,
+          version,
+          status,
+          customer,
+          invoice_date,
+          total,
+          po_ref,
+          po_unreadable,
+          blocking,
+          owner,
+          problem_since,
+          updated_at,
+        ]
+      properties:
+        id: { $ref: "#/components/schemas/Uuid" }
+        invoice_number:
+          { type: ["string", "null"], description: null while PROCESSING (not extracted yet) }
+        version: { type: integer, minimum: 1 }
+        status: { $ref: "#/components/schemas/PackageStatus" }
+        customer: { $ref: "#/components/schemas/CustomerRef" }
+        invoice_date: { type: ["string", "null"], format: date, description: null while PROCESSING }
+        total:
+          {
+            description: null while PROCESSING,
+            oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Money" }],
+          }
+        po_ref:
+          {
+            type: ["string", "null"],
+            description: PO as extracted from the invoice (may not exist in the system),
+          }
+        po_unreadable: { type: boolean }
+        blocking: { type: array, items: { $ref: "#/components/schemas/Blocker" } }
+        owner: { $ref: "#/components/schemas/UserRef" }
+        problem_since:
+          type: ["string", "null"]
+          format: date-time
+          description: Since when the package is NEEDS_FIX/NEEDS_REVIEW (null otherwise); problem age = now − problem_since.
+        updated_at: { type: string, format: date-time }
+    PackagePage:
+      type: object
+      additionalProperties: false
+      required: [items, next_cursor, total_count]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/PackageListItem" } }
+        next_cursor: { type: ["string", "null"] }
+        total_count: { type: integer, description: Packages matching the filters (all pages) }
+    RequirementSet:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          version,
+          require_po,
+          require_delivery,
+          require_signature,
+          tolerance,
+          effective_from,
+          approved_by,
+          reason,
+          created_at,
+        ]
+      description: Immutable customer rule set; a new version is created on every change.
+      properties:
+        id: { $ref: "#/components/schemas/Uuid" }
+        version: { type: integer, minimum: 1 }
+        require_po: { type: boolean }
+        require_delivery: { type: boolean }
+        require_signature: { type: boolean }
+        tolerance: { $ref: "#/components/schemas/Tolerance" }
+        effective_from: { type: string, format: date }
+        approved_by: { $ref: "#/components/schemas/UserRef" }
+        reason: { type: string }
+        created_at: { type: string, format: date-time }
+    Evidence:
+      type: object
+      additionalProperties: false
+      required: [document_version_id, page, quote, bbox]
+      description: Source reference; a field without evidence is not considered reliable.
+      properties:
+        document_version_id: { $ref: "#/components/schemas/Uuid" }
+        page: { type: integer, minimum: 1 }
+        quote: { type: string }
+        bbox:
+          description: Normalised [x, y, width, height] on the page (0..1), if known.
+          oneOf:
+            - type: "null"
+            - {
+                type: array,
+                items: { type: number, minimum: 0, maximum: 1 },
+                minItems: 4,
+                maxItems: 4,
+              }
+    DocumentVersion:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          version_no,
+          file_name,
+          source_kind,
+          status,
+          sha256,
+          uploaded_by,
+          uploaded_at,
+          package_version_at_upload,
+        ]
+      properties:
+        id: { $ref: "#/components/schemas/Uuid" }
+        version_no: { type: integer, minimum: 1 }
+        file_name: { type: string }
+        source_kind: { type: string, enum: [pdf, scan, spreadsheet] }
+        status: { $ref: "#/components/schemas/DocumentVersionStatus" }
+        sha256: { type: string, pattern: "^[0-9a-f]{64}$" }
+        uploaded_by: { $ref: "#/components/schemas/UserRef" }
+        uploaded_at: { type: string, format: date-time }
+        package_version_at_upload: { type: integer, minimum: 1 }
+    Document:
+      type: object
+      additionalProperties: false
+      required: [id, type, current, history]
+      properties:
+        id: { $ref: "#/components/schemas/Uuid" }
+        type: { $ref: "#/components/schemas/DocumentType" }
+        current: { $ref: "#/components/schemas/DocumentVersion" }
+        history:
+          type: array
+          description: Previous versions, newest first (kept for audit).
+          items: { $ref: "#/components/schemas/DocumentVersion" }
+    ExtractedField:
+      type: object
+      additionalProperties: false
+      required:
+        [id, document_version_id, field_path, label, raw_value, value, review_status, evidence]
+      properties:
+        id: { $ref: "#/components/schemas/Uuid" }
+        document_version_id: { $ref: "#/components/schemas/Uuid" }
+        field_path:
+          type: string
+          description: "`invoice.po_ref`, `invoice.lines[<code>].qty`, `invoice.lines[<code>].unit_price`, …"
+          examples: ["invoice.lines[KY-10].unit_price"]
+        label: { type: string, examples: ["KY-10 vahid qiyməti"] }
+        raw_value: { type: ["string", "null"], description: Text as read from the document }
+        value: { type: ["string", "null"], description: Normalised value used by the rule engine }
+        review_status: { type: string, enum: [EXTRACTED, REVIEW_REQUIRED, CORRECTED] }
+        evidence: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Evidence" }] }
+    MatchCandidate:
+      type: object
+      additionalProperties: false
+      required: [order_id, po_number, order_date, total, reason]
+      description: AI link suggestion — never evidence by itself; a human confirms it.
+      properties:
+        order_id: { $ref: "#/components/schemas/Uuid" }
+        po_number: { type: string, examples: ["PO-381"] }
+        order_date: { type: string, format: date }
+        total: { $ref: "#/components/schemas/Money" }
+        reason: { type: string }
+    OrderLink:
+      type: object
+      additionalProperties: false
+      required: [confirmed, order_id, order_po, method, confirmed_by, candidates]
+      properties:
+        confirmed: { type: boolean }
+        order_id: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Uuid" }] }
+        order_po: { type: ["string", "null"] }
+        method: { type: ["string", "null"], enum: [exact_id, human, null] }
+        confirmed_by:
+          description: null for an automatic exact-ID link or when not confirmed.
+          oneOf: [{ type: "null" }, { $ref: "#/components/schemas/UserRef" }]
+        candidates: { type: array, items: { $ref: "#/components/schemas/MatchCandidate" } }
+    CheckResult:
+      type: object
+      additionalProperties: false
+      required: [rule_id, title, outcome, cascade, message, evidence, fix_hint, data]
+      description: Deterministic rule engine result (docs/architecture/rules-engine.md); every rule blocks when FAIL or UNKNOWN.
+      properties:
+        rule_id: { $ref: "#/components/schemas/RuleId" }
+        title: { type: string }
+        outcome: { $ref: "#/components/schemas/CheckOutcome" }
+        cascade:
+          type: boolean
+          description: Could not be evaluated because of another problem — blocks, but is not a primary problem.
+        message: { type: string, description: Azerbaijani; shows only computed values from `data` }
+        evidence: { type: array, items: { $ref: "#/components/schemas/Evidence" } }
+        fix_hint:
+          type: ["string", "null"]
+          enum: [edit_field, upload_invoice, upload_delivery, link_order, review_signature, null]
+        data:
+          type: object
+          additionalProperties: true
+          description: 'Computed values, e.g. `{ "line_difference": { "amount": "500.00", "currency": "AZN" } }` for R-005.'
+    CheckSummary:
+      type: object
+      additionalProperties: false
+      required: [pass, fail, unknown, not_applicable, blocking]
+      properties:
+        pass: { type: integer }
+        fail: { type: integer }
+        unknown: { type: integer }
+        not_applicable: { type: integer }
+        blocking:
+          {
+            type: array,
+            description: Primary blockers,
+            items: { $ref: "#/components/schemas/Blocker" },
+          }
+    ComparisonCell:
+      type: object
+      additionalProperties: false
+      required: [value, currency, state, field_id, evidence]
+      properties:
+        value:
+          {
+            type: ["string", "null"],
+            description: Display value (money/quantity as decimal strings),
+          }
+        currency:
+          description: Currency of a money value in this cell (the order may differ from the invoice — R-004); null otherwise.
+          oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Currency" }]
+        state: { type: string, enum: [ok, mismatch, unknown, empty] }
+        field_id:
+          {
+            oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Uuid" }],
+            description: Editable extracted field,
+          }
+        evidence: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Evidence" }] }
+    ComparisonRow:
+      type: object
+      additionalProperties: false
+      required: [key, group, label, invoice, order, delivery]
+      properties:
+        key: { type: string, examples: ["lines[KY-10].unit_price"] }
+        group:
+          type: ["string", "null"]
+          description: 'Line group header, e.g. "KY-10 · Kərə yağı 82%, 10 kq blok".'
+        label: { type: string }
+        invoice: { $ref: "#/components/schemas/ComparisonCell" }
+        order: { $ref: "#/components/schemas/ComparisonCell" }
+        delivery: { $ref: "#/components/schemas/ComparisonCell" }
+    ApprovalRecord:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          package_version,
+          requirement_set_version,
+          approver,
+          approved_at,
+          valid,
+          invalidated_reason,
+          invalidated_at,
+        ]
+      description: Approval of one package version under one rule set version. Not a payment approval.
+      properties:
+        id: { $ref: "#/components/schemas/Uuid" }
+        package_version: { type: integer, minimum: 1 }
+        requirement_set_version: { type: integer, minimum: 1 }
+        approver: { $ref: "#/components/schemas/UserRef" }
+        approved_at: { type: string, format: date-time }
+        valid: { type: boolean }
+        invalidated_reason: { type: ["string", "null"] }
+        invalidated_at: { type: ["string", "null"], format: date-time }
+    ExportRecord:
+      type: object
+      additionalProperties: false
+      required: [id, package_version, requirement_set_version, created_by, created_at, files]
+      properties:
+        id: { $ref: "#/components/schemas/Uuid" }
+        package_version: { type: integer, minimum: 1 }
+        requirement_set_version: { type: integer, minimum: 1 }
+        created_by: { $ref: "#/components/schemas/UserRef" }
+        created_at: { type: string, format: date-time }
+        files:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            additionalProperties: false
+            required: [document_version_id, type, file_name]
+            properties:
+              document_version_id: { $ref: "#/components/schemas/Uuid" }
+              type: { $ref: "#/components/schemas/DocumentType" }
+              file_name: { type: string }
+    Task:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          number,
+          package,
+          rule_id,
+          assignee,
+          step,
+          due_date,
+          status,
+          comment,
+          created_at,
+          created_by,
+          resolved_at,
+        ]
+      properties:
+        id: { $ref: "#/components/schemas/Uuid" }
+        number: { type: string, examples: ["T-118"] }
+        package: { $ref: "#/components/schemas/PackageRef" }
+        rule_id: { $ref: "#/components/schemas/RuleId" }
+        assignee: { $ref: "#/components/schemas/UserRef" }
+        step: { type: string, description: Required action }
+        due_date: { type: string, format: date }
+        status: { $ref: "#/components/schemas/TaskStatus" }
+        comment: { type: ["string", "null"] }
+        created_at: { type: string, format: date-time }
+        created_by: { $ref: "#/components/schemas/UserRef" }
+        resolved_at: { type: ["string", "null"], format: date-time }
+    PackagePermissions:
+      type: object
+      additionalProperties: false
+      required: [can_edit, can_manage_tasks, can_approve, can_export, can_delete]
+      description: UI hint = role permission AND current state allows it. The server re-checks every request.
+      properties:
+        can_edit: { type: boolean }
+        can_manage_tasks: { type: boolean }
+        can_approve: { type: boolean }
+        can_export: { type: boolean }
+        can_delete: { type: boolean }
+    PackageDetail:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          invoice_number,
+          version,
+          status,
+          processing,
+          customer,
+          invoice_date,
+          owner,
+          created_at,
+          updated_at,
+          total,
+          requirement_set,
+          link,
+          documents,
+          fields,
+          comparison,
+          checks,
+          summary,
+          current_approval,
+          approvals,
+          exports,
+          tasks,
+          permissions,
+        ]
+      properties:
+        id: { $ref: "#/components/schemas/Uuid" }
+        invoice_number:
+          { type: ["string", "null"], description: null while PROCESSING (not extracted yet) }
+        version:
+          { type: integer, minimum: 1, description: Send as `expected_version` in every change }
+        status: { $ref: "#/components/schemas/PackageStatus" }
+        processing: { type: boolean }
+        customer: { $ref: "#/components/schemas/CustomerRef" }
+        invoice_date: { type: ["string", "null"], format: date, description: null while PROCESSING }
+        owner: { $ref: "#/components/schemas/UserRef" }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        total:
+          {
+            description: null while PROCESSING,
+            oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Money" }],
+          }
+        requirement_set: { $ref: "#/components/schemas/RequirementSet" }
+        link: { $ref: "#/components/schemas/OrderLink" }
+        documents: { type: array, items: { $ref: "#/components/schemas/Document" } }
+        fields: { type: array, items: { $ref: "#/components/schemas/ExtractedField" } }
+        comparison:
+          type: object
+          additionalProperties: false
+          required: [rows]
+          properties:
+            rows: { type: array, items: { $ref: "#/components/schemas/ComparisonRow" } }
+        checks: { type: array, items: { $ref: "#/components/schemas/CheckResult" } }
+        summary: { $ref: "#/components/schemas/CheckSummary" }
+        current_approval:
+          description: Valid approval for the current version and rule set, if any.
+          oneOf: [{ type: "null" }, { $ref: "#/components/schemas/ApprovalRecord" }]
+        approvals:
+          {
+            type: array,
+            description: All approvals incl. invalidated ones,
+            items: { $ref: "#/components/schemas/ApprovalRecord" },
+          }
+        exports: { type: array, items: { $ref: "#/components/schemas/ExportRecord" } }
+        tasks: { type: array, items: { $ref: "#/components/schemas/Task" } }
+        permissions: { $ref: "#/components/schemas/PackagePermissions" }
+    JobAccepted:
+      type: object
+      additionalProperties: false
+      required: [job_id]
+      properties:
+        job_id: { $ref: "#/components/schemas/Uuid" }
+        package_id: { $ref: "#/components/schemas/Uuid" }
+        document_id: { $ref: "#/components/schemas/Uuid" }
+        document_version_id: { $ref: "#/components/schemas/Uuid" }
+    Job:
+      type: object
+      additionalProperties: false
+      required: [id, kind, status, created_at, updated_at, result, error]
+      properties:
+        id: { $ref: "#/components/schemas/Uuid" }
+        kind: { type: string, enum: [extract_document, create_package] }
+        status: { type: string, enum: [QUEUED, RUNNING, SUCCEEDED, FAILED] }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        result:
+          oneOf:
+            - type: "null"
+            - type: object
+              additionalProperties: false
+              required: [package_id, package_version]
+              properties:
+                package_id: { $ref: "#/components/schemas/Uuid" }
+                package_version: { type: integer }
+                document_version_id: { $ref: "#/components/schemas/Uuid" }
+        error:
+          oneOf:
+            - type: "null"
+            - type: object
+              additionalProperties: false
+              required: [code, message]
+              properties:
+                code: { $ref: "#/components/schemas/ErrorCode" }
+                message: { type: string }
+    SignedUrl:
+      type: object
+      additionalProperties: false
+      required: [url, expires_at]
+      properties:
+        url: { type: string, format: uri }
+        expires_at: { type: string, format: date-time }
+    VersionedRequest:
+      type: object
+      additionalProperties: false
+      required: [expected_version]
+      properties:
+        expected_version:
+          {
+            type: integer,
+            minimum: 1,
+            description: Current package version; otherwise 409 VERSION_CONFLICT,
+          }
+    ExportResult:
+      type: object
+      additionalProperties: false
+      required: [export, download]
+      properties:
+        export: { $ref: "#/components/schemas/ExportRecord" }
+        download: { $ref: "#/components/schemas/SignedUrl" }
+    InternalReport:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          package,
+          version,
+          status,
+          requirement_set_version,
+          generated_at,
+          summary,
+          checks,
+          approvals,
+          exports,
+        ]
+      properties:
+        package: { $ref: "#/components/schemas/PackageRef" }
+        version: { type: integer, minimum: 1 }
+        status: { $ref: "#/components/schemas/PackageStatus" }
+        requirement_set_version: { type: integer, minimum: 1 }
+        generated_at: { type: string, format: date-time }
+        summary: { $ref: "#/components/schemas/CheckSummary" }
+        checks: { type: array, items: { $ref: "#/components/schemas/CheckResult" } }
+        approvals: { type: array, items: { $ref: "#/components/schemas/ApprovalRecord" } }
+        exports: { type: array, items: { $ref: "#/components/schemas/ExportRecord" } }
+    AuditEvent:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          created_at,
+          actor,
+          action,
+          message,
+          package,
+          package_version,
+          object_type,
+          object_id,
+          details,
+        ]
+      properties:
+        id: { $ref: "#/components/schemas/Uuid" }
+        created_at: { type: string, format: date-time }
+        actor:
+          {
+            description: null = system,
+            oneOf: [{ type: "null" }, { $ref: "#/components/schemas/UserRef" }],
+          }
+        action: { type: string, pattern: "^[a-z_]+\\.[a-z_]+$", examples: ["package.approved"] }
+        message: { type: string, description: Azerbaijani summary (no document text) }
+        package: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/PackageRef" }] }
+        package_version: { type: ["integer", "null"] }
+        object_type: { type: string, examples: ["approval"] }
+        object_id: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/Uuid" }] }
+        details: { type: object, additionalProperties: true }
+    AuditPage:
+      type: object
+      additionalProperties: false
+      required: [items, next_cursor]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/AuditEvent" } }
+        next_cursor: { type: ["string", "null"] }
+    Customer:
+      type: object
+      additionalProperties: false
+      required: [id, name, external_id, voen, current_requirements]
+      properties:
+        id: { $ref: "#/components/schemas/Uuid" }
+        name: { type: string }
+        external_id: { type: string }
+        voen: { type: string, pattern: "^[0-9]{10}$" }
+        current_requirements: { $ref: "#/components/schemas/RequirementSet" }
+    Notification:
+      type: object
+      additionalProperties: false
+      required: [id, text, package, created_at, read_at]
+      properties:
+        id: { $ref: "#/components/schemas/Uuid" }
+        text: { type: string }
+        package: { oneOf: [{ type: "null" }, { $ref: "#/components/schemas/PackageRef" }] }
+        created_at: { type: string, format: date-time }
+        read_at: { type: ["string", "null"], format: date-time }

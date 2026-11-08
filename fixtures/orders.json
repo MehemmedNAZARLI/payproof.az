@@ -1,0 +1,261 @@
+[
+  {
+    "po_number": "PO-381",
+    "customer_id": "c1",
+    "currency": "AZN",
+    "order_date": "2026-10-28",
+    "lines": [
+      {
+        "product_code": "GY-1L",
+        "qty": 800,
+        "unit_price": "9.00"
+      },
+      {
+        "product_code": "DY-5",
+        "qty": 400,
+        "unit_price": "12.00"
+      }
+    ]
+  },
+  {
+    "po_number": "PO-377",
+    "customer_id": "c1",
+    "currency": "AZN",
+    "order_date": "2026-10-24",
+    "lines": [
+      {
+        "product_code": "ST-1",
+        "qty": 1200,
+        "unit_price": "2.05"
+      },
+      {
+        "product_code": "CQ-250",
+        "qty": 300,
+        "unit_price": "8.00"
+      }
+    ]
+  },
+  {
+    "po_number": "PO-388",
+    "customer_id": "c1",
+    "currency": "AZN",
+    "order_date": "2026-10-30",
+    "lines": [
+      {
+        "product_code": "KY-10",
+        "qty": 50,
+        "unit_price": "100.00"
+      },
+      {
+        "product_code": "MK-500",
+        "qty": 1000,
+        "unit_price": "1.40"
+      }
+    ]
+  },
+  {
+    "po_number": "PO-382",
+    "customer_id": "c1",
+    "currency": "AZN",
+    "order_date": "2026-10-29",
+    "lines": [
+      {
+        "product_code": "PP-700",
+        "qty": 600,
+        "unit_price": "3.20"
+      }
+    ]
+  },
+  {
+    "po_number": "PO-390",
+    "customer_id": "c2",
+    "currency": "AZN",
+    "order_date": "2026-10-31",
+    "lines": [
+      {
+        "product_code": "MS-05",
+        "qty": 120,
+        "unit_price": "7.20"
+      },
+      {
+        "product_code": "CQ-250",
+        "qty": 200,
+        "unit_price": "8.10"
+      }
+    ]
+  },
+  {
+    "po_number": "PO-386",
+    "customer_id": "c1",
+    "currency": "AZN",
+    "order_date": "2026-10-30",
+    "lines": [
+      {
+        "product_code": "DY-5",
+        "qty": 150,
+        "unit_price": "12.00"
+      }
+    ]
+  },
+  {
+    "po_number": "PO-391",
+    "customer_id": "c2",
+    "currency": "AZN",
+    "order_date": "2026-10-30",
+    "lines": [
+      {
+        "product_code": "DY-5",
+        "qty": 150,
+        "unit_price": "12.20"
+      }
+    ]
+  },
+  {
+    "po_number": "PO-397",
+    "customer_id": "c2",
+    "currency": "AZN",
+    "order_date": "2026-11-02",
+    "lines": [
+      {
+        "product_code": "GY-1L",
+        "qty": 300,
+        "unit_price": "9.10"
+      }
+    ]
+  },
+  {
+    "po_number": "PO-383",
+    "customer_id": "c1",
+    "currency": "AZN",
+    "order_date": "2026-10-29",
+    "lines": [
+      {
+        "product_code": "KY-200",
+        "qty": 520,
+        "unit_price": "3.60"
+      }
+    ]
+  },
+  {
+    "po_number": "PO-384",
+    "customer_id": "c1",
+    "currency": "AZN",
+    "order_date": "2026-11-01",
+    "lines": [
+      {
+        "product_code": "KY-200",
+        "qty": 520,
+        "unit_price": "3.60"
+      }
+    ]
+  },
+  {
+    "po_number": "PO-393",
+    "customer_id": "c2",
+    "currency": "AZN",
+    "order_date": "2026-11-03",
+    "lines": [
+      {
+        "product_code": "ZY-1L",
+        "qty": 240,
+        "unit_price": "12.75"
+      }
+    ]
+  },
+  {
+    "po_number": "PO-336",
+    "customer_id": "c1",
+    "currency": "AZN",
+    "order_date": "2026-10-20",
+    "lines": [
+      {
+        "product_code": "ST-1",
+        "qty": 2000,
+        "unit_price": "2.05"
+      },
+      {
+        "product_code": "MK-500",
+        "qty": 1500,
+        "unit_price": "1.40"
+      }
+    ]
+  },
+  {
+    "po_number": "PO-395",
+    "customer_id": "c2",
+    "currency": "USD",
+    "order_date": "2026-11-05",
+    "lines": [
+      {
+        "product_code": "ZY-1L",
+        "qty": 120,
+        "unit_price": "7.50"
+      }
+    ]
+  },
+  {
+    "po_number": "PO-371",
+    "customer_id": "c1",
+    "currency": "AZN",
+    "order_date": "2026-10-15",
+    "lines": [
+      {
+        "product_code": "GY-1L",
+        "qty": 500,
+        "unit_price": "9.00"
+      }
+    ]
+  },
+  {
+    "po_number": "PO-368",
+    "customer_id": "c2",
+    "currency": "AZN",
+    "order_date": "2026-10-12",
+    "lines": [
+      {
+        "product_code": "CQ-250",
+        "qty": 400,
+        "unit_price": "8.10"
+      }
+    ]
+  },
+  {
+    "po_number": "PO-375",
+    "customer_id": "c2",
+    "currency": "AZN",
+    "order_date": "2026-10-20",
+    "lines": [
+      {
+        "product_code": "DY-5",
+        "qty": 250,
+        "unit_price": "12.40"
+      }
+    ]
+  },
+  {
+    "po_number": "PO-399",
+    "customer_id": "c2",
+    "currency": "AZN",
+    "order_date": "2026-11-04",
+    "lines": [
+      {
+        "product_code": "MK-500",
+        "qty": 800,
+        "unit_price": "1.45"
+      }
+    ]
+  },
+  {
+    "po_number": "PO-400",
+    "customer_id": "c1",
+    "currency": "AZN",
+    "order_date": "2026-11-05",
+    "lines": [
+      {
+        "product_code": "ST-1",
+        "qty": 900,
+        "unit_price": "2.05"
+      }
+    ]
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "name": "@payproof/contracts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./openapi.yaml": "./openapi.yaml"
+  },
+  "scripts": {
+    "lint": "redocly lint openapi.yaml"
+  },
+  "devDependencies": {
+    "@redocly/cli": "^2"
+  }
+}

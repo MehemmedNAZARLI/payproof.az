@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "defs.json",
+  "$defs": {
+    "money": {
+      "type": "string",
+      "pattern": "^-?(0|[1-9][0-9]*)\\.[0-9]{2}$",
+      "description": "Decimal string, never float"
+    },
+    "currency": {
+      "enum": ["AZN", "USD"]
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "datetime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "qty": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "user_id": {
+      "type": "string",
+      "pattern": "^u[0-9]+$"
+    },
+    "actor_id": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/user_id"
+        },
+        {
+          "const": "system"
+        }
+      ]
+    },
+    "customer_id": {
+      "type": "string",
+      "pattern": "^c[0-9]+$"
+    },
+    "package_id": {
+      "type": "string",
+      "pattern": "^pkg_[0-9]+$"
+    },
+    "po_number": {
+      "type": "string",
+      "pattern": "^PO-[0-9]+$"
+    },
+    "invoice_number": {
+      "type": "string",
+      "pattern": "^INV-[0-9]+$"
+    },
+    "product_code": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rule_id": {
+      "type": "string",
+      "pattern": "^R-0(0[1-9])$"
+    },
+    "outcome": {
+      "enum": ["PASS", "FAIL", "UNKNOWN", "NOT_APPLICABLE"]
+    },
+    "package_status": {
+      "enum": [
+        "PROCESSING",
+        "NEEDS_REVIEW",
+        "NEEDS_FIX",
+        "READY_FOR_APPROVAL",
+        "APPROVED_READY",
+        "EXPORTED"
+      ]
+    },
+    "task_status": {
+      "enum": ["OPEN", "IN_PROGRESS", "SUBMITTED_FOR_RECHECK", "RESOLVED"]
+    },
+    "role": {
+      "enum": ["operator", "approver", "readonly", "admin", "assignee"]
+    },
+    "document_type": {
+      "enum": ["invoice", "order", "delivery"]
+    },
+    "priced_line": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["product_code", "qty", "unit_price"],
+      "properties": {
+        "product_code": {
+          "$ref": "#/$defs/product_code"
+        },
+        "qty": {
+          "$ref": "#/$defs/qty"
+        },
+        "unit_price": {
+          "$ref": "#/$defs/money"
+        }
+      }
+    },
+    "qty_line": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["product_code", "qty"],
+      "properties": {
+        "product_code": {
+          "$ref": "#/$defs/product_code"
+        },
+        "qty": {
+          "$ref": "#/$defs/qty"
+        }
+      }
+    },
+    "blocker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rule_id", "outcome"],
+      "properties": {
+        "rule_id": {
+          "$ref": "#/$defs/rule_id"
+        },
+        "outcome": {
+          "enum": ["FAIL", "UNKNOWN"]
+        }
+      }
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "Synthetic in demo data: sha256 of the file name (demo files have no bytes); duplicate detection compares this within a package"
+    }
+  }
+}

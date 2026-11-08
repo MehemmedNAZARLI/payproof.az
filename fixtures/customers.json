@@ -1,0 +1,48 @@
+[
+  {
+    "id": "c1",
+    "name": "B Mağazalar Şəbəkəsi",
+    "external_id": "BMS-001",
+    "voen": "1402375611",
+    "requirement_sets": [
+      {
+        "version": 1,
+        "require_po": true,
+        "require_delivery": true,
+        "require_signature": false,
+        "tolerance": "0.01",
+        "effective_from": "2026-06-01",
+        "approved_by": "u2",
+        "reason": "İlk qayda dəsti: müştərinin təchizatçı təlimatı (iyun 2026)."
+      },
+      {
+        "version": 2,
+        "require_po": true,
+        "require_delivery": true,
+        "require_signature": true,
+        "tolerance": "0.01",
+        "effective_from": "2026-10-01",
+        "approved_by": "u2",
+        "reason": "Müştəri 01.10.2026-dan imzalanmış təhvil-təslim aktı tələb edir."
+      }
+    ]
+  },
+  {
+    "id": "c2",
+    "name": "C Restoran Qrupu",
+    "external_id": "CRQ-014",
+    "voen": "1305884421",
+    "requirement_sets": [
+      {
+        "version": 1,
+        "require_po": true,
+        "require_delivery": true,
+        "require_signature": false,
+        "tolerance": "0.01",
+        "effective_from": "2026-08-15",
+        "approved_by": "u2",
+        "reason": "Müştərinin satınalma şöbəsi ilə razılaşdırılmış tələblər."
+      }
+    ]
+  }
+]

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "orders.json",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["po_number", "customer_id", "currency", "order_date", "lines"],
+    "properties": {
+      "po_number": { "$ref": "defs.json#/$defs/po_number" },
+      "customer_id": { "$ref": "defs.json#/$defs/customer_id" },
+      "currency": { "$ref": "defs.json#/$defs/currency" },
+      "order_date": { "$ref": "defs.json#/$defs/date" },
+      "lines": {
+        "type": "array",
+        "minItems": 1,
+        "items": { "$ref": "defs.json#/$defs/priced_line" }
+      }
+    }
+  }
+}

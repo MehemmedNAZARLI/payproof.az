@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tasks.json",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "number",
+      "package_id",
+      "rule_id",
+      "assignee_id",
+      "step",
+      "due_date",
+      "status",
+      "created_at",
+      "created_by",
+      "comment",
+      "resolved_at"
+    ],
+    "properties": {
+      "number": { "type": "string", "pattern": "^T-[0-9]+$" },
+      "package_id": { "$ref": "defs.json#/$defs/package_id" },
+      "rule_id": { "$ref": "defs.json#/$defs/rule_id" },
+      "assignee_id": { "$ref": "defs.json#/$defs/user_id" },
+      "step": { "type": "string" },
+      "due_date": { "$ref": "defs.json#/$defs/date" },
+      "status": { "$ref": "defs.json#/$defs/task_status" },
+      "created_at": { "$ref": "defs.json#/$defs/datetime" },
+      "created_by": { "$ref": "defs.json#/$defs/user_id" },
+      "comment": { "type": ["string", "null"] },
+      "resolved_at": { "anyOf": [{ "$ref": "defs.json#/$defs/datetime" }, { "type": "null" }] }
+    },
+    "if": { "properties": { "status": { "const": "RESOLVED" } } },
+    "then": { "properties": { "resolved_at": { "$ref": "defs.json#/$defs/datetime" } } },
+    "else": { "properties": { "resolved_at": { "type": "null" } } }
+  }
+}

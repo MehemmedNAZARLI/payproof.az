@@ -1,0 +1,236 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "expected.json",
+  "description": "Golden results computed by the prototype engine. Do not edit to make a test pass.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["generated_from", "demo_now", "counts", "packages", "dashboard", "flows", "newsets"],
+  "$defs": {
+    "result": {
+      "type": "object",
+      "required": ["status", "blockers"],
+      "properties": {
+        "status": {
+          "$ref": "defs.json#/$defs/package_status"
+        },
+        "blockers": {
+          "type": "array",
+          "items": {
+            "$ref": "defs.json#/$defs/blocker"
+          },
+          "description": "Primary (non-cascade) FAIL/UNKNOWN results"
+        }
+      }
+    }
+  },
+  "properties": {
+    "generated_from": {
+      "type": "string"
+    },
+    "demo_now": {
+      "$ref": "defs.json#/$defs/datetime"
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "packages": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "defs.json#/$defs/invoice_number"
+      },
+      "additionalProperties": {
+        "allOf": [
+          {
+            "$ref": "#/$defs/result"
+          }
+        ],
+        "type": "object",
+        "unevaluatedProperties": false,
+        "required": ["package_id", "version", "requirement_set_version", "checks"],
+        "properties": {
+          "package_id": {
+            "$ref": "defs.json#/$defs/package_id"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "requirement_set_version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "checks": {
+            "type": "object",
+            "propertyNames": {
+              "$ref": "defs.json#/$defs/rule_id"
+            },
+            "additionalProperties": {
+              "$ref": "defs.json#/$defs/outcome"
+            }
+          },
+          "r005_diff": {
+            "$ref": "defs.json#/$defs/money"
+          }
+        }
+      }
+    },
+    "dashboard": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status_counts", "open_problem_amounts", "avg_problem_days", "longest_problem"],
+      "properties": {
+        "status_counts": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "defs.json#/$defs/package_status"
+          },
+          "additionalProperties": {
+            "type": "integer"
+          }
+        },
+        "open_problem_amounts": {
+          "type": "array",
+          "description": "One entry per currency — AZN and USD are never summed",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["currency", "amount", "packages"],
+            "properties": {
+              "currency": {
+                "$ref": "defs.json#/$defs/currency"
+              },
+              "amount": {
+                "$ref": "defs.json#/$defs/money"
+              },
+              "packages": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "avg_problem_days": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]$"
+        },
+        "longest_problem": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["invoice_number", "days"],
+          "properties": {
+            "invoice_number": {
+              "$ref": "defs.json#/$defs/invoice_number"
+            },
+            "days": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    },
+    "flows": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/result"
+            }
+          ],
+          "type": "object",
+          "required": ["step", "version"],
+          "properties": {
+            "step": {
+              "type": "string"
+            },
+            "version": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "actor": {
+              "$ref": "defs.json#/$defs/user_id"
+            },
+            "result": {
+              "enum": ["ok", "rejected", "forbidden"]
+            },
+            "http_status": {
+              "type": "integer"
+            },
+            "po_number": {
+              "$ref": "defs.json#/$defs/po_number"
+            },
+            "sample_id": {
+              "type": "string",
+              "pattern": "^s[0-9]+$"
+            },
+            "file_name": {
+              "type": "string"
+            },
+            "duplicate": {
+              "type": "boolean"
+            },
+            "idempotent": {
+              "type": "boolean"
+            },
+            "approvals": {
+              "type": "integer"
+            },
+            "exports": {
+              "type": "integer"
+            },
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "checks": {
+              "type": "object",
+              "propertyNames": {
+                "$ref": "defs.json#/$defs/rule_id"
+              },
+              "additionalProperties": {
+                "$ref": "defs.json#/$defs/outcome"
+              }
+            },
+            "tasks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["number", "rule_id", "assignee_id", "status"],
+                "properties": {
+                  "number": {
+                    "type": "string",
+                    "pattern": "^T-[0-9]+$"
+                  },
+                  "rule_id": {
+                    "$ref": "defs.json#/$defs/rule_id"
+                  },
+                  "assignee_id": {
+                    "$ref": "defs.json#/$defs/user_id"
+                  },
+                  "status": {
+                    "$ref": "defs.json#/$defs/task_status"
+                  }
+                }
+              }
+            }
+          },
+          "unevaluatedProperties": false
+        }
+      }
+    },
+    "newsets": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/result"
+      }
+    }
+  }
+}

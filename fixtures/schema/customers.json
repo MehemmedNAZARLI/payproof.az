@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "customers.json",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["id", "name", "external_id", "voen", "requirement_sets"],
+    "properties": {
+      "id": { "$ref": "defs.json#/$defs/customer_id" },
+      "name": { "type": "string" },
+      "external_id": { "type": "string" },
+      "voen": { "type": "string", "pattern": "^[0-9]{10}$" },
+      "requirement_sets": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "version",
+            "require_po",
+            "require_delivery",
+            "require_signature",
+            "tolerance",
+            "effective_from",
+            "approved_by",
+            "reason"
+          ],
+          "properties": {
+            "version": { "type": "integer", "minimum": 1 },
+            "require_po": { "type": "boolean" },
+            "require_delivery": { "type": "boolean" },
+            "require_signature": { "type": "boolean" },
+            "tolerance": { "$ref": "defs.json#/$defs/money" },
+            "effective_from": { "$ref": "defs.json#/$defs/date" },
+            "approved_by": { "$ref": "defs.json#/$defs/user_id" },
+            "reason": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}

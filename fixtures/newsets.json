@@ -1,0 +1,41 @@
+[
+  {
+    "id": "n1",
+    "invoice_number": "INV-1051",
+    "customer_id": "c2",
+    "currency": "AZN",
+    "invoice_date": "2026-11-07",
+    "po_number": "PO-399",
+    "lines": [
+      {
+        "product_code": "MK-500",
+        "qty": 800,
+        "unit_price": "1.45"
+      }
+    ],
+    "delivery": {
+      "note_number": "TS-5547",
+      "po_ref": "PO-399"
+    },
+    "files": ["INV-1051.pdf", "PO-399.xlsx", "TS-5547.jpg"],
+    "note": "Tam dəst — gözlənilən nəticə: təsdiq gözləyir"
+  },
+  {
+    "id": "n2",
+    "invoice_number": "INV-1052",
+    "customer_id": "c1",
+    "currency": "AZN",
+    "invoice_date": "2026-11-07",
+    "po_number": "PO-400",
+    "lines": [
+      {
+        "product_code": "ST-1",
+        "qty": 900,
+        "unit_price": "2.05"
+      }
+    ],
+    "delivery": null,
+    "files": ["INV-1052.pdf", "PO-400.pdf"],
+    "note": "Təhvil sənədi yoxdur — gözlənilən nəticə: düzəliş tələb edir"
+  }
+]
