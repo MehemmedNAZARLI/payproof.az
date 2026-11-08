@@ -8,6 +8,10 @@ export type Toast = {
   tone: ToastTone;
   title: string;
   description?: string;
+  /** One text button next to the message, e.g. "Yenilə". */
+  action?: { label: string; onPress: () => void };
+  /** Stays until dismissed: for a notice that waits on the user, not one that reports. */
+  sticky?: boolean;
   leaving?: boolean;
 };
 
@@ -44,10 +48,11 @@ function show(input: Omit<Toast, "id" | "leaving">): number {
   if (same) return same.id;
   const id = ++seq;
   set([...toasts, { ...input, id }].slice(-MAX_VISIBLE));
-  timers.set(
-    id,
-    setTimeout(() => dismiss(id), DURATION_MS[input.tone]),
-  );
+  if (!input.sticky)
+    timers.set(
+      id,
+      setTimeout(() => dismiss(id), DURATION_MS[input.tone]),
+    );
   return id;
 }
 

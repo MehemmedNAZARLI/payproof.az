@@ -41,4 +41,25 @@ describe("toast store", () => {
     act(() => ["1", "2", "3", "4"].forEach((n) => toast.info(n)));
     expect(result.current.map((x) => x.title)).toEqual(["2", "3", "4"]);
   });
+
+  it("keeps a sticky toast until it is dismissed and runs its action", () => {
+    const { result } = renderHook(() => useToasts());
+    const onPress = vi.fn();
+    let id = 0;
+    act(() => {
+      id = toast.show({
+        tone: "info",
+        title: "Yeni versiya",
+        sticky: true,
+        action: { label: "Yenilə", onPress },
+      });
+    });
+    act(() => vi.advanceTimersByTime(60_000));
+    expect(result.current[0]?.leaving).toBeUndefined();
+    result.current[0]?.action?.onPress();
+    expect(onPress).toHaveBeenCalledOnce();
+    act(() => toast.dismiss(id));
+    act(() => vi.advanceTimersByTime(200));
+    expect(result.current).toEqual([]);
+  });
 });
