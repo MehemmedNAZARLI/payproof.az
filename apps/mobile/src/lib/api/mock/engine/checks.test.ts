@@ -6,20 +6,13 @@ import { runChecks } from "./checks";
 import { packageModel } from "./model";
 
 const evaluated = packages.filter((p) => !p.processing);
-const RULES = ["R-001", "R-002", "R-003", "R-004", "R-005", "R-006"];
-const golden = (invoice: string) => {
-  const g = expected.packages[invoice as keyof typeof expected.packages];
-  return {
-    checks: Object.fromEntries(Object.entries(g.checks).filter(([r]) => RULES.includes(r))),
-    blockers: g.blockers.filter((b) => RULES.includes(b.rule_id)),
-  };
-};
+const golden = (invoice: string) => expected.packages[invoice as keyof typeof expected.packages];
 
 describe("ported rule engine", () => {
   it.each(evaluated.map((p) => [p.invoice_number, p] as const))(
     "%s matches the golden outcomes and blockers",
     (invoice, p) => {
-      const checks = runChecks(packageModel(p)).filter((c) => RULES.includes(c.ruleId));
+      const checks = runChecks(packageModel(p));
       const g = golden(invoice);
       expect(Object.fromEntries(checks.map((c) => [c.ruleId, c.outcome]))).toEqual(g.checks);
       const primary = checks.filter(
@@ -28,6 +21,13 @@ describe("ported rule engine", () => {
       expect(primary.map((c) => ({ rule_id: c.ruleId, outcome: c.outcome }))).toEqual(g.blockers);
     },
   );
+
+  it("reports the R-005 difference as a decimal string with its currency", () => {
+    const p = evaluated.find((x) => x.invoice_number === "INV-1044")!;
+    const r005 = runChecks(packageModel(p)).find((c) => c.ruleId === "R-005")!;
+    expect(r005.data).toEqual({ line_difference: { amount: "500.00", currency: "AZN" } });
+    expect(r005.message).toContain("KY-10: fakturada 110,00 AZN, sifarişdə 100,00 AZN × 50");
+  });
 
   it("points evidence at the documents that exist, with a quote for each", () => {
     for (const p of evaluated) {

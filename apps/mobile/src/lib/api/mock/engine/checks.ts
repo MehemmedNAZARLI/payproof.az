@@ -1,9 +1,17 @@
 import type { Schemas } from "../../client";
 import { decimal } from "../money";
 import { customer, type DocType, type PackageModel, product } from "./model";
-import { type Anchor, deliveryQuote, invoiceQuote, money, orderQuote, quantity } from "./quotes";
+import {
+  type Anchor,
+  deliveryQuote,
+  invoiceQuote,
+  lineSum,
+  money,
+  orderQuote,
+  quantity,
+} from "./quotes";
 
-// shortcut: the prototype's runChecks (R-001…R-006 so far) ported for the mock's messages and
+// shortcut: the prototype's runChecks (R-001…R-009) ported for the mock's messages and
 // evidence. checks.test.ts holds every outcome to fixtures/expected.json; S-06 replaces this.
 
 type Outcome = Schemas["CheckOutcome"];
@@ -241,6 +249,83 @@ export function runChecks(m: PackageModel): Check[] {
         [E("invoice", `line:${first}`), dlOk ? E("delivery", `line:${first}`) : null],
       );
   }
+
+  // R-007 · delivery note present and tied to the order
+  if (!r.requireDelivery)
+    add("R-007", "NOT_APPLICABLE", "Müştəri qaydası təhvil sənədi tələb etmir.");
+  else if (!d)
+    add(
+      "R-007",
+      "FAIL",
+      `Müştəri qaydası ${r.requireSignature ? "imzalanmış " : ""}təhvil sənədi tələb edir; paketdə təhvil sənədi yoxdur.`,
+      [],
+      { fix: "upload_delivery" },
+    );
+  else if (!o)
+    add("R-007", "UNKNOWN", "Sifariş təsdiqlənmədən təhvil sənədinin bağlılığı yoxlanmır.", [], {
+      cascade: true,
+    });
+  else if (d.poRef !== o.po)
+    add(
+      "R-007",
+      "UNKNOWN",
+      `${d.no} sənədində sifariş: ${d.poRef}; təsdiqlənmiş sifariş: ${o.po}. Uyğunluq təsdiqlənməyib.`,
+      [E("delivery", "po"), E("order", "po")],
+      { fix: "upload_delivery" },
+    );
+  else
+    add("R-007", "PASS", `${d.no} paketdədir və ${o.po} sifarişinə bağlıdır.`, [
+      E("delivery", "po"),
+    ]);
+
+  // R-008 · signature (a human looks at it; never an authenticity check)
+  const r7 = out.find((c) => c.ruleId === "R-007")!.outcome;
+  if (!r.requireSignature) add("R-008", "NOT_APPLICABLE", "Müştəri qaydası imza tələb etmir.");
+  else if (!d)
+    add("R-008", "NOT_APPLICABLE", "Təhvil sənədi olmadan imza yoxlanmır — R-007-yə baxın.");
+  else if (r7 !== "PASS")
+    add("R-008", "UNKNOWN", "Təhvil sənədinin uyğunluğu təsdiqlənmədən imza yoxlanmır.", [], {
+      cascade: true,
+    });
+  else if (!d.signed)
+    add(
+      "R-008",
+      "FAIL",
+      "Təhvil aktında qəbul edənin imza sahəsi boşdur.",
+      [E("delivery", "signature")],
+      { fix: "upload_delivery" },
+    );
+  else if (!m.signatureReviewed)
+    add(
+      "R-008",
+      "UNKNOWN",
+      "İmza tələb olunur: əməkdaş sənədə baxıb imzanın mövcudluğunu təsdiqləməlidir.",
+      [E("delivery", "signature")],
+      { fix: "review_signature" },
+    );
+  else
+    add(
+      "R-008",
+      "PASS",
+      "Əməkdaş imzanın vizual mövcudluğunu təsdiqləyib. Bu, imzanın hüquqi autentifikasiyası deyil.",
+      [E("delivery", "signature")],
+    );
+
+  // R-009 · line arithmetic against the invoice total
+  const sum = lineSum(inv.lines);
+  const diff = sum - inv.total;
+  if ((diff < 0n ? -diff : diff) <= r.tolerance)
+    add("R-009", "PASS", `Sətirlərin cəmi ${money(sum, cur)} yekun məbləğə uyğundur.`, [
+      E("invoice", "total"),
+    ]);
+  else
+    add(
+      "R-009",
+      "FAIL",
+      `Sətirlərin cəmi ${money(sum, cur)}, fakturadakı yekun ${money(inv.total, cur)}. Fərq: ${money(diff, cur)}.`,
+      [E("invoice", "total")],
+      { fix: "upload_invoice" },
+    );
 
   return out;
 }
