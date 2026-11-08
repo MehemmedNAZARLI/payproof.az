@@ -3,8 +3,8 @@ import "./globals.css";
 import type { Metadata, Viewport } from "next";
 
 import { appDescription, appName, brand } from "@/lib/brand";
-import { inter, interExt } from "@/lib/fonts";
 import { cx } from "@/lib/cx";
+import { inter, interExt } from "@/lib/fonts";
 
 import { Providers } from "./providers";
 

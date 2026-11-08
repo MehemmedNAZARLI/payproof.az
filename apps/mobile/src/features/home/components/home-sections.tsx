@@ -20,12 +20,12 @@ export function OpenAmounts({ amounts }: { amounts: Schemas["CurrencyTotal"][] }
             <ListItem
               key={total.currency}
               leading={
-                <span className="bg-surface-2 text-text-2 grid size-8 place-items-center rounded-full text-[10px] font-bold tracking-tight">
+                <span className="bg-accent-soft text-accent-ink grid size-8 place-items-center rounded-full text-[10px] font-bold">
                   {total.currency}
                 </span>
               }
               title={
-                <span className="text-body tracking-tight tabular-nums">
+                <span className="text-headline tabular-nums">
                   {formatMoney(total.amount, total.currency)}
                 </span>
               }

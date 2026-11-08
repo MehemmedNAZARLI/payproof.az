@@ -49,7 +49,7 @@ export function PermissionRow({ label, granted }: { label: string; granted: bool
 // iOS settings: a white glyph on a tinted rounded square.
 export function SettingIcon({ name }: { name: IconName }) {
   return (
-    <span className="bg-accent text-accent-foreground grid size-7.5 place-items-center rounded-[7px]">
+    <span className="bg-accent-fill text-accent-foreground grid size-7.5 place-items-center rounded-sm">
       <Icon name={name} size={18} strokeWidth={2} />
     </span>
   );

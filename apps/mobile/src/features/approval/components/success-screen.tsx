@@ -102,14 +102,14 @@ function Approved({
       <div className="mt-6 flex flex-col gap-2" style={rise(4)}>
         <a
           href={webPackageHref(pkg.id)}
-          className="bg-accent text-accent-foreground shadow-1 flex h-13 items-center justify-center gap-2 rounded-lg text-body font-semibold transition-[transform,opacity] active:scale-[0.97] active:opacity-85"
+          className="bg-accent-fill text-accent-foreground shadow-accent press flex h-13 items-center justify-center gap-2 rounded-lg text-headline"
         >
           <Icon name="monitor" size={22} />
           {t.success.exportOnWeb}
         </a>
         <Link
           href="/home"
-          className="bg-accent-soft text-accent-ink flex h-13 items-center justify-center rounded-lg text-body font-semibold transition-[transform,opacity] active:scale-[0.97] active:opacity-85"
+          className="bg-accent-soft text-accent-ink press flex h-13 items-center justify-center rounded-lg text-headline"
         >
           {t.success.home}
         </Link>

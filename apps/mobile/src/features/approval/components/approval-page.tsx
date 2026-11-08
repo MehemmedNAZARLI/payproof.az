@@ -127,7 +127,7 @@ export function ApprovalPage({ pkg, flow, onOpenDocument }: Props) {
               "mt-0.5 grid size-6 shrink-0 place-items-center rounded-md border-2 transition-[background-color,border-color,transform] duration-200",
               "peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent",
               flow.ack
-                ? "bg-accent border-accent text-accent-foreground scale-100"
+                ? "bg-accent-fill border-accent-fill text-accent-foreground scale-100"
                 : "border-separator scale-95",
             )}
           >

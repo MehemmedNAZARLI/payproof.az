@@ -81,7 +81,7 @@ function CtaContent({ cta, id, onApprove }: CtaProps) {
       return (
         <a
           href={webPackageHref(id)}
-          className="bg-accent-soft text-accent-ink flex h-13 w-full items-center justify-center gap-2 rounded-lg text-body font-semibold transition-[transform,opacity] active:scale-[0.97] active:opacity-85"
+          className="bg-accent-soft text-accent-ink press flex h-13 w-full items-center justify-center gap-2 rounded-lg text-headline"
         >
           <Icon name="monitor" size={22} />
           {t.detail.cta.exportOnWeb}
