@@ -52,6 +52,18 @@ export const t = {
       RESOLVED: "Həll edilib",
     } satisfies Record<TaskStatus, string>,
   },
+  auth: {
+    demoBadge: "Sintetik məlumatlarla demo",
+    pickTitle: "Demo hesabını seçin",
+    pickHint: "Bir toxunuşla daxil olun — parol lazım deyil.",
+    recommended: "Tövsiyə olunur",
+    signingIn: "Daxil olunur…",
+    signedIn: (name: string) => `${name} kimi daxil oldunuz.`,
+    footnote:
+      "Demoda parol tələb olunmur. Real versiyada şirkət hesabı ilə giriş olacaq; rol və səlahiyyətlər serverdə yoxlanılır.",
+    unavailable: "Demo giriş əlçatan deyil",
+    expired: "Sessiya bitib. Yenidən daxil olun.",
+  },
   nav: {
     label: "Mobil naviqasiya",
     home: "Əsas",
