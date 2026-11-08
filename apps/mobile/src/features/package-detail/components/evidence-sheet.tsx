@@ -5,8 +5,12 @@ import { Banner } from "@/components/ui/banner";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
+import { ApprovalFooter } from "@/features/approval/components/approval-footer";
+import { ApprovalPage } from "@/features/approval/components/approval-page";
+import type { ApprovalFlow } from "@/features/approval/use-approval-flow";
 import { DocumentViewer } from "@/features/document-viewer/document-viewer";
 import type { Schemas } from "@/lib/api";
+import { formatMoney } from "@/lib/format";
 import { t } from "@/lib/i18n";
 
 import type { SheetRoute, useSheetStack } from "../sheet-stack";
@@ -85,10 +89,12 @@ type EvidenceSheetProps = {
   stack: Stack;
   /** The user saw this document version (only the current version counts towards approval). */
   onViewed: (versionId: string) => void;
+  /** The approval review's state, when the user may approve this package. */
+  approval?: ApprovalFlow;
 };
 
 // One sheet for the evidence trail: a check → the document it cites (highlighted) → back.
-export function EvidenceSheet({ pkg, stack, onViewed }: EvidenceSheetProps) {
+export function EvidenceSheet({ pkg, stack, onViewed, approval }: EvidenceSheetProps) {
   const route: SheetRoute | null = stack.shown;
   const check =
     route?.kind === "check" ? pkg.checks.find((c) => c.rule_id === route.ruleId) : undefined;
@@ -98,11 +104,13 @@ export function EvidenceSheet({ pkg, stack, onViewed }: EvidenceSheetProps) {
     doc && route?.kind === "document"
       ? ([doc.current, ...doc.history].find((v) => v.id === route.versionId) ?? doc.current)
       : undefined;
+  const reviewing = route?.kind === "approve" && approval !== undefined ? approval : undefined;
   const docTitle = doc && version ? `${t.document.type[doc.type]} · v${version.version_no}` : "";
   const nested = stack.depth > 1;
   const pageKey = route
-    ? `${stack.depth}:${route.kind === "check" ? route.ruleId : route.versionId}`
+    ? `${stack.depth}:${route.kind === "check" ? route.ruleId : route.kind === "approve" ? "approve" : route.versionId}`
     : undefined;
+  const amount = pkg.total ? formatMoney(pkg.total.amount, pkg.total.currency) : undefined;
 
   const backButton = (
     <Button
@@ -118,13 +126,23 @@ export function EvidenceSheet({ pkg, stack, onViewed }: EvidenceSheetProps) {
 
   return (
     <BottomSheet
-      open={stack.top !== null && (check !== undefined || doc !== undefined)}
+      open={
+        stack.top !== null && (check !== undefined || doc !== undefined || reviewing !== undefined)
+      }
       onClose={stack.close}
       page={pageKey}
       direction={stack.direction}
       size={doc ? "large" : "auto"}
-      title={check ? check.title : docTitle}
-      description={check ? undefined : version?.file_name}
+      title={
+        check ? check.title : reviewing ? t.approval.title(pkg.invoice_number ?? "") : docTitle
+      }
+      description={
+        check
+          ? undefined
+          : reviewing
+            ? [pkg.customer.name, amount].filter(Boolean).join(" · ")
+            : version?.file_name
+      }
       leading={
         doc && nested ? (
           <button
@@ -137,7 +155,7 @@ export function EvidenceSheet({ pkg, stack, onViewed }: EvidenceSheetProps) {
           </button>
         ) : undefined
       }
-      footer={backButton}
+      footer={reviewing ? <ApprovalFooter flow={reviewing} onClose={stack.close} /> : backButton}
       hideFooterWhenShort={doc !== undefined}
     >
       {check && (
@@ -161,6 +179,20 @@ export function EvidenceSheet({ pkg, stack, onViewed }: EvidenceSheetProps) {
             }}
           />
         </>
+      )}
+      {reviewing && (
+        <ApprovalPage
+          pkg={pkg}
+          flow={reviewing}
+          onOpenDocument={(d) =>
+            stack.push({
+              kind: "document",
+              documentId: d.id,
+              versionId: d.current.id,
+              evidence: null,
+            })
+          }
+        />
       )}
       {doc && version && route?.kind === "document" && (
         <DocumentViewer

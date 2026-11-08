@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useApprovalFlow } from "@/features/approval/use-approval-flow";
 import { ApiError, type Schemas } from "@/lib/api";
 import { t } from "@/lib/i18n";
 import { errorMessage } from "@/lib/query-client";
@@ -49,6 +50,8 @@ export function PackageDetailView({ pkg }: { pkg: Schemas["PackageDetail"] }) {
   const userId = useSession()?.user.id;
   const seen = useSeen(userId, pkg);
   const sheet = useSheetStack();
+  const approval = useApprovalFlow(pkg, seen.isSeen);
+  const cta = packageCta(pkg);
   return (
     <>
       <AppHeader
@@ -87,8 +90,22 @@ export function PackageDetailView({ pkg }: { pkg: Schemas["PackageDetail"] }) {
         />
         <TasksList tasks={pkg.tasks} />
       </main>
-      <CtaBar cta={packageCta(pkg)} id={pkg.id} />
-      <EvidenceSheet pkg={pkg} stack={sheet} onViewed={seen.markSeen} />
+      <CtaBar
+        cta={cta}
+        id={pkg.id}
+        onApprove={() => {
+          approval.begin();
+          sheet.open({ kind: "approve" });
+        }}
+      />
+      <EvidenceSheet
+        pkg={pkg}
+        stack={sheet}
+        onViewed={seen.markSeen}
+        approval={
+          cta.kind === "approve" || approval.pending || approval.failure ? approval : undefined
+        }
+      />
     </>
   );
 }

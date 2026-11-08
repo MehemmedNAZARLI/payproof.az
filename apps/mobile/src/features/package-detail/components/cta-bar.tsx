@@ -1,7 +1,6 @@
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
-import { toast } from "@/components/ui/toast-store";
 import { env } from "@/lib/env";
 import { t } from "@/lib/i18n";
 
@@ -20,17 +19,13 @@ export function OpenOnWeb({ id, label = t.detail.openWeb }: { id: string; label?
   );
 }
 
-function CtaContent({ cta, id }: { cta: PackageCta; id: string }) {
+type CtaProps = { cta: PackageCta; id: string; onApprove?: () => void };
+
+function CtaContent({ cta, id, onApprove }: CtaProps) {
   switch (cta.kind) {
     case "approve":
       return (
-        <Button
-          size="lg"
-          block
-          icon="eye"
-          // shortcut: the approval sheet arrives with M-09.
-          onClick={() => toast.info(t.detail.cta.approve, t.detail.cta.approveSoon)}
-        >
+        <Button size="lg" block icon="eye" onClick={onApprove}>
           {t.detail.cta.approve}
         </Button>
       );
@@ -89,11 +84,11 @@ function CtaContent({ cta, id }: { cta: PackageCta; id: string }) {
 }
 
 // Pinned above the home indicator; content scrolls under a fade into the page background.
-export function CtaBar({ cta, id }: { cta: PackageCta; id: string }) {
+export function CtaBar(props: CtaProps) {
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-0 z-20">
       <div className="px-safe pointer-events-auto mx-auto max-w-app bg-linear-to-t from-bg from-70% to-transparent pt-6 pb-[max(var(--safe-bottom),var(--sp-4))]">
-        <CtaContent cta={cta} id={id} />
+        <CtaContent {...props} />
       </div>
     </div>
   );

@@ -67,8 +67,6 @@ export const t = {
     taskDue: (name: string, date: string) => `${name} · son tarix ${date}`,
     cta: {
       approve: "Sübutlara baxıb təsdiqlə",
-      approveSoon:
-        "Təsdiq mobilə növbəti yeniləmədə gəlir. Hələlik sənədlərə və yoxlamalara baxa bilərsiniz.",
       awaitingTitle: "Təsdiqçi gözlənilir",
       awaitingBody: "Hazır paketi yalnız təsdiqçi rolu təsdiqləyə bilər.",
       blockedTitle: "Təsdiq mümkün deyil",
