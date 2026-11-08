@@ -41,6 +41,11 @@ export const t = {
     profile: "Profil",
     back: "Geri",
   },
+  errors: {
+    network: "İnternet bağlantısı yoxdur. Bağlantını yoxlayıb yenidən cəhd edin.",
+    unexpected: "Gözlənilməz xəta baş verdi. Bir az sonra yenidən cəhd edin.",
+    refreshFailed: "Məlumat yenilənmədi",
+  },
   common: {
     close: "Bağla",
     dismiss: "Bildirişi bağla",
