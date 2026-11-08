@@ -33,7 +33,8 @@ export function useApprove(pkg: Detail) {
 }
 
 export type ApprovalFailure =
-  | { kind: "conflict" }
+  /** `version`: the package's current version, when the server said. */
+  | { kind: "conflict"; version?: number }
   | { kind: "forbidden" }
   | { kind: "not-ready"; message: string }
   | { kind: "in-progress" }
@@ -44,7 +45,12 @@ export type ApprovalFailure =
 export function approvalFailure(error: unknown): ApprovalFailure {
   if (!(error instanceof ApiError)) return { kind: "other", message: "" };
   switch (error.code) {
-    case "VERSION_CONFLICT":
+    case "VERSION_CONFLICT": {
+      const v = error.details.current_version;
+      return typeof v === "number" ? { kind: "conflict", version: v } : { kind: "conflict" };
+    }
+    // The key was spent on a request for another version: the same as reviewing a stale one.
+    case "IDEMPOTENCY_KEY_REUSED":
       return { kind: "conflict" };
     case "FORBIDDEN":
       return { kind: "forbidden" };

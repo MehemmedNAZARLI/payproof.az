@@ -102,15 +102,14 @@ export const t = {
     needAck: "Təsdiq qeydini işarələyin.",
     offline: "İnternet bağlantısı yoxdur — təsdiq oflayn mümkün deyil.",
     conflictTitle: "Paket yenilənib, yenidən baxın",
-    conflictBody: (v: number) =>
-      `Paketin yeni versiyası (v${v}) var. Sənədlərə yenidən baxın və təsdiq qeydini təkrar işarələyin.`,
+    conflictBody: (v?: number) =>
+      `${v ? `Paketin yeni versiyası (v${v}) var.` : "Paket və ya qayda dəsti yenilənib."} Sənədlərə yenidən baxın və təsdiq qeydini təkrar işarələyin.`,
     forbiddenTitle: "Təsdiq səlahiyyətiniz yoxdur",
     forbiddenBody:
       "Hazır paketi yalnız təsdiqçi rolu təsdiqləyə bilər. Rolunuz dəyişmiş ola bilər.",
     notReadyTitle: "Paket artıq təsdiq gözləmir",
     inProgress: "Təsdiq artıq göndərilir. Bir neçə saniyə sonra yenidən cəhd edin.",
     failedTitle: "Təsdiq göndərilmədi",
-    approved: "Paket təsdiqləndi.",
   },
   success: {
     title: "Təsdiq tamamlandı",

@@ -34,21 +34,35 @@ export function useApprovalFlow(pkg: Detail, isSeen: (versionId: string) => bool
   const [ackFor, setAckFor] = useState<number | null>(null);
   const [failure, setFailure] = useState<ApprovalFailure | null>(null);
   const [nudge, setNudge] = useState<Nudge>(null);
-  const key = useRef<string>("");
+  // One key per intent: approving this package version under this rule set version. Retries
+  // of the same intent reuse it; a new version (or a fresh opening of the sheet) gets a new one.
+  const attempt = useRef<{ key: string; version: number; ruleSet: number } | null>(null);
   const sending = useRef(false);
 
   const docs = reviewList(pkg, isSeen);
   const unseen = docs.filter((d) => !d.seen).length;
   const ack = ackFor === pkg.version;
-  const ready = unseen === 0 && ack && online && !mutation.isPending;
+  // After a 409 the reviewed version is stale until the newer one has loaded.
+  const stale =
+    failure?.kind === "conflict" && failure.version !== undefined && pkg.version < failure.version;
+  const pending = mutation.isPending;
+  const ready = unseen === 0 && ack && online && !pending && !stale;
 
+  const keyFor = (version: number, ruleSet: number) => {
+    const a = attempt.current;
+    if (a && a.version === version && a.ruleSet === ruleSet) return a.key;
+    attempt.current = { key: crypto.randomUUID(), version, ruleSet };
+    return attempt.current.key;
+  };
+
+  // Opening the sheet starts a new intent, unless the last one is still on its way.
   const begin = useCallback(() => {
-    key.current = crypto.randomUUID();
+    setNudge(null);
+    if (sending.current) return;
+    attempt.current = null;
     setAckFor(null);
     setFailure(null);
-    setNudge(null);
-    mutation.reset();
-  }, [mutation]);
+  }, []);
 
   const setAck = (on: boolean) => {
     setAckFor(on && unseen === 0 ? pkg.version : null);
@@ -69,35 +83,37 @@ export function useApprovalFlow(pkg: Detail, isSeen: (versionId: string) => bool
       toast.error(t.approval.notReadyTitle, f.message);
       return;
     }
-    // A conflict means the user reviewed an old version: start the review over, new attempt.
+    // The user reviewed something that is no longer current: review again, as a new intent.
     if (f.kind === "conflict") {
       setAckFor(null);
-      key.current = crypto.randomUUID();
+      attempt.current = null;
     }
     setFailure(f);
   };
 
   const submit = (close: () => void) => {
-    if (sending.current || mutation.isPending) return;
+    if (sending.current || pending || stale) return;
     if (!online) return setFailure({ kind: "offline" });
     if (unseen > 0) return point("docs");
     if (!ack) return point("ack");
     sending.current = true;
     setFailure(null);
-    mutation.mutate(
-      { key: key.current, version: pkg.version, ruleSetVersion: pkg.requirement_set.version },
-      {
-        onSuccess: () => {
+    const version = pkg.version;
+    const ruleSetVersion = pkg.requirement_set.version;
+    // mutateAsync settles even if this component's observer is gone, so `sending` never sticks.
+    mutation
+      .mutateAsync({ key: keyFor(version, ruleSetVersion), version, ruleSetVersion })
+      .then(
+        () => {
           haptic("success");
           close();
           router.push(`/packages/${pkg.id}/success`);
         },
-        onError: (error) => onFailure(error, close),
-        onSettled: () => {
-          sending.current = false;
-        },
-      },
-    );
+        (error: unknown) => onFailure(error, close),
+      )
+      .finally(() => {
+        sending.current = false;
+      });
   };
 
   return {
@@ -107,7 +123,7 @@ export function useApprovalFlow(pkg: Detail, isSeen: (versionId: string) => bool
     setAck,
     ready,
     online,
-    pending: mutation.isPending,
+    pending,
     failure,
     nudge,
     begin,

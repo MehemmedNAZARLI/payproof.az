@@ -10,6 +10,11 @@ const err = (code: ConstructorParameters<typeof ApiError>[0], status: number) =>
 describe("approvalFailure", () => {
   it.each([
     [err("VERSION_CONFLICT", 409), { kind: "conflict" }],
+    [
+      new ApiError("VERSION_CONFLICT", "m", 409, { current_version: 4 }),
+      { kind: "conflict", version: 4 },
+    ],
+    [err("IDEMPOTENCY_KEY_REUSED", 422), { kind: "conflict" }],
     [err("FORBIDDEN", 403), { kind: "forbidden" }],
     [err("PACKAGE_NOT_READY", 409), { kind: "not-ready", message: "msg" }],
     [err("IDEMPOTENCY_IN_PROGRESS", 409), { kind: "in-progress" }],
