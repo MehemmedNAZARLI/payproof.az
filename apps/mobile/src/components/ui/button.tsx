@@ -13,7 +13,7 @@ type ButtonProps = ComponentPropsWithoutRef<"button"> & {
 
 const variants = {
   primary: "bg-brand-600 text-brand-foreground shadow-1",
-  secondary: "bg-surface-2 text-brand-700",
+  secondary: "bg-brand-50 text-brand-700",
   plain: "text-brand-600",
 };
 

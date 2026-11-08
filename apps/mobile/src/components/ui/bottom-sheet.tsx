@@ -58,8 +58,10 @@ export function BottomSheet({
         aria-labelledby={titleId}
         aria-describedby={description ? descId : undefined}
         tabIndex={-1}
+        // Off-screen until the spring takes over; React leaves it alone while the value is unchanged.
+        style={{ transform: "translate3d(0, 100%, 0)" }}
         onKeyDown={(e) => trapKeys(e, onClose)}
-        className="bg-surface shadow-3 absolute inset-x-0 bottom-0 mx-auto flex max-h-[calc(100dvh-var(--safe-top)-var(--sp-3))] max-w-app translate-y-full flex-col rounded-t-(--sheet-radius) outline-none will-change-transform"
+        className="bg-surface shadow-3 absolute inset-x-0 bottom-0 mx-auto flex max-h-[calc(100dvh-var(--safe-top)-var(--sp-3))] max-w-app flex-col rounded-t-(--sheet-radius) outline-none will-change-transform"
       >
         <div data-sheet-handle className="flex-none touch-none" {...dragHandlers}>
           <div
