@@ -55,16 +55,24 @@ export const fitWidth = (width: number) => Math.min(width, MAX_FIT);
 export const PAPER_READABLE = readable(PAPER_WIDTH, PAPER_TEXT);
 export const PDF_READABLE = readable(595, 10);
 
-/** Scroll the pane so the highlighted region sits in the middle of it. */
+const EDGE = 12;
+
+/** Scroll the pane so the highlighted region is in view: centred, or from its start if wide. */
 export function centreHighlight(root: HTMLElement | null) {
   const el = root?.querySelector<HTMLElement>("[data-highlight]");
   const pane = el?.closest<HTMLElement>("[role=region]");
   if (!el || !pane) return;
   const box = el.getBoundingClientRect();
   const view = pane.getBoundingClientRect();
+  // A region wider or taller than the pane (a whole table row when zoomed) starts at its
+  // leading edge, so its first words are in view; smaller ones sit in the middle.
+  const offset = (start: number, size: number, viewStart: number, viewSize: number) =>
+    size > viewSize - 2 * EDGE
+      ? start - viewStart - EDGE
+      : start - viewStart - (viewSize - size) / 2;
   pane.scrollBy({
-    top: box.top - view.top - (view.height - box.height) / 2,
-    left: box.left - view.left - (view.width - box.width) / 2,
+    top: offset(box.top, box.height, view.top, view.height),
+    left: offset(box.left, box.width, view.left, view.width),
   });
 }
 
