@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { TabBar } from "@/components/ui/tab-bar";
 
+import { BadgesSection, BannersSection, FeedbackSection } from "./kit-feedback";
 import { ChecksSection, ChipsSection, PackagesSection } from "./kit-lists";
 
 const UNREAD = 3;
@@ -30,6 +31,9 @@ export function KitScreen() {
         <ChipsSection />
         <PackagesSection />
         <ChecksSection onOpen={() => setSheetOpen(true)} />
+        <BadgesSection />
+        <BannersSection />
+        <FeedbackSection />
       </main>
       <BottomSheet
         open={sheetOpen}
