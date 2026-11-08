@@ -1,10 +1,12 @@
 "use client";
 
+import { onlineManager } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { AppHeader } from "@/components/ui/app-header";
 import { IconButton } from "@/components/ui/icon-button";
+import { toast } from "@/components/ui/toast-store";
 import { useDashboard } from "@/features/home/queries";
 import { cx } from "@/lib/cx";
 import { t } from "@/lib/i18n";
@@ -50,6 +52,11 @@ export function PackagesScreen() {
   const counts = dashboard.data?.status_counts;
 
   const refresh = async () => {
+    // Offline, refetch() would wait for the network indefinitely; keep the cached rows and say so.
+    if (!onlineManager.isOnline()) {
+      toast.error(t.errors.offline, t.errors.offlineHint);
+      return;
+    }
     setRefreshing(true);
     await Promise.allSettled([list.refetch(), dashboard.refetch()]);
     setRefreshing(false);
