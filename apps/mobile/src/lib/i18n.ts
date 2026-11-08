@@ -32,6 +32,18 @@ export const t = {
     approved: "Hazır",
     exported: "İxrac edilib",
   },
+  packages: {
+    title: "Faktura paketləri",
+    subtitle: (n: number) => `${n} paket · sintetik demo`,
+    search: "Paket axtar",
+    searchPlaceholder: "Faktura və ya müştəri",
+    clearSearch: "Axtarışı təmizlə",
+    list: "Paketlər",
+    results: (n: number) => `${n} paket göstərilir`,
+    emptyTitle: "Paket tapılmadı",
+    emptyHint: "Axtarışı və ya filtri dəyişin.",
+    clearFilters: "Filtri təmizlə",
+  },
   packageItem: {
     processing: "Faktura oxunur…",
     blocking: (n: number) => `${n} bloklayan`,
