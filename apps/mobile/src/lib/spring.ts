@@ -81,3 +81,6 @@ const project = (velocity: number) => ((velocity / 1000) * DECELERATION) / (1 - 
 export function shouldDismiss(offset: number, velocity: number, height: number): boolean {
   return offset + project(velocity) > height / 2;
 }
+
+export const prefersReducedMotion = () =>
+  typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
