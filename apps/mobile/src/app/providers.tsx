@@ -1,5 +1,8 @@
 "use client";
 
+// Side effect: the browser install prompt fires once, early, and must be caught from the start.
+import "@/features/pwa/install";
+
 import { SerwistProvider } from "@serwist/turbopack/react";
 import { type QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { type ReactNode, useEffect, useState } from "react";

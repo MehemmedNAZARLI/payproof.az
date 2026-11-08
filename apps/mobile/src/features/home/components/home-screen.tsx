@@ -13,6 +13,7 @@ import { useUnreadCount } from "@/features/notifications/queries";
 import { PackageRow } from "@/features/packages/components/package-row";
 import { packagesHref } from "@/features/packages/filters";
 import { usePackages } from "@/features/packages/queries";
+import { InstallCard } from "@/features/pwa/install-hint";
 import { formatLongDate, greeting } from "@/lib/format";
 import { t } from "@/lib/i18n";
 import { useSession } from "@/lib/session";
@@ -98,6 +99,8 @@ export function HomeScreen() {
             )
           }
         </Section>
+
+        <InstallCard />
 
         <SectionHeader title={t.home.activity} />
         <Section query={activity} skeleton={<SectionSkeleton rows={4} />}>

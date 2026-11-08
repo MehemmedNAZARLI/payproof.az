@@ -300,6 +300,18 @@ export const t = {
   offline: {
     strip: "Oflayn — son yüklənən məlumat göstərilir",
   },
+  install: {
+    title: "Ana ekrana əlavə edin",
+    body: "Tətbiq kimi açılır və oflayn da son yüklənən məlumatı göstərir.",
+    add: "Əlavə et",
+    dismiss: "İpucunu bağla",
+    row: "Ana ekrana əlavə et",
+    sheetTitle: "Safari-də ana ekrana əlavə edin",
+    step1: "Aşağı paneldə Paylaş (Share) düyməsinə toxunun.",
+    step2: "“Ana ekrana əlavə et” (Add to Home Screen) seçin.",
+    step3: "Yuxarıda “Əlavə et” (Add) toxunun.",
+    done: "Aydındır",
+  },
   pwa: {
     updateTitle: "Yeni versiya hazırdır",
     updateBody: "Açıq işinizi bitirib yeniləyin.",

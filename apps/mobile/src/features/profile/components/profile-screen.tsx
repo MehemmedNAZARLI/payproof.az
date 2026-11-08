@@ -11,6 +11,7 @@ import { Icon } from "@/components/ui/icon";
 import { ListGroup, ListItem } from "@/components/ui/list";
 import { toast } from "@/components/ui/toast-store";
 import { useMe, useSignOut } from "@/features/auth/queries";
+import { useInstallAction } from "@/features/pwa/install-hint";
 import type { Schemas } from "@/lib/api";
 import { env } from "@/lib/env";
 import { t } from "@/lib/i18n";
@@ -24,6 +25,7 @@ export function ProfileScreen() {
   const me = useMe();
   const signOut = useSignOut();
   const [confirming, setConfirming] = useState(false);
+  const install = useInstallAction();
 
   return (
     <>
@@ -80,6 +82,13 @@ export function ProfileScreen() {
             title={t.profile.appearance}
             trailing={<Value>{t.profile.appearanceValue}</Value>}
           />
+          {install.available && (
+            <ListItem
+              leading={<SettingIcon name="plus-square" />}
+              title={t.install.row}
+              onClick={install.start}
+            />
+          )}
           <ListItem
             leading={<SettingIcon name="monitor" />}
             title={t.profile.web}
@@ -123,6 +132,7 @@ export function ProfileScreen() {
       >
         {null}
       </BottomSheet>
+      {install.sheet}
     </>
   );
 }
