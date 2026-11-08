@@ -10,6 +10,60 @@
   --safe-left: env(safe-area-inset-left, 0px);
   /* Widest phone layout; larger screens get a centred column. */
   --app-max-w: 430px;
+  /* iOS bar metrics: compact navigation bar and tab bar (without safe areas). */
+  --navbar-h: 44px;
+  --tabbar-h: 50px;
+  --sheet-radius: 26px;
+  /* Translucent bar material: tinted surface + blur, like UIKit's system chrome. */
+  --material: color-mix(in srgb, var(--surface) 72%, transparent);
+  --hairline: color-mix(in srgb, var(--text) 16%, transparent);
+  /* Skeleton shimmer: a lighter band in light mode, a brighter one in dark. */
+  --skel-base: var(--surface-3);
+  --skel-band: color-mix(in srgb, var(--surface-3), var(--surface) 75%);
+}
+:root[data-theme="dark"] {
+  --material: color-mix(in srgb, var(--surface) 70%, transparent);
+  --skel-band: color-mix(in srgb, var(--surface-3), var(--text) 10%);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --material: color-mix(in srgb, var(--surface) 70%, transparent);
+    --skel-band: color-mix(in srgb, var(--surface-3), var(--text) 10%);
+  }
+}
+
+@utility material {
+  background-color: var(--material);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+}
+/* 0.5px separators render as one device pixel on retina screens. */
+@utility hairline-t {
+  box-shadow: inset 0 0.5px 0 var(--hairline);
+}
+@utility hairline-b {
+  box-shadow: inset 0 -0.5px 0 var(--hairline);
+}
+@utility pb-tabbar {
+  padding-bottom: calc(var(--tabbar-h) + var(--safe-bottom) + var(--sp-6));
+}
+@utility shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--skel-base);
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, var(--skel-band), transparent);
+    animation: shimmer 1.4s ease-in-out infinite;
+  }
+}
+@keyframes shimmer {
+  to {
+    transform: translateX(100%);
+  }
 }
 
 @utility max-w-app {
