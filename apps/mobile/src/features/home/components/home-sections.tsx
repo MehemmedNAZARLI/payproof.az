@@ -20,7 +20,7 @@ export function OpenAmounts({ amounts }: { amounts: Schemas["CurrencyTotal"][] }
             <ListItem
               key={total.currency}
               leading={
-                <span className="bg-surface-2 text-text-2 grid h-7 min-w-11 place-items-center rounded-md px-1.5 text-xs font-bold">
+                <span className="bg-surface-2 text-text-2 grid size-8 place-items-center rounded-full text-[10px] font-bold tracking-tight">
                   {total.currency}
                 </span>
               }

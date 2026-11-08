@@ -110,7 +110,7 @@ export function ProfileScreen() {
         title={t.profile.signOutTitle}
         description={t.profile.signOutBody}
         footer={
-          <div className="flex flex-col gap-2">
+          <div className="flex w-full flex-col gap-2">
             <Button block size="lg" variant="destructive" onClick={() => void signOut()}>
               {t.profile.signOut}
             </Button>
