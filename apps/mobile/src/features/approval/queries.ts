@@ -28,6 +28,9 @@ export function useApprove(pkg: Detail) {
       ),
     // The sheet explains every failure in place.
     meta: { silentError: true },
+    // Never queue an approval for "when the connection is back": that would approve later than
+    // the user saw. Offline, it fails now and the sheet says why.
+    networkMode: "always",
     onSuccess: (approval) => applyApproval(qc, pkg, approval),
   });
 }
