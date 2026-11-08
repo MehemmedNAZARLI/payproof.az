@@ -5,6 +5,7 @@ import { useEffect } from "react";
 
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Icon } from "@/components/ui/icon";
@@ -15,7 +16,7 @@ import { appDescription, appName } from "@/lib/brand";
 import { cx } from "@/lib/cx";
 import { t } from "@/lib/i18n";
 import { errorMessage } from "@/lib/query-client";
-import { useSession } from "@/lib/session";
+import { signOutReason, useSession } from "@/lib/session";
 
 import { safeNextPath } from "../next-path";
 import { useDevLogin, useDevUsers } from "../queries";
@@ -58,6 +59,9 @@ export function LoginScreen() {
 
       <main className="bg-bg pb-safe relative -mt-6 flex-1 rounded-t-[28px]">
         <div className="px-safe mx-auto max-w-app pt-7 pb-8">
+          {session === null && signOutReason() === "expired" && (
+            <Banner tone="info" icon="clock" title={t.auth.expired} className="mb-5" />
+          )}
           <h2 className="text-xl font-bold tracking-tight">{t.auth.pickTitle}</h2>
           <p className="text-text-3 mt-0.5 text-sm">{t.auth.pickHint}</p>
 

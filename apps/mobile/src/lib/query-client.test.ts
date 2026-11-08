@@ -69,14 +69,14 @@ describe("createQueryClient on 401", () => {
   afterEach(() => vi.restoreAllMocks());
   const expired = new ApiError("UNAUTHENTICATED", "Sessiya bitib.", 401);
 
-  it("ends the session once and says why, however many requests were rejected", async () => {
+  it("ends the session once, quietly, however many requests were rejected", async () => {
     startSession({
       access_token: "mock.u2",
       token_type: "bearer",
       expires_in: 60,
       user: {} as never,
     });
-    const spy = vi.spyOn(toast, "info");
+    const spy = vi.spyOn(toast, "error");
     const client = createQueryClient();
     const reject = () => Promise.reject(expired);
     await Promise.all(
@@ -84,6 +84,6 @@ describe("createQueryClient on 401", () => {
     );
     expect(getSession()).toBeNull();
     expect(signOutReason()).toBe("expired");
-    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).not.toHaveBeenCalled();
   });
 });

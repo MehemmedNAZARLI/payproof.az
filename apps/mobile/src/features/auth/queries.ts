@@ -35,8 +35,11 @@ export function useDevLogin() {
     mutationFn: (userId: string) =>
       unwrap(api.POST("/v1/auth/dev-login", { body: { user_id: userId } })),
     onSuccess(issued) {
-      // A previous user's data must not survive into this session.
-      queryClient.clear();
+      // A previous user's data must not survive into this session; the login's own list stays
+      // so it does not flash back to a skeleton before the redirect.
+      queryClient.removeQueries({
+        predicate: ({ queryKey }) => queryKey.join() !== authKeys.devUsers().join(),
+      });
       startSession(issued);
       queryClient.setQueryData(authKeys.me(), issued.user);
     },

@@ -4,7 +4,7 @@ import { toast } from "@/components/ui/toast-store";
 
 import { ApiError } from "./api/client";
 import { t } from "./i18n";
-import { endSession, getSession } from "./session";
+import { endSession, hasStoredSession } from "./session";
 
 // Fresh for 30 s; after that, returning to the app (focus) or reconnecting refetches.
 const STALE_MS = 30_000;
@@ -28,14 +28,11 @@ export const shouldRetry = (failures: number, error: unknown) =>
   !(error instanceof ApiError && error.status >= 400 && error.status < 500) &&
   failures < MAX_RETRIES;
 
-// A rejected token ends the session; the route guard then sends the user to the login and back.
-// Several requests usually fail together, so only the first one ends it and says so.
+// A rejected token (expired ones included) ends the session; the route guard then sends the user
+// to the login, which says why, and back. Several requests usually fail together: one ends it.
 function onUnauthenticated(error: unknown): boolean {
   if (!(error instanceof ApiError) || error.status !== 401) return false;
-  if (getSession()) {
-    endSession("expired");
-    toast.info(t.auth.expired);
-  }
+  if (hasStoredSession()) endSession("expired");
   return true;
 }
 

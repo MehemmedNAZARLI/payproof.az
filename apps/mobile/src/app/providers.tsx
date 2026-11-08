@@ -6,6 +6,8 @@ import { type ReactNode, useEffect, useState } from "react";
 
 import { Toaster } from "@/components/ui/toaster";
 import { createQueryClient } from "@/lib/query-client";
+import { clearRuntimeCaches } from "@/lib/runtime-caches";
+import { watchUserChange } from "@/lib/session";
 
 // The service worker would serve stale bundles during development, so it only runs in builds.
 const isDev = process.env.NODE_ENV === "development";
@@ -24,6 +26,15 @@ function useUnregisterInDev() {
 export function Providers({ children }: { children: ReactNode }) {
   useUnregisterInDev();
   const [queryClient] = useState(createQueryClient);
+  // Whoever signed out or took over (here, in another tab, or by expiry), their data goes too.
+  useEffect(
+    () =>
+      watchUserChange(() => {
+        queryClient.clear();
+        void clearRuntimeCaches();
+      }),
+    [queryClient],
+  );
   // No reload on reconnect (it would drop an open approval sheet) and no per-route HTML caching
   // until M-11 defines the offline policy; TanStack Query refetches on reconnect (M-02).
   return (
