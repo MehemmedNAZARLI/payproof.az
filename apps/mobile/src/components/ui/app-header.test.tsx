@@ -34,6 +34,12 @@ describe("AppHeader", () => {
     expect(screen.getByRole("link", { name: "Geri" })).toHaveAttribute("href", "/packages");
   });
 
+  it("shows a detail subtitle under the compact title", () => {
+    render(<AppHeader title="INV-1042" subtitle="B Mağazalar Şəbəkəsi" back={{ href: "/" }} />);
+    expect(screen.getByRole("heading", { level: 1, name: "INV-1042" })).toBeVisible();
+    expect(screen.getByText("B Mağazalar Şəbəkəsi")).toBeVisible();
+  });
+
   it("starts with a transparent bar", () => {
     render(<AppHeader large title="Əsas" />);
     expect(screen.getByRole("banner").style.getPropertyValue("--p")).toBe("0");

@@ -47,6 +47,12 @@ export function AppHeader({ title, subtitle, large = false, back, trailing }: Ap
             >
               {title}
             </span>
+          ) : subtitle ? (
+            // Detail screens: a compact two-line title (number over customer), as in UINavigationBar.
+            <div className="min-w-0 text-center leading-tight">
+              <h1 className="truncate text-md font-semibold">{title}</h1>
+              <p className="text-text-3 truncate text-xs">{subtitle}</p>
+            </div>
           ) : (
             <h1 className="truncate text-lg font-semibold">{title}</h1>
           )}
@@ -59,7 +65,6 @@ export function AppHeader({ title, subtitle, large = false, back, trailing }: Ap
           {subtitle && <p className="text-text-3 text-sm">{subtitle}</p>}
         </div>
       )}
-      {!large && subtitle && <p className="sr-only">{subtitle}</p>}
     </>
   );
 }

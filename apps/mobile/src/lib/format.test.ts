@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatDateTime, formatLongDate, formatMoney, greeting } from "./format";
+import { formatDate, formatDateTime, formatLongDate, formatMoney, greeting } from "./format";
 
 describe("formatMoney", () => {
   it("groups thousands with dots and uses a decimal comma (az-AZ, as the prototype)", () => {
@@ -44,5 +44,12 @@ describe("dates (Baku time)", () => {
     expect(greeting(new Date("2026-11-08T10:00:00Z"))).toBe("Günortanız xeyir");
     expect(greeting(new Date("2026-11-08T16:00:00Z"))).toBe("Axşamınız xeyir");
     expect(greeting(new Date("2026-11-08T22:30:00Z"))).toBe("Axşamınız xeyir");
+  });
+});
+
+describe("formatDate", () => {
+  it("writes a contract date day first, without touching time zones", () => {
+    expect(formatDate("2026-11-03")).toBe("03.11.2026");
+    expect(() => formatDate("03.11.2026")).toThrow();
   });
 });

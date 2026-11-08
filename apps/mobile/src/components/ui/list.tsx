@@ -47,6 +47,8 @@ type ListItemProps = {
   onClick?: () => void;
   /** Defaults to true for links and buttons. */
   chevron?: boolean;
+  /** Let title and subtitle wrap instead of truncating (long check titles, messages). */
+  multiline?: boolean;
 };
 
 export function ListItem(props: ListItemProps) {
@@ -86,13 +88,15 @@ export function ListItem(props: ListItemProps) {
   );
 }
 
-function RowContent({ title, subtitle, leading, trailing, meta, chevron }: ListItemProps) {
+function RowContent(props: ListItemProps) {
+  const { title, subtitle, leading, trailing, meta, chevron, multiline } = props;
+  const fit = multiline ? "text-pretty" : "truncate";
   return (
     <>
       {leading && <span className="text-text-2 flex size-8 shrink-0 items-center">{leading}</span>}
       <span className="min-w-0 grow">
-        <span className="block truncate text-md font-semibold">{title}</span>
-        {subtitle && <span className="text-text-3 block truncate text-sm">{subtitle}</span>}
+        <span className={cx("block text-md leading-snug font-semibold", fit)}>{title}</span>
+        {subtitle && <span className={cx("text-text-3 block text-sm", fit)}>{subtitle}</span>}
         {meta && <span className="mt-1.5 flex flex-wrap items-center gap-1.5">{meta}</span>}
       </span>
       {trailing && <span className="shrink-0 text-right">{trailing}</span>}
