@@ -84,4 +84,46 @@ describe("session", () => {
     expect(listener).toHaveBeenCalled();
     expect(s.getSession()).toBeNull();
   });
+
+  it("ends itself when the token expires, so screens move on to the login", async () => {
+    vi.useFakeTimers({ now: Date.parse("2026-11-08T10:00:00Z") });
+    const s = await load();
+    s.startSession(issued);
+    const listener = vi.fn();
+    s.subscribeSession(listener);
+    vi.advanceTimersByTime(60_000);
+    expect(listener).toHaveBeenCalled();
+    expect(s.signOutReason()).toBe("expired");
+    expect(localStorage.length).toBe(0);
+  });
+
+  it("still knows a session was stored after it expired, so a 401 can end it", async () => {
+    vi.useFakeTimers({ now: Date.parse("2026-11-08T10:00:00Z") });
+    (await load()).startSession(issued);
+    vi.setSystemTime(Date.parse("2026-11-08T11:00:00Z"));
+    const s = await load();
+    expect(s.getSession()).toBeNull();
+    expect(s.hasStoredSession()).toBe(true);
+  });
+
+  it("treats a sign-out in another tab as the user's", async () => {
+    const s = await load();
+    s.startSession(issued);
+    s.subscribeSession(() => {});
+    localStorage.removeItem("payproof.session");
+    window.dispatchEvent(new StorageEvent("storage", { key: "payproof.session" }));
+    expect(s.signOutReason()).toBe("user");
+  });
+
+  it("reports when a signed-in user is replaced, not when someone signs in", async () => {
+    const s = await load();
+    const changed = vi.fn();
+    s.watchUserChange(changed);
+    s.startSession(issued);
+    expect(changed).not.toHaveBeenCalled();
+    s.startSession({ ...issued, access_token: "mock.u1" });
+    expect(changed).toHaveBeenCalledTimes(1);
+    s.endSession("user");
+    expect(changed).toHaveBeenCalledTimes(2);
+  });
 });
