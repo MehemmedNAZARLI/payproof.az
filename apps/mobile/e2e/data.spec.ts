@@ -1,5 +1,9 @@
 import { expect, test } from "@playwright/test";
 
+import { signIn } from "./helpers";
+
+test.beforeEach(async ({ page }) => signIn(page));
+
 // M-02: in mock mode the API is answered inside the page — no MSW service worker, so
 // Serwist keeps the only worker on the scope and nothing hits the network.
 

@@ -1,9 +1,10 @@
 import { expect, test } from "@playwright/test";
 
+import { signIn } from "./helpers";
+
 // The M-03 component preview in a production build, on the iPhone 13 profile.
 
-// Tab screens arrive in M-04…M-10; until then their link prefetches are the only expected 404s.
-const UNBUILT_TABS = ["/home", "/packages", "/notifications", "/profile"];
+test.beforeEach(async ({ page }) => signIn(page));
 
 test("renders the kit without console errors or horizontal scroll", async ({ page }) => {
   const errors: string[] = [];
@@ -20,7 +21,7 @@ test("renders the kit without console errors or horizontal scroll", async ({ pag
     expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBe(0);
   }
   expect(errors).toEqual([]);
-  expect([...missing].filter((path) => !UNBUILT_TABS.includes(path))).toEqual([]);
+  expect([...missing]).toEqual([]);
 });
 
 test("collapses the large title into the bar on scroll", async ({ page }) => {
