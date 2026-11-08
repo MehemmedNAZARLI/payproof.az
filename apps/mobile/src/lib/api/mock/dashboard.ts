@@ -3,9 +3,10 @@ import expected from "@fixtures/expected.json";
 import packages from "@fixtures/packages.json";
 import tasks from "@fixtures/tasks.json";
 
+import { decimal, toCents } from "@/lib/money";
+
 import type { Schemas } from "../client";
 import { livePackages, sessionApprovalRecords } from "./live";
-import { decimal, toCents } from "./money";
 import { mockUuid, packageList, toUtc, userRef } from "./store";
 
 type Item = Schemas["PackageListItem"];

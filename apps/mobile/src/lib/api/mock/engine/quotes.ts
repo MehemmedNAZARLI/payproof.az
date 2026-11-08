@@ -1,6 +1,6 @@
 import { formatMoney } from "@/lib/format";
+import { decimal } from "@/lib/money";
 
-import { decimal } from "../money";
 import {
   customer,
   type Delivery,
