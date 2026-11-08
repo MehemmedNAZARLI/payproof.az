@@ -13,14 +13,17 @@
     "e2e": "playwright test"
   },
   "dependencies": {
+    "@payproof/design-tokens": "workspace:^",
     "next": "16.4.5",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "tailwindcss": "^4",
     "typescript": "^5"
   }
 }
