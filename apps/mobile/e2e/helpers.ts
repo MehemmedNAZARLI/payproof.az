@@ -20,3 +20,17 @@ export function watchErrors(page: Page) {
 
 export const horizontalOverflow = (page: Page) =>
   page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+
+/** A one-finger downward drag from `fromY` (CSS px), as a phone sends it (CDP touch events). */
+export async function pullDown(page: Page, distance = 240, fromY = 220) {
+  const cdp = await page.context().newCDPSession(page);
+  const touch = (type: "touchStart" | "touchMove" | "touchEnd", y?: number) =>
+    cdp.send("Input.dispatchTouchEvent", {
+      type,
+      touchPoints: y === undefined ? [] : [{ x: 195, y }],
+    });
+  await touch("touchStart", fromY);
+  for (let y = fromY + 10; y <= fromY + distance; y += 10) await touch("touchMove", y);
+  await touch("touchEnd");
+  await cdp.detach();
+}

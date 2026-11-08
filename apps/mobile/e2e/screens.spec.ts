@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { horizontalOverflow, signIn, watchErrors } from "./helpers";
+import { horizontalOverflow, pullDown, signIn, watchErrors } from "./helpers";
 
 // M-05 home and M-06 package list on the iPhone 13 profile.
 
@@ -25,13 +25,29 @@ test("keeps search and filter in the URL across a reload", async ({ page }) => {
   await expect(page.getByRole("searchbox", { name: "Paket axtar" })).toHaveValue("restoran");
 });
 
-test("refreshes the list from the header button", async ({ page }) => {
-  await page.goto("/packages");
-  const rows = page.getByRole("list", { name: "Paketlər" }).getByRole("listitem");
-  await expect(rows).toHaveCount(14);
-  await page.getByRole("button", { name: "Yenilə" }).click();
-  await expect(rows).toHaveCount(14);
-});
+for (const path of ["/home", "/packages", "/notifications"])
+  test(`${path} refreshes with a pull from the top, keeping its content`, async ({ page }) => {
+    const errors = watchErrors(page);
+    await page.goto(path);
+    const ptr = page.getByTestId("ptr");
+    await expect(page.locator("main [aria-busy=true]")).toHaveCount(0);
+    // The refresh can finish before the finger lifts, so record that it ran.
+    await ptr.evaluate((el) => {
+      new MutationObserver(() => {
+        if (el.getAttribute("aria-busy") === "true") el.dataset.refreshed = "";
+      }).observe(el, { attributes: true, attributeFilter: ["aria-busy"] });
+    });
+    await pullDown(page);
+    await expect(ptr).toHaveAttribute("data-refreshed");
+    await expect(ptr).toHaveAttribute("aria-busy", "false");
+    await expect(ptr).not.toHaveAttribute("data-pulling");
+    // A short pull only bounces.
+    await ptr.evaluate((el) => delete el.dataset.refreshed);
+    await pullDown(page, 50);
+    await expect(ptr).not.toHaveAttribute("data-pulling");
+    await expect(ptr).not.toHaveAttribute("data-refreshed");
+    expect(errors).toEqual([]);
+  });
 
 for (const path of ["/home", "/packages", "/profile"])
   test(`${path} has no horizontal scroll or console errors at 360–430px`, async ({ page }) => {
