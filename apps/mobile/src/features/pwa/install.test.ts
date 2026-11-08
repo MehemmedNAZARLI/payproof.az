@@ -23,6 +23,23 @@ describe("installKind", () => {
     expect(installKind({ standalone: false, canPrompt: false, ua: IPHONE_SAFARI })).toBe("ios");
   });
 
+  it("recognises iPad Safari, which reports itself as a Mac", () => {
+    const ipad =
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Safari/605.1.15";
+    expect(installKind({ standalone: false, canPrompt: false, ua: ipad, touchPoints: 5 })).toBe(
+      "ios",
+    );
+    expect(installKind({ standalone: false, canPrompt: false, ua: ipad, touchPoints: 0 })).toBe(
+      "none",
+    );
+  });
+
+  it("gives no Safari steps inside in-app browsers, which cannot add to the home screen", () => {
+    const instagram =
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 350.0";
+    expect(installKind({ standalone: false, canPrompt: false, ua: instagram })).toBe("none");
+  });
+
   it("stays quiet where adding is not possible (other iOS browsers before 16.4, desktop)", () => {
     expect(installKind({ standalone: false, canPrompt: false, ua: IPHONE_CHROME })).toBe("none");
     expect(installKind({ standalone: false, canPrompt: false, ua: ANDROID })).toBe("none");

@@ -16,11 +16,21 @@ type PromptEvent = Event & {
 
 const DISMISSED_KEY = "payproof.installHint";
 
-export function installKind(o: { standalone: boolean; canPrompt: boolean; ua: string }) {
+export function installKind(o: {
+  standalone: boolean;
+  canPrompt: boolean;
+  ua: string;
+  touchPoints?: number;
+}) {
   if (o.standalone) return "none";
   if (o.canPrompt) return "prompt";
-  const iosSafari = /iPhone|iPad/.test(o.ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(o.ua);
-  return iosSafari ? "ios" : "none";
+  // iPadOS Safari presents itself as a Mac; only touch tells them apart.
+  const ios = /iPhone|iPad/.test(o.ua) || (/Macintosh/.test(o.ua) && (o.touchPoints ?? 0) > 1);
+  // Real Safari carries "Safari/"; in-app browsers (Instagram, Facebook…) and other engines'
+  // shells do not, or name themselves — none of them can add to the home screen.
+  const safari =
+    /Safari\//.test(o.ua) && !/CriOS|FxiOS|EdgiOS|OPiOS|FBAN|FBAV|Instagram/.test(o.ua);
+  return ios && safari ? "ios" : "none";
 }
 
 let deferred: PromptEvent | null = null;
@@ -69,6 +79,7 @@ function getSnapshot() {
       standalone: isStandalone(),
       canPrompt: deferred !== null,
       ua: navigator.userAgent,
+      touchPoints: navigator.maxTouchPoints,
     }),
     hintDismissed: readDismissed(),
   };
