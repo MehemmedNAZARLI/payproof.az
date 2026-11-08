@@ -76,7 +76,14 @@ export function PackageDetailView({ pkg }: { pkg: Schemas["PackageDetail"] }) {
         <DocumentsList
           pkg={pkg}
           isSeen={(d) => seen.isSeen(d.current.id)}
-          onOpen={(d) => sheet.open({ kind: "document", documentId: d.id, evidence: null })}
+          onOpen={(d) =>
+            sheet.open({
+              kind: "document",
+              documentId: d.id,
+              versionId: d.current.id,
+              evidence: null,
+            })
+          }
         />
         <TasksList tasks={pkg.tasks} />
       </main>

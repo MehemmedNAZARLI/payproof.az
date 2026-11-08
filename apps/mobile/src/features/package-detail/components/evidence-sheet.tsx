@@ -94,9 +94,14 @@ export function EvidenceSheet({ pkg, stack, onViewed }: EvidenceSheetProps) {
     route?.kind === "check" ? pkg.checks.find((c) => c.rule_id === route.ruleId) : undefined;
   const doc =
     route?.kind === "document" ? pkg.documents.find((d) => d.id === route.documentId) : undefined;
+  const version =
+    doc && route?.kind === "document"
+      ? ([doc.current, ...doc.history].find((v) => v.id === route.versionId) ?? doc.current)
+      : undefined;
+  const docTitle = doc && version ? `${t.document.type[doc.type]} · v${version.version_no}` : "";
   const nested = stack.depth > 1;
   const pageKey = route
-    ? `${stack.depth}:${route.kind === "check" ? route.ruleId : route.documentId}`
+    ? `${stack.depth}:${route.kind === "check" ? route.ruleId : route.versionId}`
     : undefined;
 
   const backButton = (
@@ -118,10 +123,8 @@ export function EvidenceSheet({ pkg, stack, onViewed }: EvidenceSheetProps) {
       page={pageKey}
       direction={stack.direction}
       size={doc ? "large" : "auto"}
-      title={
-        check ? check.title : doc ? `${t.document.type[doc.type]} · v${doc.current.version_no}` : ""
-      }
-      description={check ? undefined : doc?.current.file_name}
+      title={check ? check.title : docTitle}
+      description={check ? undefined : version?.file_name}
       leading={
         doc && nested ? (
           <button
@@ -148,17 +151,26 @@ export function EvidenceSheet({ pkg, stack, onViewed }: EvidenceSheetProps) {
             pkg={pkg}
             onEvidence={(e) => {
               const found = versionOf(pkg, e.document_version_id);
-              if (found) stack.push({ kind: "document", documentId: found.doc.id, evidence: e });
+              if (found)
+                stack.push({
+                  kind: "document",
+                  documentId: found.doc.id,
+                  versionId: found.version.id,
+                  evidence: e,
+                });
             }}
           />
         </>
       )}
-      {doc && route?.kind === "document" && (
+      {doc && version && route?.kind === "document" && (
         <DocumentViewer
-          version={doc.current}
-          title={`${t.document.type[doc.type]} · v${doc.current.version_no}`}
+          // A new version (or a re-cited one) starts the viewer afresh.
+          key={version.id}
+          version={version}
+          title={docTitle}
           evidence={route.evidence}
-          onViewed={() => onViewed(doc.current.id)}
+          // Only the current version counts towards "seen"; an older one is context.
+          onViewed={() => version.id === doc.current.id && onViewed(version.id)}
         />
       )}
     </BottomSheet>

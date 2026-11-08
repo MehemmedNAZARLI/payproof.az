@@ -8,7 +8,13 @@ import type { Schemas } from "@/lib/api";
 // the screen starts over; following evidence goes one level deeper; "Geri" comes back.
 export type SheetRoute =
   | { kind: "check"; ruleId: string }
-  | { kind: "document"; documentId: string; evidence: Schemas["Evidence"] | null };
+  /** `versionId`: the version to show — the cited one, which may be older than the current. */
+  | {
+      kind: "document";
+      documentId: string;
+      versionId: string;
+      evidence: Schemas["Evidence"] | null;
+    };
 
 type State = { stack: SheetRoute[]; direction: "push" | "pop"; shown: SheetRoute | null };
 

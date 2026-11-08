@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { useSheetStack } from "./sheet-stack";
 
 const check = { kind: "check", ruleId: "R-005" } as const;
-const doc = { kind: "document", documentId: "d1", evidence: null } as const;
+const doc = { kind: "document", documentId: "d1", versionId: "v1", evidence: null } as const;
 
 describe("useSheetStack", () => {
   it("opens, goes deeper, comes back and closes", () => {
