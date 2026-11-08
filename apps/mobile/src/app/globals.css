@@ -154,6 +154,13 @@
   }
 }
 
+/* Clips like overflow: hidden but is not scrollable, so focus inside cannot shift the box.
+   Safari < 16 ignores clip and keeps hidden. */
+@utility overflow-clip-safe {
+  overflow: hidden;
+  overflow: clip;
+}
+
 @utility max-w-app {
   max-width: var(--app-max-w);
 }
