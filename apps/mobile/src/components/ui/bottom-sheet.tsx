@@ -6,7 +6,7 @@ import { createPortal } from "react-dom";
 import { t } from "@/lib/i18n";
 
 import { Icon } from "./icon";
-import { trapKeys, useModalFocus } from "./use-modal-focus";
+import { trapTab, useModalFocus } from "./use-modal-focus";
 import { useSheetDrag } from "./use-sheet-drag";
 import { useSheetMotion } from "./use-sheet-motion";
 
@@ -38,10 +38,12 @@ export function BottomSheet({
   const motion = useSheetMotion(open);
   const dragHandlers = useSheetDrag(motion, onClose);
   const { present, sheetRef, backdropRef } = motion;
-  useModalFocus(sheetRef, present);
+  // After hydration the portal mounts one render later; only then is there a panel to manage.
+  const isClient = useIsClient();
+  useModalFocus(sheetRef, present && isClient, onClose);
   const titleId = useId();
   const descId = useId();
-  if (!useIsClient() || !present) return null;
+  if (!isClient || !present) return null;
 
   return createPortal(
     <div className="fixed inset-0 z-50">
@@ -60,7 +62,7 @@ export function BottomSheet({
         tabIndex={-1}
         // Off-screen until the spring takes over; React leaves it alone while the value is unchanged.
         style={{ transform: "translate3d(0, 100%, 0)" }}
-        onKeyDown={(e) => trapKeys(e, onClose)}
+        onKeyDown={trapTab}
         className="bg-surface shadow-3 absolute inset-x-0 bottom-0 mx-auto flex max-h-[calc(100dvh-var(--safe-top)-var(--sp-3))] max-w-app flex-col rounded-t-(--sheet-radius) outline-none will-change-transform"
       >
         <div data-sheet-handle className="flex-none touch-none" {...dragHandlers}>

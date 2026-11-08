@@ -3,6 +3,7 @@ import { useState } from "react";
 import { describe, expect, it } from "vitest";
 
 import { BottomSheet } from "./bottom-sheet";
+import { Toaster } from "./toaster";
 
 function Harness() {
   const [open, setOpen] = useState(false);
@@ -61,6 +62,19 @@ describe("BottomSheet", () => {
     fireEvent.keyDown(dialog, { key: "Escape" });
     await closed();
     expect(trigger).toHaveFocus();
+  });
+
+  it("closes on Escape even when focus has fallen back to the page body", async () => {
+    openSheet();
+    (document.activeElement as HTMLElement).blur();
+    fireEvent.keyDown(document.body, { key: "Escape" });
+    await closed();
+  });
+
+  it("leaves toasts usable while open", () => {
+    render(<Toaster />);
+    openSheet();
+    expect(screen.getByRole("alert").closest("[inert]")).toBeNull();
   });
 
   it("closes from the labelled close button", async () => {

@@ -1,5 +1,8 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
+
 import { cx } from "@/lib/cx";
 import { t } from "@/lib/i18n";
 
@@ -13,20 +16,33 @@ const toneIcon: Record<ToastTone, { icon: IconName; color: string }> = {
   info: { icon: "info", color: "text-info" },
 };
 
-// Floating capsules under the status bar. Both live regions exist from the start so
+// Floating capsules under the status bar, kept usable above open sheets (data-modal-exempt). Both live regions exist from the start so
 // screen readers announce what is added: errors assertively, the rest politely.
+const noop = () => () => {};
+
 export function Toaster() {
   const items = useToasts();
+  const isClient = useSyncExternalStore(
+    noop,
+    () => true,
+    () => false,
+  );
   const region = "flex w-full flex-col items-center gap-2";
-  return (
-    <div className="px-safe pointer-events-none fixed inset-x-0 top-0 z-60 mx-auto flex max-w-app flex-col gap-2 pt-[calc(var(--safe-top)+var(--sp-2))]">
+  // A direct child of <body>, so an open sheet's inert sweep can skip it.
+  if (!isClient) return null;
+  return createPortal(
+    <div
+      data-modal-exempt=""
+      className="px-safe pointer-events-none fixed inset-x-0 top-0 z-60 mx-auto flex max-w-app flex-col gap-2 pt-[calc(var(--safe-top)+var(--sp-2))]"
+    >
       <div role="alert" className={region}>
         {items.filter((x) => x.tone === "error").map(item)}
       </div>
       <div role="status" className={region}>
         {items.filter((x) => x.tone !== "error").map(item)}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
