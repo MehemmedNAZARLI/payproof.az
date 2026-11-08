@@ -24,17 +24,12 @@ export function UpdatePrompt() {
           title: t.pwa.updateTitle,
           description: t.pwa.updateBody,
           sticky: true,
-          action: {
-            label: t.common.refresh,
-            onPress: () => {
-              // Whichever worker takes over once accepted, the page reloads onto it.
-              navigator.serviceWorker.addEventListener("controllerchange", reload, { once: true });
-              apply();
-            },
-          },
+          action: { label: t.common.refresh, onPress: apply },
         });
       },
       reload,
+      onTakeover: (callback) =>
+        navigator.serviceWorker.addEventListener("controllerchange", callback, { once: true }),
     });
     return () => {
       dispose();
