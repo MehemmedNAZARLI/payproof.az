@@ -17,6 +17,24 @@ export const t = {
       EXPORTED: "İxrac edilib",
     } satisfies Record<PackageStatus, string>,
   },
+  role: {
+    operator: "Operator",
+    approver: "Təsdiqçi",
+    readonly: "Yalnız baxış",
+    admin: "Administrator",
+    assignee: "İcraçı",
+  },
+  packageFilter: {
+    all: "Hamısı",
+    ready: "Təsdiq gözləyir",
+    problem: "Problemli",
+    approved: "Hazır",
+    exported: "İxrac edilib",
+  },
+  packageItem: {
+    processing: "Faktura oxunur…",
+    blocking: (n: number) => `${n} bloklayan`,
+  },
   check: {
     outcome: {
       PASS: "Keçdi",
@@ -45,11 +63,15 @@ export const t = {
     network: "İnternet bağlantısı yoxdur. Bağlantını yoxlayıb yenidən cəhd edin.",
     unexpected: "Gözlənilməz xəta baş verdi. Bir az sonra yenidən cəhd edin.",
     refreshFailed: "Məlumat yenilənmədi",
+    loadFailed: "Məlumat yüklənmədi",
   },
   common: {
     close: "Bağla",
     dismiss: "Bildirişi bağla",
     loading: "Yüklənir…",
+    retry: "Yenidən cəhd et",
+    refresh: "Yenilə",
+    empty: "Heç nə tapılmadı",
     unread: (n: number) => `${n} oxunmamış`,
   },
 } as const;
