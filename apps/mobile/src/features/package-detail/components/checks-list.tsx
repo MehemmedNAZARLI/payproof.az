@@ -6,9 +6,9 @@ import { cx } from "@/lib/cx";
 import { type CheckOutcome, t } from "@/lib/i18n";
 
 const outcomeIcon: Record<CheckOutcome, { name: IconName; className: string }> = {
-  PASS: { name: "pass", className: "text-success" },
-  FAIL: { name: "fail", className: "text-danger" },
-  UNKNOWN: { name: "unknown", className: "text-warning" },
+  PASS: { name: "pass", className: "text-success-ink" },
+  FAIL: { name: "fail", className: "text-danger-ink" },
+  UNKNOWN: { name: "unknown", className: "text-warning-ink" },
   NOT_APPLICABLE: { name: "na", className: "text-text-3" },
 };
 
@@ -33,7 +33,7 @@ export function ChecksList({ pkg, onOpen }: ChecksListProps) {
         id="checks-title"
         title={t.detail.checks}
         action={
-          <span className="text-text-3 pb-1 text-sm">
+          <span className="text-text-3 pb-1 text-footnote">
             {t.detail.checksSummary(summary.pass, summary.fail + summary.unknown)}
           </span>
         }

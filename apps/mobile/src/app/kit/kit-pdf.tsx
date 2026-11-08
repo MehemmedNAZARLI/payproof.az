@@ -36,7 +36,7 @@ export function PdfSection() {
     <>
       <SectionHeader title="PDF görüntüləyici" />
       <Card className="flex items-center justify-between gap-3">
-        <span className="text-text-2 text-sm">2 səhifə · bbox vurğusu · {state}</span>
+        <span className="text-text-2 text-footnote">2 səhifə · bbox vurğusu · {state}</span>
         <Button variant="secondary" onClick={() => setOpen(true)}>
           PDF-ə bax
         </Button>

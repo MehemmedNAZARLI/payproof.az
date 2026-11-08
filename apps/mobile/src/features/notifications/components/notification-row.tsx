@@ -19,13 +19,13 @@ export function NotificationRow({ notification: n, onOpen }: Props) {
           aria-hidden="true"
           className={cx(
             "absolute top-1/2 -left-3 size-2.5 -translate-y-1/2 rounded-full transition-opacity",
-            unread ? "bg-brand-600 opacity-100" : "opacity-0",
+            unread ? "bg-accent opacity-100" : "opacity-0",
           )}
         />
         <span
           className={cx(
             "grid size-9 place-items-center rounded-full",
-            unread ? "bg-brand-50 text-brand-600" : "bg-surface-2 text-text-3",
+            unread ? "bg-accent-soft text-accent" : "bg-surface-2 text-text-3",
           )}
         >
           <Icon name={n.package ? "package" : "bell"} size={20} />
@@ -35,13 +35,13 @@ export function NotificationRow({ notification: n, onOpen }: Props) {
         {unread && <span className="sr-only">{t.notifications.unread}: </span>}
         <span
           className={cx(
-            "block text-md leading-snug text-pretty",
+            "block text-subhead leading-snug text-pretty",
             unread ? "font-semibold" : "text-text-2",
           )}
         >
           {n.text}
         </span>
-        <span className="text-text-3 mt-0.5 block text-sm tabular-nums">
+        <span className="text-text-3 mt-0.5 block text-footnote tabular-nums">
           {[n.package?.invoice_number, formatTime(n.created_at)].filter(Boolean).join(" · ")}
         </span>
       </span>

@@ -13,7 +13,7 @@ export function OpenOnWeb({ id, label = t.detail.openWeb }: { id: string; label?
   return (
     <a
       href={webPackageHref(id)}
-      className="text-brand-600 flex min-h-11 items-center text-md font-semibold whitespace-nowrap active:opacity-50"
+      className="text-accent flex min-h-11 items-center text-subhead font-semibold whitespace-nowrap active:opacity-50"
     >
       {label}
     </a>
@@ -28,7 +28,7 @@ function ApproveButton({ onApprove }: { onApprove?: () => void }) {
       {!online && (
         <p
           id="approve-offline"
-          className="text-warning mb-2 flex items-center justify-center gap-1.5 text-sm font-medium"
+          className="text-warning-ink mb-2 flex items-center justify-center gap-1.5 text-footnote font-medium"
         >
           <Icon name="wifi-off" size={16} />
           {t.approval.offline}
@@ -56,7 +56,7 @@ function CtaContent({ cta, id, onApprove }: CtaProps) {
       return <ApproveButton onApprove={onApprove} />;
     case "awaiting-approver":
       return (
-        <Banner tone="brand" icon="lock" title={t.detail.cta.awaitingTitle}>
+        <Banner tone="accent" icon="lock" title={t.detail.cta.awaitingTitle}>
           {t.detail.cta.awaitingBody}
         </Banner>
       );
@@ -81,7 +81,7 @@ function CtaContent({ cta, id, onApprove }: CtaProps) {
       return (
         <a
           href={webPackageHref(id)}
-          className="bg-brand-50 text-brand-700 flex h-13 w-full items-center justify-center gap-2 rounded-lg text-lg font-semibold transition-[transform,opacity] active:scale-[0.97] active:opacity-85"
+          className="bg-accent-soft text-accent-ink flex h-13 w-full items-center justify-center gap-2 rounded-lg text-body font-semibold transition-[transform,opacity] active:scale-[0.97] active:opacity-85"
         >
           <Icon name="monitor" size={22} />
           {t.detail.cta.exportOnWeb}

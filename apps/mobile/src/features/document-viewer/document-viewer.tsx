@@ -113,13 +113,13 @@ export function DocumentViewer({ version, title, evidence, onViewed }: ViewerPro
         </Note>
       )}
       {kind === "spreadsheet" && url ? (
-        <div className="bg-surface-2 rounded-md p-4 text-sm">
+        <div className="bg-surface-2 rounded-md p-4 text-footnote">
           <p className="text-text-2">{t.viewer.spreadsheet}</p>
-          {evidence && <q className="mt-2 block font-mono text-xs">{evidence.quote}</q>}
+          {evidence && <q className="mt-2 block font-mono text-caption">{evidence.quote}</q>}
           <a
             href={url}
             onClick={onViewed}
-            className="text-brand-600 mt-2 inline-flex min-h-11 items-center font-semibold"
+            className="text-accent mt-2 inline-flex min-h-11 items-center font-semibold"
           >
             {t.viewer.openFile}
           </a>

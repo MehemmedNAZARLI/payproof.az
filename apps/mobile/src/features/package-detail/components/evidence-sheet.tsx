@@ -40,10 +40,10 @@ function CheckPage({
   const blocking = check.outcome === "FAIL" || check.outcome === "UNKNOWN";
   return (
     <>
-      <p className="text-text-2 text-md leading-snug">{check.message}</p>
-      <h3 className="text-text-3 mt-5 mb-2 text-sm font-semibold">{t.evidence.source}</h3>
+      <p className="text-text-2 text-subhead leading-snug">{check.message}</p>
+      <h3 className="text-text-3 mt-5 mb-2 text-footnote font-semibold">{t.evidence.source}</h3>
       {check.evidence.length === 0 ? (
-        <p className="text-text-3 text-sm">{t.evidence.none}</p>
+        <p className="text-text-3 text-footnote">{t.evidence.none}</p>
       ) : (
         <ul className="flex flex-col gap-2">
           {check.evidence.map((e, i) => {
@@ -58,17 +58,17 @@ function CheckPage({
                   <Icon
                     name={found ? docIcon[found.doc.type] : "file"}
                     size={20}
-                    className="text-brand-600 mt-0.5 shrink-0"
+                    className="text-accent mt-0.5 shrink-0"
                   />
                   <span className="min-w-0 grow">
-                    <b className="block text-sm font-semibold">
+                    <b className="block text-footnote font-semibold">
                       {found
                         ? `${t.document.type[found.doc.type]} · v${found.version.version_no}`
                         : t.evidence.missingDocument}
                       {" · "}
                       {t.evidence.page(e.page)}
                     </b>
-                    <q className="text-text-2 mt-0.5 block font-mono text-xs leading-snug">
+                    <q className="text-text-2 mt-0.5 block font-mono text-caption leading-snug">
                       {e.quote}
                     </q>
                   </span>
@@ -152,7 +152,7 @@ export function EvidenceSheet({ pkg, stack, onViewed, approval }: EvidenceSheetP
             type="button"
             onClick={stack.back}
             aria-label={t.nav.back}
-            className="text-brand-600 -ml-2 hidden size-11 shrink-0 place-items-center short:grid active:opacity-50"
+            className="text-accent -ml-2 hidden size-11 shrink-0 place-items-center short:grid active:opacity-50"
           >
             <Icon name="chev-l" size={26} strokeWidth={2.2} />
           </button>
@@ -165,7 +165,7 @@ export function EvidenceSheet({ pkg, stack, onViewed, approval }: EvidenceSheetP
         <>
           <div className="mb-3 flex items-center gap-2">
             <CheckOutcomeBadge outcome={check.outcome} />
-            <span className="text-text-3 font-mono text-xs">{check.rule_id}</span>
+            <span className="text-text-3 font-mono text-caption">{check.rule_id}</span>
           </div>
           <CheckPage
             check={check}

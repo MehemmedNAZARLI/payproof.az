@@ -46,7 +46,7 @@ export function BannersSection() {
         >
           1 bloklayan problem: R-005
         </Banner>
-        <Banner tone="brand" icon="lock" title="Təsdiqçi gözlənilir">
+        <Banner tone="accent" icon="lock" title="Təsdiqçi gözlənilir">
           Hazır paketi yalnız təsdiqçi rolu təsdiqləyə bilər.
         </Banner>
         <Banner tone="neutral" icon="clock" title="Emal olunur">

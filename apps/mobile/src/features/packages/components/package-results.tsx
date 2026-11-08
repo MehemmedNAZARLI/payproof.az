@@ -58,7 +58,7 @@ export function PackageResults({ list, onClear: clear }: PackageResultsProps) {
           />
         </Card>
       ) : (
-        <ListGroup variant="cards" label={t.packages.list}>
+        <ListGroup label={t.packages.list}>
           {data.items.map((p) => (
             <PackageRow key={p.id} item={p} />
           ))}

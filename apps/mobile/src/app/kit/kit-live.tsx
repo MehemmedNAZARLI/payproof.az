@@ -84,7 +84,7 @@ export function LivePackagesSection() {
           <EmptyState icon="package" title={t.common.empty} />
         </Card>
       ) : (
-        <ListGroup variant="cards" label={t.nav.packages}>
+        <ListGroup label={t.nav.packages}>
           {list.data.items.map((p) => (
             <PackageRow key={p.id} item={p} href="/kit" />
           ))}

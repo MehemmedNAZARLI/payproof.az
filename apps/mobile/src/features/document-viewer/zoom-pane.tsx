@@ -122,7 +122,7 @@ export function ZoomPane({ label, children, initialScale }: ZoomPaneProps) {
           // The visible percentage leads the name (label in name), then what a tap does.
           aria-label={`${Math.round(scale * 100)}% · ${t.viewer.fit}`}
           onClick={() => zoomTo(1)}
-          className="h-11 min-w-12 text-sm font-semibold tabular-nums active:opacity-50"
+          className="h-11 min-w-12 text-footnote font-semibold tabular-nums active:opacity-50"
         >
           {Math.round(scale * 100)}%
         </button>

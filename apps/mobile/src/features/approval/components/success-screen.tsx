@@ -29,10 +29,10 @@ function SuccessMark() {
         style={{ animation: "success-halo 900ms ease-out 260ms both" }}
       />
       <span
-        className="bg-success shadow-2 relative grid size-24 place-items-center rounded-full"
+        className="bg-success relative grid size-24 shadow-[0_12px_32px_rgb(18_183_106/0.35)] place-items-center rounded-full"
         style={{ animation: "success-pop 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both" }}
       >
-        <svg viewBox="0 0 24 24" className="text-surface size-12" fill="none">
+        <svg viewBox="0 0 24 24" className="size-12 text-white" fill="none">
           <path
             d="M5 12.5l4.5 4.5L19 7.5"
             pathLength={1}
@@ -74,15 +74,15 @@ function Approved({
         <h2
           ref={heading}
           tabIndex={-1}
-          className="mt-6 text-2xl font-bold tracking-tight outline-none"
+          className="mt-6 text-title1 outline-none"
           style={rise(1)}
         >
           {t.success.heading}
         </h2>
-        <p className="text-text-2 mx-auto mt-2 max-w-80 text-md text-pretty" style={rise(2)}>
+        <p className="text-text-2 mx-auto mt-2 max-w-80 text-subhead text-pretty" style={rise(2)}>
           {t.success.body(amount, pkg.invoice_number ?? "", approval.package_version)}
         </p>
-        <p className="text-text-3 mx-auto mt-2 max-w-80 text-sm text-pretty" style={rise(2)}>
+        <p className="text-text-3 mx-auto mt-2 max-w-80 text-footnote text-pretty" style={rise(2)}>
           {t.success.notPayment}
         </p>
       </div>
@@ -91,7 +91,7 @@ function Approved({
           {rows.map(([k, v]) => (
             <div
               key={k}
-              className="hairline-b flex justify-between gap-3 py-3 text-sm last:shadow-none"
+              className="hairline-b flex justify-between gap-3 py-3 text-footnote last:shadow-none"
             >
               <dt className="text-text-3">{k}</dt>
               <dd className="text-right font-semibold tabular-nums">{v}</dd>
@@ -102,14 +102,14 @@ function Approved({
       <div className="mt-6 flex flex-col gap-2" style={rise(4)}>
         <a
           href={webPackageHref(pkg.id)}
-          className="bg-brand-600 text-brand-foreground shadow-1 flex h-13 items-center justify-center gap-2 rounded-lg text-lg font-semibold transition-[transform,opacity] active:scale-[0.97] active:opacity-85"
+          className="bg-accent text-accent-foreground shadow-1 flex h-13 items-center justify-center gap-2 rounded-lg text-body font-semibold transition-[transform,opacity] active:scale-[0.97] active:opacity-85"
         >
           <Icon name="monitor" size={22} />
           {t.success.exportOnWeb}
         </a>
         <Link
           href="/home"
-          className="bg-brand-50 text-brand-700 flex h-13 items-center justify-center rounded-lg text-lg font-semibold transition-[transform,opacity] active:scale-[0.97] active:opacity-85"
+          className="bg-accent-soft text-accent-ink flex h-13 items-center justify-center rounded-lg text-body font-semibold transition-[transform,opacity] active:scale-[0.97] active:opacity-85"
         >
           {t.success.home}
         </Link>
@@ -147,7 +147,7 @@ export function SuccessScreen({ id }: { id: string }) {
               title={t.success.noneTitle}
               description={t.success.noneBody}
               action={
-                <Link href={`/packages/${id}`} className="text-brand-600 font-semibold">
+                <Link href={`/packages/${id}`} className="text-accent font-semibold">
                   {t.success.toPackage}
                 </Link>
               }

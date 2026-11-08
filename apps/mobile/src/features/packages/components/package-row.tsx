@@ -5,7 +5,7 @@ import type { Schemas } from "@/lib/api";
 import { formatMoney } from "@/lib/format";
 import { t } from "@/lib/i18n";
 
-// One package in a "cards" list (prototype mItem): number, amount, customer · version, status
+// One package in an inset grouped list (prototype mItem): number, amount, customer · version, status
 // and how many problems block it.
 export function PackageRow({ item: p, href }: { item: Schemas["PackageListItem"]; href?: string }) {
   return (
@@ -15,7 +15,7 @@ export function PackageRow({ item: p, href }: { item: Schemas["PackageListItem"]
       subtitle={`${p.customer.name} · v${p.version}`}
       trailing={
         p.total && (
-          <span className="text-sm font-bold tabular-nums">
+          <span className="text-callout font-semibold tabular-nums">
             {formatMoney(p.total.amount, p.total.currency)}
           </span>
         )
@@ -24,7 +24,7 @@ export function PackageRow({ item: p, href }: { item: Schemas["PackageListItem"]
         <>
           <PackageStatusBadge status={p.status} />
           {p.blocking.length > 0 && (
-            <span className="text-danger inline-flex items-center gap-1 text-xs font-semibold">
+            <span className="text-danger-ink inline-flex items-center gap-1 text-caption font-semibold">
               <Icon name="alert" size={14} />
               {t.packageItem.blocking(p.blocking.length)}
             </span>

@@ -25,7 +25,7 @@ export function SearchField({ value, onChange }: SearchFieldProps) {
         autoCorrect="off"
         spellCheck={false}
         enterKeyHint="search"
-        className="bg-surface-3 placeholder:text-text-3 h-11 w-full rounded-[12px] pr-11 pl-9.5 text-md outline-none [&::-webkit-search-cancel-button]:hidden"
+        className="bg-surface-3 placeholder:text-text-3 h-11 w-full rounded-[12px] pr-11 pl-9.5 text-subhead outline-none [&::-webkit-search-cancel-button]:hidden"
       />
       {value && (
         <button

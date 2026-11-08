@@ -104,7 +104,7 @@ export function ProfileScreen() {
             <button
               type="button"
               onClick={() => setConfirming(true)}
-              className="text-danger active:bg-surface-2 flex min-h-13 w-full items-center justify-center gap-2 text-md font-semibold transition-colors"
+              className="text-danger-ink active:bg-surface-2 flex min-h-13 w-full items-center justify-center gap-2 text-subhead font-semibold transition-colors"
             >
               <Icon name="logout" size={20} />
               {t.profile.signOut}
@@ -112,7 +112,7 @@ export function ProfileScreen() {
           </li>
         </ListGroup>
 
-        <p className="text-text-3 mt-6 px-4 text-center text-xs leading-relaxed">
+        <p className="text-text-3 mt-6 px-4 text-center text-caption leading-relaxed">
           {t.profile.footnote}
         </p>
       </main>
