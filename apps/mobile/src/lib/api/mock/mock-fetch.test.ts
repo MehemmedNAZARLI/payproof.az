@@ -5,7 +5,7 @@ import { ApiError, createApiClient, unwrap } from "../client";
 import { mockToken } from "./handlers";
 import { createMockFetch } from "./mock-fetch";
 
-const apiAs = (token: string | null = null) =>
+const apiAs = (token: string | null = mockToken("u2")) =>
   createApiClient({
     baseUrl: "http://localhost:8000",
     getToken: () => token,
@@ -20,10 +20,10 @@ const fail = (p: Promise<unknown>) =>
   );
 
 describe("mock GET /v1/me", () => {
-  it("serves the default demo approver until sign-in exists", async () => {
-    expect(await unwrap(apiAs().GET("/v1/me"))).toMatchObject({
-      full_name: "Rəşad Əliyev",
-      role: "approver",
+  it("requires a session", async () => {
+    expect(await fail(unwrap(apiAs(null).GET("/v1/me")))).toMatchObject({
+      status: 401,
+      code: "UNAUTHENTICATED",
     });
   });
 
@@ -38,6 +38,45 @@ describe("mock GET /v1/me", () => {
         code: "UNAUTHENTICATED",
       });
     }
+  });
+});
+
+describe("mock dev login", () => {
+  it("lists the three demo accounts without a session", async () => {
+    const { items } = await unwrap(apiAs(null).GET("/v1/auth/dev-users"));
+    expect(items.map((u) => [u.full_name, u.role])).toEqual([
+      ["Aygün Məmmədova", "operator"],
+      ["Rəşad Əliyev", "approver"],
+      ["Kamran Babayev", "readonly"],
+    ]);
+  });
+
+  it("issues a session whose token serves that user", async () => {
+    const [, rashad] = (await unwrap(apiAs(null).GET("/v1/auth/dev-users"))).items;
+    const session = await unwrap(
+      apiAs(null).POST("/v1/auth/dev-login", { body: { user_id: rashad?.id ?? "" } }),
+    );
+    expect(session).toMatchObject({ token_type: "bearer", expires_in: 28800 });
+    expect(session.user).toMatchObject({ full_name: "Rəşad Əliyev", role: "approver" });
+    expect(session.user.permissions).toContain("APPROVE_PACKAGE");
+    const me = await unwrap(apiAs(session.access_token).GET("/v1/me"));
+    expect(me).toEqual(session.user);
+  });
+
+  it("refuses users who cannot sign in and malformed bodies", async () => {
+    const elvin = "0193a000-0000-7000-8000-000000000003";
+    const login = (body: unknown) =>
+      fail(unwrap(apiAs(null).POST("/v1/auth/dev-login", { body: body as { user_id: string } })));
+    expect(await login({ user_id: elvin })).toMatchObject({ status: 404, code: "NOT_FOUND" });
+    expect(await login({ user: 1 })).toMatchObject({ status: 422, code: "VALIDATION_ERROR" });
+  });
+});
+
+describe("mock GET /v1/dashboard", () => {
+  it("serves the dashboard to a signed-in user only", async () => {
+    const d = await unwrap(apiAs().GET("/v1/dashboard"));
+    expect(d.status_counts.READY_FOR_APPROVAL).toBe(statusCount("READY_FOR_APPROVAL"));
+    expect(await fail(unwrap(apiAs(null).GET("/v1/dashboard")))).toMatchObject({ status: 401 });
   });
 });
 

@@ -14,6 +14,9 @@ vi.mock("@/lib/api/mock/mock-fetch", async (load) => {
   return { createMockFetch: () => real.createMockFetch({ latencyMs: 0 }) };
 });
 
+// Signed in as Rəşad, the demo approver.
+vi.mock("@/lib/session", () => ({ getToken: () => "mock.u2" }));
+
 function wrapper({ children }: { children: ReactNode }) {
   return <QueryClientProvider client={createQueryClient()}>{children}</QueryClientProvider>;
 }

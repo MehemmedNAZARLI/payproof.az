@@ -186,3 +186,12 @@
     }
   }
 }
+
+/* Brand hero (login, home): deep teal in both themes, so white text keeps its contrast. */
+@utility hero {
+  color: #fff;
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgb(58 169 186 / 0.55), transparent 60%),
+    radial-gradient(90% 80% at 0% 100%, rgb(4 38 45 / 0.6), transparent 70%),
+    linear-gradient(160deg, #11707f 0%, #0d5d6b 45%, #08414b 100%);
+}

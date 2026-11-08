@@ -4,6 +4,7 @@ import { toast } from "@/components/ui/toast-store";
 
 import { ApiError } from "./api/client";
 import { t } from "./i18n";
+import { endSession, hasStoredSession } from "./session";
 
 // Fresh for 30 s; after that, returning to the app (focus) or reconnecting refetches.
 const STALE_MS = 30_000;
@@ -27,17 +28,27 @@ export const shouldRetry = (failures: number, error: unknown) =>
   !(error instanceof ApiError && error.status >= 400 && error.status < 500) &&
   failures < MAX_RETRIES;
 
+// A rejected token (expired ones included) ends the session; the route guard then sends the user
+// to the login, which says why, and back. Several requests usually fail together: one ends it.
+function onUnauthenticated(error: unknown): boolean {
+  if (!(error instanceof ApiError) || error.status !== 401) return false;
+  if (hasStoredSession()) endSession("expired");
+  return true;
+}
+
 export function createQueryClient() {
   return new QueryClient({
     queryCache: new QueryCache({
       // A first load shows its error in place; a failed refresh keeps the data and says so.
       onError(error, query) {
+        if (onUnauthenticated(error)) return;
         if (query.state.data !== undefined)
           toast.error(t.errors.refreshFailed, errorMessage(error));
       },
     }),
     mutationCache: new MutationCache({
       onError(error, _variables, _result, mutation) {
+        if (onUnauthenticated(error)) return;
         if (!mutation.meta?.silentError) toast.error(errorMessage(error));
       },
     }),

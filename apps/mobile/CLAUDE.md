@@ -21,6 +21,8 @@ src/
   lib/api/generated/  openapi.yaml-dan generasiya (`pnpm api:generate`; gitignore-dadır, dev/build/typecheck-dən əvvəl işləyir)
   lib/api/mock/       fixtures-dan store + MSW handler-ləri + createMockFetch (S-06 gələnə qədər; yalnız oxuma)
   lib/{query-client.ts,env.ts,format.ts,i18n.ts,spring.ts,cx.ts,brand.ts}
+  lib/session.ts      dev-login sessiyası (localStorage), useSession, watchUserChange; lib/runtime-caches.ts — çıxışda SW keşləri
+  app/(tabs)/layout.tsx · app/packages/layout.tsx   SessionGate + (tabs üçün) TabBar
   features/<f>/queries.ts  query key factory + hook-lar (useMe, usePackages)
   app/kit/            UI dəstinin önizləməsi (/kit, yalnız mock rejimində; robots noindex)
   app/manifest.ts     → /manifest.webmanifest (rənglər lib/brand.ts-dən; brand.test.ts tokens.css ilə tutuşdurur)
@@ -36,10 +38,22 @@ Mock: `NEXT_PUBLIC_API_MOCK=1` (default). Real: `NEXT_PUBLIC_API_MOCK=0`, `NEXT_
 
 ## Data qatı (M-02)
 - Mock **səhifədaxilidir**: `createMockFetch` MSW handler-lərini `getResponse` ilə çağırır. MSW service worker yoxdur — scope-u Serwist tutur. DevTools-da `/v1/` sorğusu görünməz; offline-ı `navigator.onLine` ilə təqlid edir.
-- Mock sessiyası: token `mock.<fixture slug>` (`mockToken("u1")`); token yoxdursa default demo təsdiqçi (Rəşad) — shortcut, M-04 dev-login gətirir.
+- Mock sessiyası: token `mock.<fixture slug>` (`mockToken("u1")`), `POST /v1/auth/dev-login` verir; tokensiz sorğu → 401.
+- Mock həmçinin `GET /v1/auth/dev-users`, `GET /v1/dashboard` (fixtures-dan, golden test) və `GET /v1/audit` (tarixçə prototipin `reset()` qaydası ilə fixtures-dan törədilir; yalnız `limit`, `package_id`) verir.
 - Statuslar `fixtures/expected.json`-dan (prototip mühərrikinin golden nəticəsi), mühərrik portu S-06-dadır.
 - QueryClient: 30 s təzə, focus/reconnect-də yenilənir, sessiya boyu keşdə (offline göstərilir), 4xx təkrarlanmır. İlk yükləmə xətası ekranda (EmptyState + "Yenidən cəhd et"); fon yeniləməsi və mutation xətası → toast (`meta: { silentError: true }` ilə söndürülür).
 - Massiv query parametrləri vergüllə (`status=A,B`, müqavilədəki `explode: false`).
+
+## Sessiya və naviqasiya (M-04…M-06)
+- Sessiya `lib/session.ts`: dev-login JWT + `Me` localStorage-da (`payproof.session`), `useSession()` (`useSyncExternalStore`; hidrasiyada `undefined`), başqa tabdakı çıxışı izləyir. Token `api`-yə buradan gedir.
+- `SessionGate` (`(tabs)/layout.tsx`, `packages/layout.tsx`, `/kit`): sessiya yoxdursa `/login?next=<yol>`; istifadəçi özü çıxıbsa `next`-siz. `safeNextPath` yalnız tətbiqdaxili yolu qəbul edir. Bu yalnız naviqasiyanı qoruyur — səlahiyyət serverdədir.
+- 401 (istənilən query/mutation, vaxtı keçmiş token da) → sessiya bitir (`expired`); token vaxtında özü də bitir (timer + `visibilitychange`). Giriş ekranı səbəbi banner ilə deyir.
+- İstifadəçi dəyişəndə (çıxış, vaxt bitməsi, başqa tabda giriş/çıxış) `watchUserChange` → Query keşi və SW runtime keşləri təmizlənir (`providers.tsx`).
+- Ekranlar əvvəl `data`-ya baxır: fon yeniləməsi uğursuz olsa məlumat qalır (toast), xəta kartı yalnız heç nə yüklənməyibsə. Offline "Yenilə" sorğu göndərmir — toast.
+- Çıxış (`useSignOut`): sessiya → Query keşi `clear()` → SW runtime keşləri (`clearRuntimeCaches`; Serwist precache saxlanılır — o yalnız ictimai app shell-dir). Girişdə də Query keşi təmizlənir.
+- Paket filtri və axtarış URL-dədir (`features/packages/filters.ts`: `?status=ready|problem|approved|exported&q=`); çip sayları `/v1/dashboard`-un `status_counts`-undan.
+- Tarixlər Bakı vaxtı ilə (`formatDateTime`, `formatLongDate`, `greeting` — `lib/format.ts`).
+- `/notifications` və `/packages/[id]` hələlik yer tutucudur (M-10, M-07 əvəz edir).
 
 ## UI dəsti qaydaları (M-03)
 - Bar materialı: `material` (yarımşəffaf surface + blur), ayırıcılar `hairline-t/b` (0.5px). Tab bar üçün səhifə `pb-tabbar` istifadə edir.

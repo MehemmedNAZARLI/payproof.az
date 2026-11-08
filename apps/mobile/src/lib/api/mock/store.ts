@@ -65,7 +65,7 @@ const CURRENCIES = ["AZN", "USD"] as const;
 
 const userBySlug = new Map(users.map((u) => [u.id, u]));
 
-function userRef(slug: string): Schemas["UserRef"] {
+export function userRef(slug: string): Schemas["UserRef"] {
   const u = userBySlug.get(slug);
   if (!u) throw new Error(`Unknown fixture user: ${slug}`);
   return {
@@ -90,7 +90,7 @@ export function meFor(slug: string): Schemas["Me"] | undefined {
 }
 
 // Fixtures keep Baku time (+04:00); the API speaks UTC without milliseconds.
-const toUtc = (iso: string) => new Date(iso).toISOString().replace(".000Z", "Z");
+export const toUtc = (iso: string) => new Date(iso).toISOString().replace(".000Z", "Z");
 
 type FixturePackage = (typeof packages)[number];
 
@@ -131,5 +131,13 @@ function toListItem(p: FixturePackage): PackageItem {
     updated_at: updatedAt(p),
   };
 }
+
+/** Accounts offered by the dev login picker (`demo_login` in the fixtures). */
+export const devUsers: Schemas["DevUser"][] = users
+  .filter((u) => u.demo_login)
+  .map((u) => userRef(u.id));
+
+/** The fixture slug (`u2`) behind a user UUID, if there is one. */
+export const userSlug = (id: string) => users.find((u) => mockUuid("user", u.id) === id)?.id;
 
 export const packageList: readonly PackageItem[] = packages.map(toListItem);
