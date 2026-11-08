@@ -16,9 +16,10 @@ import {
 
 type Outcome = Schemas["CheckOutcome"];
 type FixHint = Schemas["CheckResult"]["fix_hint"];
+export type RuleId = `R-00${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9}`;
 export type EvidenceTarget = { doc: DocType; anchor: Anchor; quote: string };
 export type Check = {
-  ruleId: Schemas["RuleId"];
+  ruleId: RuleId;
   outcome: Outcome;
   cascade: boolean;
   message: string;
