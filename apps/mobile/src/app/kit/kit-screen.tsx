@@ -8,28 +8,33 @@ import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { TabBar } from "@/components/ui/tab-bar";
+import { useMe } from "@/features/auth/queries";
+import { t } from "@/lib/i18n";
 
+import { ChecksSection } from "./kit-checks";
 import { BadgesSection, BannersSection, FeedbackSection } from "./kit-feedback";
-import { ChecksSection, ChipsSection, PackagesSection } from "./kit-lists";
+import { LivePackagesSection } from "./kit-live";
 
 const UNREAD = 3;
 
 export function KitScreen() {
   const [sheetOpen, setSheetOpen] = useState(false);
+  const me = useMe().data;
   const close = () => setSheetOpen(false);
   return (
     <>
       <AppHeader
         large
         title="UI dəsti"
-        subtitle="M-03 · mobil komponentlərin önizləməsi"
+        subtitle={
+          me ? `${me.full_name} · ${t.role[me.role]} · ${me.company.name}` : t.common.loading
+        }
         trailing={
           <IconButton icon="bell" label={`Bildirişlər, ${UNREAD} oxunmamış`} count={UNREAD} />
         }
       />
       <main className="px-safe pb-tabbar mx-auto max-w-app">
-        <ChipsSection />
-        <PackagesSection />
+        <LivePackagesSection />
         <ChecksSection onOpen={() => setSheetOpen(true)} />
         <BadgesSection />
         <BannersSection />
