@@ -1,15 +1,16 @@
 "use client";
 
 import { SerwistProvider } from "@serwist/turbopack/react";
-import { QueryClientProvider } from "@tanstack/react-query";
+import { type QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { type ReactNode, useEffect, useState } from "react";
 
 import { Toaster } from "@/components/ui/toaster";
 import { clearSeen } from "@/features/package-detail/seen-store";
 import { UpdatePrompt } from "@/features/pwa/update-prompt";
 import { createQueryClient } from "@/lib/query-client";
+import { clearPersistedQueries, persistQueries, restoreQueries } from "@/lib/query-persist";
 import { clearRuntimeCaches } from "@/lib/runtime-caches";
-import { watchUserChange } from "@/lib/session";
+import { getSession, watchUserChange } from "@/lib/session";
 
 // The service worker would serve stale bundles during development, so it only runs in builds.
 const isDev = process.env.NODE_ENV === "development";
@@ -25,21 +26,36 @@ function useUnregisterInDev() {
   }, []);
 }
 
+const currentUser = () => getSession()?.user.id;
+
+// The last loaded data comes back after a relaunch (offline too); restored after hydration, so
+// the server and first client render agree. Newer data already fetched is kept.
+function useOfflineCache(queryClient: QueryClient) {
+  useEffect(() => {
+    const user = currentUser();
+    if (user) restoreQueries(queryClient, user);
+    return persistQueries(queryClient, currentUser);
+  }, [queryClient]);
+}
+
 export function Providers({ children }: { children: ReactNode }) {
   useUnregisterInDev();
   const [queryClient] = useState(createQueryClient);
+  useOfflineCache(queryClient);
   // Whoever signed out or took over (here, in another tab, or by expiry), their data goes too.
   useEffect(
     () =>
       watchUserChange(() => {
         queryClient.clear();
+        clearPersistedQueries();
         clearSeen();
         void clearRuntimeCaches();
       }),
     [queryClient],
   );
-  // No reload on reconnect (it would drop an open approval sheet) and no per-route HTML caching
-  // until M-11 defines the offline policy; TanStack Query refetches on reconnect (M-02).
+  // No reload on reconnect (it would drop an open approval sheet); TanStack Query refetches on
+  // reconnect (M-02). Pages visited are cached by the worker's network-first defaults, so the
+  // installed app reopens offline; the data comes from the offline read cache above.
   return (
     <SerwistProvider
       swUrl="/serwist/sw.js"
