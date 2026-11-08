@@ -48,6 +48,7 @@ export const t = {
     openWeb: "Vebdə aç",
     notFound: "Paket tapılmadı",
     notFoundBody: "Bu paket silinib və ya mövcud deyil.",
+    toPackages: "Paketlərə qayıt",
     loadFailed: "Paket yüklənmədi",
     amount: "Faktura məbləği",
     packageVersion: (v: number) => `Paket v${v}`,
@@ -299,6 +300,7 @@ export const t = {
   },
   offline: {
     strip: "Oflayn — son yüklənən məlumat göstərilir",
+    notLoaded: "Bu məlumat hələ bu cihaza yüklənməyib. Bağlantı bərpa olunanda özü yüklənəcək.",
   },
   install: {
     title: "Ana ekrana əlavə edin",

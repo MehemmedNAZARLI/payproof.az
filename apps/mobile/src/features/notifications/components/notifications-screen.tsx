@@ -4,6 +4,7 @@ import { AppHeader } from "@/components/ui/app-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { OfflineCard } from "@/components/ui/offline-card";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { ListSkeleton } from "@/components/ui/skeleton";
 import { haptic } from "@/lib/haptics";
@@ -87,6 +88,8 @@ export function NotificationsScreen() {
               }
             />
           </Card>
+        ) : query.fetchStatus === "paused" ? (
+          <OfflineCard />
         ) : (
           <ListSkeleton rows={5} />
         )}

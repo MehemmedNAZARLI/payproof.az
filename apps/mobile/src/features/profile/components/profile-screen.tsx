@@ -9,6 +9,7 @@ import { Card, SectionHeader } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Icon } from "@/components/ui/icon";
 import { ListGroup, ListItem } from "@/components/ui/list";
+import { OfflineCard } from "@/components/ui/offline-card";
 import { toast } from "@/components/ui/toast-store";
 import { useMe, useSignOut } from "@/features/auth/queries";
 import { useInstallAction } from "@/features/pwa/install-hint";
@@ -59,6 +60,8 @@ export function ProfileScreen() {
               }
             />
           </Card>
+        ) : me.fetchStatus === "paused" ? (
+          <OfflineCard />
         ) : (
           <IdentitySkeleton />
         )}

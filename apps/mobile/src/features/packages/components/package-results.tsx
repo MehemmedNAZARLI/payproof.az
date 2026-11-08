@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListGroup } from "@/components/ui/list";
+import { OfflineCard } from "@/components/ui/offline-card";
 import { ListSkeleton } from "@/components/ui/skeleton";
 import { t } from "@/lib/i18n";
 import { errorMessage } from "@/lib/query-client";
@@ -39,9 +40,7 @@ export function PackageResults({ list, onClear: clear }: PackageResultsProps) {
             />
           </Card>
         ) : list.fetchStatus === "paused" ? (
-          <Card className="p-0">
-            <EmptyState icon="alert" title={t.errors.offline} description={t.errors.offlineHint} />
-          </Card>
+          <OfflineCard />
         ) : (
           <ListSkeleton rows={5} />
         )
