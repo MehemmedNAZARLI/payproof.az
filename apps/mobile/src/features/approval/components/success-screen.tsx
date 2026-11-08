@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 
 import { AppHeader } from "@/components/ui/app-header";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Icon } from "@/components/ui/icon";
@@ -13,6 +14,7 @@ import { usePackage } from "@/features/package-detail/queries";
 import type { Schemas } from "@/lib/api";
 import { formatDateTime, formatMoney } from "@/lib/format";
 import { t } from "@/lib/i18n";
+import { errorMessage } from "@/lib/query-client";
 
 // Staggered entrance: the mark first, then the words, then what to do next.
 const rise = (step: number) => ({
@@ -138,7 +140,7 @@ export function SuccessScreen({ id }: { id: string }) {
       <main className="px-safe pb-safe mx-auto max-w-app pt-2">
         {pkg && approval ? (
           <Approved pkg={pkg} approval={approval} />
-        ) : pkg || query.isError ? (
+        ) : pkg ? (
           <Card className="p-0">
             <EmptyState
               icon="info"
@@ -148,6 +150,20 @@ export function SuccessScreen({ id }: { id: string }) {
                 <Link href={`/packages/${id}`} className="text-brand-600 font-semibold">
                   {t.success.toPackage}
                 </Link>
+              }
+            />
+          </Card>
+        ) : query.isError ? (
+          // Not loading the package says nothing about its approval: show the error as such.
+          <Card className="p-0">
+            <EmptyState
+              icon="alert"
+              title={t.detail.loadFailed}
+              description={errorMessage(query.error)}
+              action={
+                <Button variant="secondary" onClick={() => void query.refetch()}>
+                  {t.common.retry}
+                </Button>
               }
             />
           </Card>
