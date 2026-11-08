@@ -65,7 +65,7 @@ const CURRENCIES = ["AZN", "USD"] as const;
 
 const userBySlug = new Map(users.map((u) => [u.id, u]));
 
-function userRef(slug: string): Schemas["UserRef"] {
+export function userRef(slug: string): Schemas["UserRef"] {
   const u = userBySlug.get(slug);
   if (!u) throw new Error(`Unknown fixture user: ${slug}`);
   return {
@@ -90,7 +90,7 @@ export function meFor(slug: string): Schemas["Me"] | undefined {
 }
 
 // Fixtures keep Baku time (+04:00); the API speaks UTC without milliseconds.
-const toUtc = (iso: string) => new Date(iso).toISOString().replace(".000Z", "Z");
+export const toUtc = (iso: string) => new Date(iso).toISOString().replace(".000Z", "Z");
 
 type FixturePackage = (typeof packages)[number];
 
