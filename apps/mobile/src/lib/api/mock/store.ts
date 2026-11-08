@@ -132,4 +132,12 @@ function toListItem(p: FixturePackage): PackageItem {
   };
 }
 
+/** Accounts offered by the dev login picker (`demo_login` in the fixtures). */
+export const devUsers: Schemas["DevUser"][] = users
+  .filter((u) => u.demo_login)
+  .map((u) => userRef(u.id));
+
+/** The fixture slug (`u2`) behind a user UUID, if there is one. */
+export const userSlug = (id: string) => users.find((u) => mockUuid("user", u.id) === id)?.id;
+
 export const packageList: readonly PackageItem[] = packages.map(toListItem);
