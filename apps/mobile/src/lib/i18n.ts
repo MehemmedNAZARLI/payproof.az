@@ -44,6 +44,20 @@ export const t = {
     emptyHint: "Axtarışı və ya filtri dəyişin.",
     clearFilters: "Filtri təmizlə",
   },
+  detail: {
+    soonTitle: "Paket detalı hazırlanır",
+    soonBody:
+      "Yoxlamalar, sənədlər və təsdiq növbəti yeniləmədə mobilə gəlir. Hələlik paketi veb tətbiqdə açın.",
+    openWeb: "Vebdə aç",
+    notFound: "Paket tapılmadı",
+    notFoundBody: "Bu paket silinib və ya mövcud deyil.",
+    amount: "Faktura məbləği",
+  },
+  notifications: {
+    title: "Bildirişlər",
+    soonTitle: "Bildirişlər tezliklə",
+    soonBody: "Paket təsdiq gözləyəndə və ya təsdiq etibarsızlaşanda burada görünəcək.",
+  },
   packageItem: {
     processing: "Faktura oxunur…",
     blocking: (n: number) => `${n} bloklayan`,
