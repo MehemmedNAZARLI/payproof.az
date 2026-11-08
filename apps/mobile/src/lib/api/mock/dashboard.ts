@@ -36,6 +36,12 @@ const ref = (p: Item): Schemas["PackageRef"] => ({
   invoice_number: p.invoice_number ?? "",
 });
 
+// Integer cents → contract Decimal ("-0.50" stays "-0.50", not "0.-50").
+function decimal(cents: bigint): string {
+  const abs = cents < 0n ? -cents : cents;
+  return `${cents < 0n ? "-" : ""}${abs / 100n}.${(abs % 100n).toString().padStart(2, "0")}`;
+}
+
 /** Invoice totals per currency, in integer cents — AZN and USD are never added together. */
 function perCurrency(items: Item[]): Schemas["CurrencyTotal"][] {
   const sums = new Map<string, { cents: bigint; count: number }>();
@@ -49,7 +55,7 @@ function perCurrency(items: Item[]): Schemas["CurrencyTotal"][] {
   }
   return [...sums].map(([currency, { cents, count }]) => ({
     total: {
-      amount: `${cents / 100n}.${(cents % 100n).toString().padStart(2, "0")}`,
+      amount: decimal(cents),
       currency: currency as Schemas["Currency"],
     },
     package_count: count,

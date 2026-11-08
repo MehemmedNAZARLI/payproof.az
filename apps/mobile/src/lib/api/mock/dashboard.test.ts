@@ -72,3 +72,27 @@ describe("mock dashboard", () => {
     ]);
   });
 });
+
+describe("mock dashboard sums", () => {
+  it("formats negative per-currency sums as contract decimals", () => {
+    const base = { blocking: [], status: "NEEDS_FIX" as const };
+    const credit = (amount: string, id: string) => ({
+      ...base,
+      id,
+      invoice_number: id,
+      version: 1,
+      customer: { id, name: "x" },
+      invoice_date: null,
+      total: { amount, currency: "AZN" as const },
+      po_ref: null,
+      po_unreadable: false,
+      owner: { id, full_name: "x", title: "x", role: "operator" as const },
+      problem_since: null,
+      updated_at: "2026-11-08T00:00:00Z",
+    });
+    const d = dashboard([credit("-1.00", "a"), credit("0.50", "b")]);
+    expect(d.open_problem_amounts).toEqual([
+      { total: { amount: "-0.50", currency: "AZN" }, package_count: 2 },
+    ]);
+  });
+});

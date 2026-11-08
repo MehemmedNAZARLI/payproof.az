@@ -18,6 +18,18 @@ const DOC_LABEL: Record<string, string> = {
   delivery: "Təhvil sənədi",
 };
 const MIN_MS = 60_000;
+// What each action is about, as the contract's examples name it (approval, document_version…).
+const OBJECT_TYPE: Record<string, string> = {
+  "document.uploaded": "document_version",
+  "extraction.completed": "document_version",
+  "order.linked": "order_link",
+  "order.candidates_found": "order_link",
+  "package.approved": "approval",
+  "approval.invalidated": "approval",
+  "package.exported": "export",
+  "task.created": "task",
+  "task.resolved": "task",
+};
 const plusMinutes = (iso: string, m: number) =>
   new Date(Date.parse(iso) + m * MIN_MS).toISOString();
 const actor = (slug: string | null) => (slug === null || slug === "system" ? null : userRef(slug));
@@ -32,7 +44,8 @@ function packageEvents(f: FixturePackage) {
   const customer = customers.find((c) => c.id === f.customer_id)?.name ?? "";
   const rules =
     expected.packages[f.invoice_number as keyof typeof expected.packages].requirement_set_version;
-  const out: [string, string | null, string, string][] = [
+  // [time, actor slug, action, message, package version the event is about (default: current)]
+  const out: [string, string | null, string, string, number?][] = [
     [f.created_at, f.owner_id, "package.created", `${f.invoice_number} · ${customer}`],
   ];
   for (const d of f.documents)
@@ -75,6 +88,7 @@ function packageEvents(f: FixturePackage) {
       a.approver_id,
       "package.approved",
       `v${a.package_version} · qayda dəsti v${a.requirement_set_version}`,
+      a.package_version,
     ]);
     if (a.invalidated_at)
       out.push([
@@ -90,6 +104,7 @@ function packageEvents(f: FixturePackage) {
       e.created_by,
       "package.exported",
       `v${e.package_version} · manifest: ${e.files.join(", ")}`,
+      e.package_version,
     ]);
   const checkedAt =
     f.exports[0]?.created_at ?? f.approvals[0]?.created_at ?? plusMinutes(f.created_at, 6);
@@ -109,10 +124,11 @@ function build(): Event[] {
     action: string;
     message: string;
     f: FixturePackage;
+    version?: number;
   }[] = [];
   for (const f of packages)
-    for (const [at, who, action, message] of packageEvents(f))
-      raw.push({ at, actor: who, action, message, f });
+    for (const [at, who, action, message, version] of packageEvents(f))
+      raw.push({ at, actor: who, action, message, f, version });
   for (const t of tasks) {
     const f = packages.find((p) => p.id === t.package_id);
     if (!f) continue;
@@ -143,8 +159,8 @@ function build(): Event[] {
       action: e.action,
       message: e.message,
       package: { id: mockUuid("package", e.f.id), invoice_number: e.f.invoice_number },
-      package_version: e.f.version,
-      object_type: e.action.split(".")[0] ?? "package",
+      package_version: e.version ?? e.f.version,
+      object_type: OBJECT_TYPE[e.action] ?? "package",
       object_id: null,
       details: {},
     }));

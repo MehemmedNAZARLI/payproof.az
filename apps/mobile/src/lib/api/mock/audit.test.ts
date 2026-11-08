@@ -33,14 +33,23 @@ describe("mock audit log", () => {
         message:
           "v2 təsdiqi qüvvədən düşdü: təhvil sənədinin yeni versiyası yükləndi. Əvvəlki təsdiq auditdə saxlanılır.",
         package_version: 3,
+        object_type: "approval",
       },
       {
         created_at: "2026-11-01T05:45:00Z",
         actor: { full_name: "Aygün Məmmədova" },
         action: "document.uploaded",
         message: "Təhvil sənədi: TS-5518_imzali_tam.pdf (sənəd v3)",
+        object_type: "document_version",
       },
     ]);
+  });
+
+  it("ties approvals to the version they approved", () => {
+    const v2 = auditLog.find(
+      (e) => e.action === "package.approved" && e.package?.invoice_number === "INV-1036",
+    );
+    expect(v2).toMatchObject({ package_version: 2, object_type: "approval" });
   });
 
   it("never names an assignee as an actor (ADR-0008)", () => {
