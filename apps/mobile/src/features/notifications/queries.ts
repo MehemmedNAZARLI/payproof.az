@@ -37,12 +37,17 @@ export function useUnreadCount(): number {
   return query.data ?? 0;
 }
 
-// Change the cached page at once; the server confirms on the next refetch.
+// Change the cached page at once; the server confirms on the next refetch. Remembers which items
+// this change flipped, so a failure can undo exactly those and nothing a later read changed.
 async function optimistic(qc: QueryClient, change: (page: Page) => Page) {
   await qc.cancelQueries({ queryKey: notificationKeys.list() });
   const before = qc.getQueryData<Page>(notificationKeys.list());
-  if (before) qc.setQueryData(notificationKeys.list(), change(before));
-  return { before };
+  if (!before) return { flipped: [] };
+  const after = change(before);
+  qc.setQueryData(notificationKeys.list(), after);
+  const wasUnread = new Set(before.items.filter((n) => n.read_at === null).map((n) => n.id));
+  const flipped = after.items.filter((n) => n.read_at !== null && wasUnread.has(n.id));
+  return { flipped: flipped.map((n) => n.id) };
 }
 
 const now = () => new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
@@ -54,6 +59,18 @@ export const readOneIn = (page: Page, id: string): Page => {
     ...page,
     items: page.items.map((n) => (n === hit ? { ...n, read_at: now() } : n)),
     unread_count: Math.max(0, page.unread_count - 1),
+  };
+};
+
+/** Marks the given items unread again (a failed read's rollback); untouched if none apply. */
+export const unreadAgainIn = (page: Page, ids: readonly string[]): Page => {
+  const undo = new Set(ids);
+  const hits = page.items.filter((n) => undo.has(n.id) && n.read_at !== null);
+  if (hits.length === 0) return page;
+  return {
+    ...page,
+    items: page.items.map((n) => (hits.includes(n) ? { ...n, read_at: null } : n)),
+    unread_count: page.unread_count + hits.length,
   };
 };
 
@@ -72,7 +89,11 @@ function useReadMutation<V>(
     mutationFn: request,
     onMutate: (v: V) => optimistic(qc, (page) => change(page, v)),
     onError: (_e, _v, ctx) => {
-      if (ctx?.before) qc.setQueryData(notificationKeys.list(), ctx.before);
+      if (!ctx?.flipped.length) return;
+      qc.setQueryData<Page>(
+        notificationKeys.list(),
+        (page) => page && unreadAgainIn(page, ctx.flipped),
+      );
     },
     onSettled: () => qc.invalidateQueries({ queryKey: notificationKeys.all }),
   });

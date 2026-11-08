@@ -14,6 +14,7 @@ import {
   notificationKeys,
   readAllIn,
   readOneIn,
+  unreadAgainIn,
   useMarkAllRead,
   useMarkRead,
   useUnreadCount,
@@ -51,6 +52,18 @@ describe("notification read state", () => {
     expect(next.items.find((n) => n.id === unread.id)!.read_at).not.toBeNull();
     expect(readOneIn(next, unread.id)).toBe(next);
     expect(readAllIn(p)).toMatchObject({ unread_count: 0 });
+  });
+
+  it("undoes only its own read, so an overlapping read that succeeded stays read", () => {
+    const p = page();
+    const [a, b] = p.items.filter((n) => n.read_at === null);
+    const both = readOneIn(readOneIn(p, a!.id), b!.id);
+    const undone = unreadAgainIn(both, [a!.id]);
+    expect(undone.unread_count).toBe(p.unread_count - 1);
+    expect(undone.items.find((n) => n.id === a!.id)!.read_at).toBeNull();
+    expect(undone.items.find((n) => n.id === b!.id)!.read_at).not.toBeNull();
+    // Nothing to undo when the item is gone or already unread again.
+    expect(unreadAgainIn(undone, [a!.id, "missing"])).toBe(undone);
   });
 
   it("drops the badge the moment a notification is opened, and the server agrees", async () => {
