@@ -37,6 +37,7 @@ export function usePullGesture(
     let armed = false;
     let busy = false;
     let offset = 0;
+    let disposed = false;
     let stopSpring = () => {};
     const tracker = createVelocityTracker();
 
@@ -65,16 +66,34 @@ export function usePullGesture(
       });
     };
 
+    const reveal = () => {
+      root.dataset.pulling = "";
+      root.style.setProperty("--pull-top", `${headerBottom(root)}px`);
+    };
+
     const run = async () => {
       if (busy) return;
       busy = true;
       setBusy(true);
+      // Started without a pull (keyboard, screen reader): open the gap so the wheel shows.
+      if (!pulling && offset === 0) {
+        reveal();
+        settle(HOLD_PX);
+      }
       await Promise.allSettled([refresh.current(), new Promise((r) => setTimeout(r, MIN_SPIN_MS))]);
+      if (disposed) return;
       busy = false;
       setBusy(false);
       if (!pulling && root.dataset.pulling !== undefined) settle(0);
     };
     runRef.current = run;
+
+    // touchmove is non-passive (it must cancel the page's own scroll), so it is attached only
+    // for a touch that could become a pull; every other scroll stays off the main thread.
+    const listen = (on: boolean) =>
+      on
+        ? root.addEventListener("touchmove", onMove, { passive: false })
+        : root.removeEventListener("touchmove", onMove);
 
     const onStart = (e: TouchEvent) => {
       const touch = e.touches[0];
@@ -82,6 +101,12 @@ export function usePullGesture(
       if (busy || e.touches.length !== 1 || !touch || window.scrollY > 0) return;
       if ((e.target as Element | null)?.closest?.("[inert]")) return;
       start = { x: touch.clientX, y: touch.clientY };
+      listen(true);
+    };
+
+    const abandon = () => {
+      start = null;
+      listen(false);
     };
 
     const onMove = (e: TouchEvent) => {
@@ -91,18 +116,20 @@ export function usePullGesture(
       const dy = touch.clientY - start.y;
       if (!pulling) {
         const next = intent({ dx, dy, scrollY: window.scrollY });
-        if (next === "undecided") return;
-        if (next === "ignore") {
-          start = null;
+        if (next === "undecided") {
+          // Keep a downward start ours, or the browser begins its own bounce and stops letting
+          // later moves be cancelled. Sideways (chips) and upward moves stay native.
+          if (dy > 0 && dy >= Math.abs(dx) && e.cancelable) e.preventDefault();
           return;
         }
+        // Once the browser has taken the gesture, a pull would only fight its scrolling.
+        if (next === "ignore" || !e.cancelable) return abandon();
         pulling = true;
         armed = false;
         stopSpring();
-        root.dataset.pulling = "";
-        root.style.setProperty("--pull-top", `${headerBottom(root)}px`);
+        reveal();
       }
-      e.preventDefault(); // the page itself must not scroll or bounce under the finger
+      if (e.cancelable) e.preventDefault(); // the page must not scroll or bounce under the finger
       const px = pullOffset(dy);
       set(px);
       tracker.add(e.timeStamp, px);
@@ -114,17 +141,17 @@ export function usePullGesture(
     };
 
     const onEnd = () => {
-      start = null;
+      abandon();
       if (!pulling) return;
       pulling = false;
       settle(busy ? HOLD_PX : 0, tracker.velocity());
     };
 
     root.addEventListener("touchstart", onStart, { passive: true });
-    root.addEventListener("touchmove", onMove, { passive: false });
     root.addEventListener("touchend", onEnd);
     root.addEventListener("touchcancel", onEnd);
     return () => {
+      disposed = true;
       stopSpring();
       root.removeEventListener("touchstart", onStart);
       root.removeEventListener("touchmove", onMove);

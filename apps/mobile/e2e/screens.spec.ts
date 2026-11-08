@@ -34,12 +34,12 @@ for (const path of ["/home", "/packages", "/notifications"])
     // The refresh can finish before the finger lifts, so record that it ran.
     await ptr.evaluate((el) => {
       new MutationObserver(() => {
-        if (el.getAttribute("aria-busy") === "true") el.dataset.refreshed = "";
-      }).observe(el, { attributes: true, attributeFilter: ["aria-busy"] });
+        if (el.dataset.busy === "true") el.dataset.refreshed = "";
+      }).observe(el, { attributes: true, attributeFilter: ["data-busy"] });
     });
     await pullDown(page);
     await expect(ptr).toHaveAttribute("data-refreshed");
-    await expect(ptr).toHaveAttribute("aria-busy", "false");
+    await expect(ptr).toHaveAttribute("data-busy", "false");
     await expect(ptr).not.toHaveAttribute("data-pulling");
     // A short pull only bounces.
     await ptr.evaluate((el) => delete el.dataset.refreshed);

@@ -25,7 +25,10 @@ export function PullToRefresh({ onRefresh, children }: Props) {
   const run = usePullGesture(rootRef, refresh, setBusy);
 
   return (
-    <div ref={rootRef} data-testid="ptr" aria-busy={busy} className="relative">
+    <div ref={rootRef} data-testid="ptr" data-busy={busy} className="relative">
+      <p role="status" className="sr-only">
+        {busy ? t.common.refreshing : ""}
+      </p>
       <button
         type="button"
         onClick={() => void run()}

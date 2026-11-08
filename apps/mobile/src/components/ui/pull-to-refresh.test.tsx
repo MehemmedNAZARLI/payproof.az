@@ -41,14 +41,14 @@ describe("PullToRefresh", () => {
     pull(content, 260);
     expect(haptic).toHaveBeenCalledWith("tap");
     expect(onRefresh).toHaveBeenCalledOnce();
-    expect(screen.getByTestId("ptr")).toHaveAttribute("aria-busy", "true");
+    expect(screen.getByTestId("ptr")).toHaveAttribute("data-busy", "true");
     pull(content, 260); // a second pull while it runs does nothing
     expect(onRefresh).toHaveBeenCalledOnce();
     await act(async () => {
       finish();
       await vi.advanceTimersByTimeAsync(1000);
     });
-    expect(screen.getByTestId("ptr")).toHaveAttribute("aria-busy", "false");
+    expect(screen.getByTestId("ptr")).toHaveAttribute("data-busy", "false");
   });
 
   it("springs back without refreshing after a short pull", () => {
@@ -65,9 +65,36 @@ describe("PullToRefresh", () => {
     expect(onRefresh).not.toHaveBeenCalled();
   });
 
-  it("offers keyboard and screen-reader users a refresh button", () => {
-    const { onRefresh } = setup();
+  it("offers keyboard and screen-reader users a refresh that shows and says itself", async () => {
+    const { onRefresh, finish } = setup();
+    const status = screen.getByRole("status");
+    expect(status).toBeEmptyDOMElement();
     fireEvent.click(screen.getByRole("button", { name: "Məlumatı yenilə" }));
     expect(onRefresh).toHaveBeenCalledOnce();
+    expect(screen.getByTestId("ptr")).toHaveAttribute("data-pulling");
+    expect(status).toHaveTextContent("Yenilənir…");
+    await act(async () => {
+      finish();
+      await vi.advanceTimersByTimeAsync(1000);
+    });
+    expect(status).toBeEmptyDOMElement();
+  });
+
+  it("stops quietly when the screen goes away mid-refresh", async () => {
+    let finish = () => {};
+    const onRefresh = vi.fn(() => new Promise<void>((r) => (finish = r)));
+    const errors = vi.spyOn(console, "error");
+    const { unmount } = render(
+      <PullToRefresh onRefresh={onRefresh}>
+        <p>Siyahı</p>
+      </PullToRefresh>,
+    );
+    pull(screen.getByText("Siyahı"), 260);
+    unmount();
+    await act(async () => {
+      finish();
+      await vi.advanceTimersByTimeAsync(1000);
+    });
+    expect(errors).not.toHaveBeenCalled();
   });
 });
