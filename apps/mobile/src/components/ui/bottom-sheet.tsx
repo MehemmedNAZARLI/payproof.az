@@ -83,8 +83,7 @@ export function BottomSheet({
         onKeyDown={trapTab}
         className={cx(
           "bg-surface shadow-3 absolute inset-x-0 bottom-0 mx-auto flex max-h-[calc(100dvh-var(--safe-top)-var(--sp-3))] max-w-app flex-col overflow-hidden rounded-t-(--sheet-radius) outline-none will-change-transform",
-          size === "large" &&
-            "h-[calc(100dvh-var(--safe-top)-var(--sp-3))] short:h-dvh short:max-h-dvh short:max-w-none short:rounded-t-xl",
+          size === "large" && "short:h-dvh short:max-h-dvh short:max-w-none short:rounded-t-xl",
         )}
       >
         <div data-sheet-handle className="flex-none touch-none" {...dragHandlers}>
