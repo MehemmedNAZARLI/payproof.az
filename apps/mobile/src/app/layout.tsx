@@ -1,10 +1,10 @@
+import "./globals.css";
+
 import type { Metadata, Viewport } from "next";
 
 import { appDescription, appName, brand } from "@/lib/brand";
 
 import { Providers } from "./providers";
-
-import "./globals.css";
 
 export const metadata: Metadata = {
   applicationName: appName,
