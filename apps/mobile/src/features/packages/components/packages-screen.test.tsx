@@ -28,11 +28,14 @@ function open(query: string) {
     expires_in: 60,
     user: {} as never,
   });
-  render(
-    <QueryClientProvider client={createQueryClient()}>
+  const client = createQueryClient();
+  const ui = () => (
+    <QueryClientProvider client={client}>
       <PackagesScreen />
-    </QueryClientProvider>,
+    </QueryClientProvider>
   );
+  const view = render(ui());
+  return { navigateTo: (query: string) => ((search = query), view.rerender(ui())) };
 }
 
 const rows = async () =>
@@ -77,5 +80,27 @@ describe("PackagesScreen", () => {
     open("status=exported&q=1042");
     fireEvent.click(await screen.findByRole("button", { name: "Filtri təmizlə" }));
     expect(replace).toHaveBeenCalledWith("/packages", { scroll: false });
+  });
+
+  it("follows the URL when it changes from outside, without writing the old search back", async () => {
+    const { navigateTo } = open("status=problem&q=1038");
+    const box = screen.getByRole("searchbox", { name: "Paket axtar" });
+    expect(box).toHaveValue("1038");
+    navigateTo(""); // e.g. the Paketlər tab
+    expect(box).toHaveValue("");
+    navigateTo("status=problem&q=1038"); // and back
+    expect(box).toHaveValue("1038");
+    await new Promise((r) => setTimeout(r, 400));
+    expect(replace).not.toHaveBeenCalled();
+  });
+
+  it("does not overwrite what is being typed when its own search lands in the URL", async () => {
+    const { navigateTo } = open("");
+    const box = screen.getByRole("searchbox", { name: "Paket axtar" });
+    fireEvent.change(box, { target: { value: "10" } });
+    await waitFor(() => expect(replace).toHaveBeenCalledWith("/packages?q=10", { scroll: false }));
+    fireEvent.change(box, { target: { value: "104" } });
+    navigateTo("q=10");
+    expect(box).toHaveValue("104");
   });
 });

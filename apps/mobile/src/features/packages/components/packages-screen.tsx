@@ -2,7 +2,7 @@
 
 import { onlineManager } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { AppHeader } from "@/components/ui/app-header";
 import { IconButton } from "@/components/ui/icon-button";
@@ -34,18 +34,28 @@ export function PackagesScreen() {
   // The field answers every keystroke; the URL (and the request) follow once typing pauses.
   const [text, setText] = useState(q);
   const [refreshing, setRefreshing] = useState(false);
+  // The URL's search as last seen, and the one this screen last wrote. A change that is not our
+  // own (a tab tap, back, a link) replaces the field; our own must not clobber newer typing.
+  const [url, setUrl] = useState({ seen: q, wrote: q });
+  if (q !== url.seen) {
+    // Once seen, a value is settled: back to it later is an outside change like any other.
+    setUrl({ seen: q, wrote: q });
+    if (q !== url.wrote) setText(q);
+  }
 
-  const navigate = (f: PackageFilter, query: string) =>
-    router.replace(packagesHref(f, query), { scroll: false });
+  const navigate = useCallback(
+    (f: PackageFilter, query: string) => {
+      setUrl((u) => ({ ...u, wrote: query.trim() }));
+      router.replace(packagesHref(f, query), { scroll: false });
+    },
+    [router],
+  );
 
   useEffect(() => {
     if (text.trim() === q) return;
-    const timer = setTimeout(
-      () => router.replace(packagesHref(filter, text), { scroll: false }),
-      SEARCH_DELAY_MS,
-    );
+    const timer = setTimeout(() => navigate(filter, text), SEARCH_DELAY_MS);
     return () => clearTimeout(timer);
-  }, [text, q, filter, router]);
+  }, [text, q, filter, navigate]);
 
   const dashboard = useDashboard();
   const list = usePackages({ status: filterStatuses(filter), q: q || undefined, limit: PAGE });
