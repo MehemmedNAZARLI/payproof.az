@@ -6,7 +6,7 @@ import { runChecks } from "./checks";
 import { packageModel } from "./model";
 
 const evaluated = packages.filter((p) => !p.processing);
-const RULES = ["R-001", "R-002", "R-003", "R-004"];
+const RULES = ["R-001", "R-002", "R-003", "R-004", "R-005", "R-006"];
 const golden = (invoice: string) => {
   const g = expected.packages[invoice as keyof typeof expected.packages];
   return {
@@ -19,7 +19,7 @@ describe("ported rule engine", () => {
   it.each(evaluated.map((p) => [p.invoice_number, p] as const))(
     "%s matches the golden outcomes and blockers",
     (invoice, p) => {
-      const checks = runChecks(packageModel(p));
+      const checks = runChecks(packageModel(p)).filter((c) => RULES.includes(c.ruleId));
       const g = golden(invoice);
       expect(Object.fromEntries(checks.map((c) => [c.ruleId, c.outcome]))).toEqual(g.checks);
       const primary = checks.filter(

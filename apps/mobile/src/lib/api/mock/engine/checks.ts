@@ -1,8 +1,9 @@
 import type { Schemas } from "../../client";
-import { customer, type DocType, type PackageModel } from "./model";
-import { type Anchor, deliveryQuote, invoiceQuote, orderQuote } from "./quotes";
+import { decimal } from "../money";
+import { customer, type DocType, type PackageModel, product } from "./model";
+import { type Anchor, deliveryQuote, invoiceQuote, money, orderQuote, quantity } from "./quotes";
 
-// shortcut: the prototype's runChecks (R-001…R-004 so far) ported for the mock's messages and
+// shortcut: the prototype's runChecks (R-001…R-006 so far) ported for the mock's messages and
 // evidence. checks.test.ts holds every outcome to fixtures/expected.json; S-06 replaces this.
 
 type Outcome = Schemas["CheckOutcome"];
@@ -125,6 +126,7 @@ export function runChecks(m: PackageModel): Check[] {
     ]);
 
   // R-004 · currency and units
+  let comparable = false;
   if (!o)
     add("R-004", "UNKNOWN", "Sifariş təsdiqlənmədən valyuta və vahid müqayisə olunmur.", [], {
       cascade: true,
@@ -138,10 +140,106 @@ export function runChecks(m: PackageModel): Check[] {
       { fix: "upload_invoice" },
     );
   else {
+    comparable = true;
     add("R-004", "PASS", `Valyuta (${cur}) və ölçü vahidləri uyğundur.`, [
       E("invoice", "total"),
       E("order", "total"),
     ]);
+  }
+
+  // R-005 · unit prices
+  if (!comparable || !o)
+    add(
+      "R-005",
+      "UNKNOWN",
+      "Valyuta və vahid uyğunluğu təsdiqlənmədən qiymət müqayisə edilmir.",
+      [],
+      { cascade: true },
+    );
+  else {
+    const missing = inv.lines.filter((l) => !o.lines.some((x) => x.code === l.code));
+    const diffs = inv.lines.flatMap((l) => {
+      const ol = o.lines.find((x) => x.code === l.code);
+      return ol && ol.price !== l.price
+        ? [{ l, ol, diff: (l.price - ol.price) * BigInt(l.qty) }]
+        : [];
+    });
+    if (missing.length)
+      add(
+        "R-005",
+        "UNKNOWN",
+        `Sifarişdə olmayan sətir: ${missing.map((l) => l.code).join(", ")}. Avtomatik uyğun sayılmır.`,
+        missing.map((l) => E("invoice", `line:${l.code}`)),
+      );
+    else if (diffs.length) {
+      const total = diffs.reduce((s, x) => s + x.diff, 0n);
+      add(
+        "R-005",
+        "FAIL",
+        `${diffs.map((x) => `${x.l.code}: fakturada ${money(x.l.price, cur)}, sifarişdə ${money(x.ol.price, cur)} × ${quantity(x.l.qty)} = ${money(x.diff, cur)} fərq`).join("; ")}. Aktual qiymət əlavəsini yoxlayın. Fərq itki və ya gəlir sayılmır.`,
+        diffs.flatMap((x) => [E("invoice", `line:${x.l.code}`), E("order", `line:${x.l.code}`)]),
+        {
+          fix: "upload_invoice",
+          data: { line_difference: { amount: decimal(total), currency: cur } },
+        },
+      );
+    } else {
+      const first = inv.lines[0]!.code;
+      add("R-005", "PASS", `${inv.lines.length} sətirdə vahid qiymət sifarişlə eynidir.`, [
+        E("invoice", `line:${first}`),
+        E("order", `line:${first}`),
+      ]);
+    }
+  }
+
+  // R-006 · quantities against the order and the delivery note
+  if (!comparable || !o)
+    add(
+      "R-006",
+      "UNKNOWN",
+      "Miqdar müqayisəsi sifariş və vahid uyğunluğu təsdiqləndikdən sonra aparılır.",
+      [],
+      { cascade: true },
+    );
+  else {
+    const dlOk = d !== null && d.poRef === o.po && d.customerId === m.customer.id;
+    const problems: string[] = [];
+    const evs: (EvidenceTarget | null)[] = [];
+    for (const l of inv.lines) {
+      const ol = o.lines.find((x) => x.code === l.code);
+      const unit = product(l.code).unit;
+      if (ol && ol.qty !== l.qty) {
+        problems.push(
+          `${l.code}: fakturada ${quantity(l.qty)}, sifarişdə ${quantity(ol.qty)} ${unit}`,
+        );
+        evs.push(E("invoice", `line:${l.code}`), E("order", `line:${l.code}`));
+      }
+      const dq = dlOk ? (d.lines.find((x) => x.code === l.code)?.qty ?? 0) : l.qty;
+      if (dq !== l.qty) {
+        problems.push(
+          `${l.code}: fakturada ${quantity(l.qty)}, təhvil aktında ${quantity(dq)} ${unit}`,
+        );
+        evs.push(E("invoice", `line:${l.code}`), E("delivery", `line:${l.code}`));
+      }
+    }
+    const first = inv.lines[0]!.code;
+    if (problems.length)
+      add(
+        "R-006",
+        "FAIL",
+        `${problems.join("; ")}. Qismən çatdırılma P0-da avtomatik uyğun sayılmır.`,
+        evs,
+        { fix: "upload_invoice" },
+      );
+    else
+      add(
+        "R-006",
+        "PASS",
+        dlOk
+          ? "Sifariş, faktura və təhvil miqdarları uyğundur."
+          : "Faktura və sifariş miqdarları uyğundur; uyğun təhvil sənədi olmadığı üçün təhvil miqdarı müqayisə edilmədi.",
+        [E("invoice", `line:${first}`), dlOk ? E("delivery", `line:${first}`) : null],
+      );
   }
 
   return out;
