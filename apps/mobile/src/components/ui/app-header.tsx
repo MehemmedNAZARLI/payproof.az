@@ -28,7 +28,7 @@ export function AppHeader({ title, subtitle, large = false, back, trailing }: Ap
       <header ref={barRef} className="pt-safe sticky top-0 z-30 [--p:0]">
         {/* Bar material fades in as content slides under it (scroll-edge appearance). */}
         <div aria-hidden="true" className="material hairline-b absolute inset-0 opacity-(--p)" />
-        <div className="relative grid h-(--navbar-h) grid-cols-[1fr_minmax(0,auto)_1fr] items-center gap-2 px-2">
+        <div className="relative mx-auto grid h-(--navbar-h) max-w-app grid-cols-[1fr_minmax(0,auto)_1fr] items-center gap-2 px-2">
           <div className="justify-self-start">
             {back && (
               <Link
@@ -62,7 +62,7 @@ export function AppHeader({ title, subtitle, large = false, back, trailing }: Ap
         <OfflineStrip />
       </header>
       {large && (
-        <div ref={largeRef} className="px-safe pull-shift pt-1 pb-2">
+        <div ref={largeRef} className="px-safe pull-shift mx-auto max-w-app pt-1 pb-2">
           <h1 className="text-4xl leading-tight font-bold tracking-tight">{title}</h1>
           {subtitle && <p className="text-text-3 text-sm">{subtitle}</p>}
         </div>
