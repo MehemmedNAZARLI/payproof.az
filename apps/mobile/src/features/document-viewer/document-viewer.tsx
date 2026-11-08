@@ -53,11 +53,16 @@ export function DocumentViewer({ version, title, evidence, onViewed }: ViewerPro
   const kind = mockId ? "paper" : version.source_kind;
   const ready =
     kind === "paper" ? Boolean(paper.data) : kind === "spreadsheet" ? false : pdfState === "ready";
-  const failed = file.isError || paper.isError || paper.data === null || pdfState === "failed";
+  const failed =
+    file.isError ||
+    (kind === "paper" && (paper.isError || paper.data === null)) ||
+    pdfState === "failed";
+  // Evidence names its page; only that page can carry the highlight.
+  const citedPage = evidence ? paper.data?.pages[evidence.page - 1] : undefined;
   const located =
     evidence !== null &&
     (kind === "paper"
-      ? (paper.data?.pages ?? []).some((p) => pageQuotes(p).includes(evidence.quote))
+      ? citedPage !== undefined && pageQuotes(citedPage).includes(evidence.quote)
       : evidence.bbox !== null);
 
   const viewed = useRef(onViewed);
@@ -81,7 +86,12 @@ export function DocumentViewer({ version, title, evidence, onViewed }: ViewerPro
         action={
           <Button
             variant="secondary"
-            onClick={() => void (setPdfState("loading"), file.refetch(), paper.refetch())}
+            onClick={() => {
+              setPdfState("loading");
+              void file.refetch();
+              // refetch() ignores `enabled`; the paper exists only in mock mode.
+              if (mockId) void paper.refetch();
+            }}
           >
             {t.common.retry}
           </Button>
@@ -131,11 +141,11 @@ export function DocumentViewer({ version, title, evidence, onViewed }: ViewerPro
                     className="mx-auto flex w-fit flex-col gap-3"
                     style={{ zoom: (fitWidth(width) / PAPER_WIDTH) * scale }}
                   >
-                    {paper.data!.pages.map((page) => (
+                    {paper.data!.pages.map((page, i) => (
                       <Paper
                         key={page.number}
                         page={page}
-                        highlight={evidence?.quote ?? null}
+                        highlight={evidence && evidence.page === i + 1 ? evidence.quote : null}
                         ariaLabel={`${page.title} ${page.number}`}
                       />
                     ))}
