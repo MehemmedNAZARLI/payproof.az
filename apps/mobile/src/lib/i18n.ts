@@ -68,7 +68,7 @@ export const t = {
     awaitingYou: "Təsdiqinizi gözləyir",
     awaitingApprover: "Təsdiqçini gözləyir",
     packages: (n: number) => `${n} paket`,
-    noneWaiting: "Gözləyən paket yoxdur",
+    packageUnit: "paket",
     openAmount: "Açıq problemli məbləğ",
     notLoss: "İtki deyil; valyutalar çevrilmədən ayrıca göstərilir.",
     noOpen: "Açıq problem yoxdur.",
