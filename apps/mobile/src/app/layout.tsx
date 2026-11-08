@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   applicationName: appName,
   title: { default: appName, template: `%s · ${appName}` },
   description: appDescription,
-  appleWebApp: { capable: true, title: appName, statusBarStyle: "black-translucent" },
+  appleWebApp: { capable: true, title: appName, statusBarStyle: "default" },
   formatDetection: { telephone: false },
 };
 

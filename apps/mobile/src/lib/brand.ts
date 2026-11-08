@@ -9,5 +9,6 @@ export const brand = {
   backgroundDark: "#0e1312",
 } as const;
 
+// shortcut: move to @payproof/api-client/i18n once it exists (S-05).
 export const appName = "PayProof";
 export const appDescription = "Faktura paketlərinin hazırlığı və təsdiqi";

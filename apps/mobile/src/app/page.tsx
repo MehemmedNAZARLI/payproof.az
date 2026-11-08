@@ -1,9 +1,10 @@
 import { appDescription, appName } from "@/lib/brand";
 
 // Placeholder until the tab screens arrive (M-04/M-05); shows the shell, safe areas and tokens.
+// shortcut: copy is inline until @payproof/api-client/i18n exists (S-05).
 export default function HomePage() {
   return (
-    <main className="pt-safe pb-safe px-safe mx-auto flex min-h-dvh max-w-[430px] flex-col">
+    <main className="pt-safe pb-safe px-safe mx-auto flex min-h-dvh max-w-app flex-col">
       <header className="pt-12 pb-2">
         <h1 className="text-4xl leading-tight font-bold tracking-tight">{appName}</h1>
         <p className="text-text-3 mt-1 text-md">{appDescription}</p>
