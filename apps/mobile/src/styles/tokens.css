@@ -1,5 +1,5 @@
 /* PayProof Mobile design system — owned by apps/mobile only (web keeps @payproof/design-tokens).
-   Light/dark switch on the OS preference unless the app pins data-theme. Every Tailwind colour,
+   Light/dark follow the OS preference; data-theme="light" pins light (no dark pin today). Every Tailwind colour,
    radius, shadow and type size in tailwind.config.ts points at a variable here. */
 
 :root {

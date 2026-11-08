@@ -162,6 +162,7 @@
   transition:
     transform 420ms var(--ease-spring),
     opacity 200ms var(--ease),
+    color 200ms var(--ease),
     background-color 200ms var(--ease);
   &:active {
     transform: scale(0.97);
