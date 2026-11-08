@@ -39,11 +39,29 @@ describe("offline read cache", () => {
     expect(raw).not.toContain("dev-users");
   });
 
-  it("gives nothing to a different user", () => {
+  it("gives nothing to a different user, and deletes what it held", () => {
     persistQueries(seeded(), () => "u2")();
     const other = new QueryClient();
     restoreQueries(other, "u1");
     expect(other.getQueryData(detail)).toBeUndefined();
+    expect(localStorage.getItem(KEY)).toBeNull();
+  });
+
+  it("deletes a saved cache when nobody is signed in at launch (session expired while closed)", () => {
+    persistQueries(seeded(), () => "u2")();
+    restoreQueries(new QueryClient(), undefined);
+    expect(localStorage.getItem(KEY)).toBeNull();
+  });
+
+  it("never re-saves a query older than a day, however often the app is relaunched", () => {
+    const qc = new QueryClient({ defaultOptions: { queries: { gcTime: Infinity } } });
+    qc.setQueryData(detail, { id: "p1" });
+    vi.advanceTimersByTime(25 * 60 * 60 * 1000);
+    qc.setQueryData(["dashboard"], { package_count: 14 });
+    persistQueries(qc, () => "u2")();
+    const raw = localStorage.getItem(KEY) ?? "";
+    expect(raw).toContain("package_count");
+    expect(raw).not.toContain('"p1"');
   });
 
   it("forgets data older than a day", () => {
@@ -52,6 +70,7 @@ describe("offline read cache", () => {
     const fresh = new QueryClient();
     restoreQueries(fresh, "u2");
     expect(fresh.getQueryData(detail)).toBeUndefined();
+    expect(localStorage.getItem(KEY)).toBeNull();
   });
 
   it("writes nothing without a session and drops everything on clear", () => {

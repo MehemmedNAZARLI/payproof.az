@@ -11,8 +11,9 @@ import {
 // stored, never mutations, and approval itself checks the connection (approval flow).
 //
 // It lives in localStorage beside the session token, tagged with the user, and goes with them:
-// a different user gets nothing, and any user change (sign-out, expiry, another tab) clears it
-// (providers.tsx). Signed document links are left out — they expire within minutes anyway.
+// a user change while the app runs (sign-out, expiry, another tab) clears it (providers.tsx), and
+// at launch a cache that is not the signed-in user's, or older than a day, is deleted unread.
+// Signed document links are left out — they expire within minutes anyway.
 
 const KEY = "payproof.cache";
 const MAX_AGE_MS = 24 * 60 * 60 * 1000;
@@ -26,6 +27,8 @@ type Stored = { v: number; user: string; savedAt: number; state: DehydratedState
 const persistable = (query: Query) => {
   const [root, sub] = query.queryKey as unknown[];
   if (query.state.status !== "success") return false;
+  // Each query ages on its own: one restored on every relaunch must still expire.
+  if (Date.now() - query.state.dataUpdatedAt > MAX_AGE_MS) return false;
   if (root === "auth") return sub === "me";
   return typeof root === "string" && ROOTS.has(root);
 };
@@ -49,10 +52,18 @@ function write(qc: QueryClient, user: string) {
   }
 }
 
-/** Puts this user's saved queries back; newer data already in the client wins. */
-export function restoreQueries(qc: QueryClient, user: string) {
+/**
+ * Puts the signed-in user's saved queries back; newer data already in the client wins. A cache
+ * that is not theirs, or too old, is deleted — e.g. a session that expired while the app was
+ * closed never fires a user change, so this is where it goes.
+ */
+export function restoreQueries(qc: QueryClient, user: string | undefined) {
   const stored = read();
-  if (!stored || stored.user !== user || Date.now() - stored.savedAt > MAX_AGE_MS) return;
+  if (!stored) return;
+  if (!user || stored.user !== user || Date.now() - stored.savedAt > MAX_AGE_MS) {
+    clearPersistedQueries();
+    return;
+  }
   hydrate(qc, stored.state);
 }
 

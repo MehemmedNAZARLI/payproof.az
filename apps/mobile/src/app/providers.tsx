@@ -35,8 +35,7 @@ const currentUser = () => getSession()?.user.id;
 // the server and first client render agree. Newer data already fetched is kept.
 function useOfflineCache(queryClient: QueryClient) {
   useEffect(() => {
-    const user = currentUser();
-    if (user) restoreQueries(queryClient, user);
+    restoreQueries(queryClient, currentUser());
     return persistQueries(queryClient, currentUser);
   }, [queryClient]);
 }
