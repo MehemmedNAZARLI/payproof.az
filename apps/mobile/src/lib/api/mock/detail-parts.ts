@@ -2,9 +2,10 @@ import customers from "@fixtures/customers.json";
 import orders from "@fixtures/orders.json";
 import tasks from "@fixtures/tasks.json";
 
+import { decimal, toCents } from "@/lib/money";
+
 import type { Schemas } from "../client";
 import type { FixturePackage } from "./engine/model";
-import { decimal, toCents } from "./money";
 import { toUtc, userRef } from "./store";
 
 // Pieces of the mock PackageDetail that come straight from fixtures (no rule engine).

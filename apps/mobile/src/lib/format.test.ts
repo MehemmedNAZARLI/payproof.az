@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
 
-import { formatDate, formatDateTime, formatLongDate, formatMoney, greeting } from "./format";
+import {
+  bakuDay,
+  formatDate,
+  formatDateTime,
+  formatDayHeading,
+  formatLongDate,
+  formatMoney,
+  formatTime,
+  greeting,
+} from "./format";
 
 describe("formatMoney", () => {
   it("groups thousands with dots and uses a decimal comma (az-AZ, as the prototype)", () => {
@@ -51,5 +60,22 @@ describe("formatDate", () => {
   it("writes a contract date day first, without touching time zones", () => {
     expect(formatDate("2026-11-03")).toBe("03.11.2026");
     expect(() => formatDate("03.11.2026")).toThrow();
+  });
+});
+
+describe("day headings (Baku time)", () => {
+  // 01:00 in Baku on 8 November is still 7 November in UTC.
+  const now = new Date("2026-11-07T21:00:00Z");
+
+  it("reads a moment's Baku calendar day", () => {
+    expect(bakuDay(now)).toBe("2026-11-08");
+    expect(formatTime("2026-11-06T11:53:00Z")).toBe("15:53");
+  });
+
+  it("says today and yesterday in words, other days with the weekday", () => {
+    expect(formatDayHeading("2026-11-08", now)).toBe("Bu gün");
+    expect(formatDayHeading("2026-11-07", now)).toBe("Dünən");
+    expect(formatDayHeading("2026-11-06", now)).toBe("6 noyabr, cümə");
+    expect(formatDayHeading("2025-12-31", now)).toBe("31 dekabr 2025, çərşənbə");
   });
 });

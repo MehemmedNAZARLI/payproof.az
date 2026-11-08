@@ -6,8 +6,10 @@ import { AppHeader } from "@/components/ui/app-header";
 import { Card, SectionHeader } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Icon } from "@/components/ui/icon";
+import { CountBadge } from "@/components/ui/icon-button";
 import { ListGroup } from "@/components/ui/list";
 import { useMe } from "@/features/auth/queries";
+import { useUnreadCount } from "@/features/notifications/queries";
 import { PackageRow } from "@/features/packages/components/package-row";
 import { packagesHref } from "@/features/packages/filters";
 import { usePackages } from "@/features/packages/queries";
@@ -29,6 +31,7 @@ export function HomeScreen() {
   const dashboard = useDashboard();
   const ready = usePackages(READY);
   const activity = useRecentActivity();
+  const unread = useUnreadCount();
   const now = new Date();
   const firstName = me?.full_name.split(" ")[0];
 
@@ -41,10 +44,11 @@ export function HomeScreen() {
         trailing={
           <Link
             href="/notifications"
-            aria-label={t.nav.notifications}
-            className="text-brand-600 grid size-11 place-items-center rounded-full transition-opacity active:opacity-50"
+            aria-label={unread ? t.common.notificationsUnread(unread) : t.nav.notifications}
+            className="text-brand-600 relative grid size-11 place-items-center rounded-full transition-opacity active:opacity-50"
           >
             <Icon name="bell" size={24} />
+            {unread > 0 && <CountBadge count={unread} className="absolute top-1 right-0.5" />}
           </Link>
         }
       />

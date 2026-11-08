@@ -1,5 +1,6 @@
+import { decimal } from "@/lib/money";
+
 import type { Schemas } from "../../client";
-import { decimal } from "../money";
 import { customer, type DocType, type PackageModel, product } from "./model";
 import {
   type Anchor,

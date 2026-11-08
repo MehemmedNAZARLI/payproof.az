@@ -4,10 +4,12 @@ import { useCallback, useState } from "react";
 
 import type { Schemas } from "@/lib/api";
 
-// Pages of the evidence sheet: a check, and the documents its evidence points to. Opening from
+// Pages of the evidence sheet: a check or the approval review, and the documents they point to. Opening from
 // the screen starts over; following evidence goes one level deeper; "Geri" comes back.
 export type SheetRoute =
   | { kind: "check"; ruleId: string }
+  /** The approval review (M-09); its documents open one level deeper. */
+  | { kind: "approve" }
   /** `versionId`: the version to show — the cited one, which may be older than the current. */
   | {
       kind: "document";

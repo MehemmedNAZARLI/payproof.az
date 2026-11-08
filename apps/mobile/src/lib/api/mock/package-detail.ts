@@ -5,7 +5,8 @@ import { link, packageTasks, permissions, requirementSet, uuid } from "./detail-
 import { mockDocuments } from "./documents";
 import { type RuleId, runChecks } from "./engine/checks";
 import { packageModel } from "./engine/model";
-import { meFor, mockUuid, packageList, toUtc, userRef } from "./store";
+import { livePackage, sessionApprovalRecords } from "./live";
+import { meFor, mockUuid, toUtc, userRef } from "./store";
 
 type Detail = Schemas["PackageDetail"];
 
@@ -25,7 +26,7 @@ const RULE_TITLES: Record<RuleId, string> = {
 };
 
 export function packageDetail(packageId: string, userSlug: string): Detail | undefined {
-  const item = packageList.find((x) => x.id === packageId);
+  const item = livePackage(packageId);
   const p = packages.find((x) => mockUuid("package", x.id) === packageId);
   const user = meFor(userSlug);
   if (!item || !p || !user) return undefined;
@@ -43,6 +44,7 @@ export function packageDetail(packageId: string, userSlug: string): Detail | und
     invalidated_reason: a.invalidated_reason,
     invalidated_at: a.invalidated_at && toUtc(a.invalidated_at),
   }));
+  approvals.push(...sessionApprovalRecords(item.id));
   const count = (o: Schemas["CheckOutcome"]) => checks.filter((c) => c.outcome === o).length;
   return {
     id: item.id,

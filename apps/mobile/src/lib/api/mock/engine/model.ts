@@ -4,7 +4,7 @@ import orders from "@fixtures/orders.json";
 import packages from "@fixtures/packages.json";
 import products from "@fixtures/products.json";
 
-import { toCents } from "../money";
+import { toCents } from "@/lib/money";
 
 // shortcut: a normalised, read-only view of one fixture package for the ported rule engine
 // (S-06 brings the shared mock engine). Money is integer cents throughout.

@@ -12,6 +12,9 @@ import { startSession } from "@/lib/session";
 import { clearSeen } from "../seen-store";
 import { PackageDetailScreen, PackageDetailView } from "./package-detail-screen";
 
+const push = vi.fn();
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
+
 vi.mock("@/lib/api/mock/mock-fetch", async (load) => {
   const real = await load<typeof import("@/lib/api/mock/mock-fetch")>();
   return { createMockFetch: () => real.createMockFetch({ latencyMs: 0 }) };

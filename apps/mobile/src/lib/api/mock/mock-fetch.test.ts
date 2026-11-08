@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { ApiError, createApiClient, unwrap } from "../client";
 import { mockToken } from "./handlers";
 import { createMockFetch } from "./mock-fetch";
+import { resetSessionDb } from "./session-db";
 
 const apiAs = (token: string | null = mockToken("u2")) =>
   createApiClient({
@@ -224,5 +225,52 @@ describe("mock GET /v1/documents/versions/{id}/file", () => {
         ),
       ),
     ).toMatchObject({ status: 404 });
+  });
+});
+
+describe("mock POST /v1/packages/{id}/approve", () => {
+  afterEach(resetSessionDb);
+
+  it("approves through the client and the list shows it", async () => {
+    const api = apiAs();
+    const ready = await unwrap(
+      api.GET("/v1/packages", { params: { query: { status: ["READY_FOR_APPROVAL"] } } }),
+    );
+    const pkg = await unwrap(
+      api.GET("/v1/packages/{package_id}", {
+        params: { path: { package_id: ready.items[0]!.id } },
+      }),
+    );
+    const approval = await unwrap(
+      api.POST("/v1/packages/{package_id}/approve", {
+        params: {
+          path: { package_id: pkg.id },
+          header: { "Idempotency-Key": crypto.randomUUID() },
+        },
+        body: {
+          expected_version: pkg.version,
+          expected_requirement_set_version: pkg.requirement_set.version,
+          documents_reviewed: true,
+        },
+      }),
+    );
+    expect(approval.package_version).toBe(pkg.version);
+    const after = await unwrap(
+      api.GET("/v1/packages", { params: { query: { status: ["READY_FOR_APPROVAL"] } } }),
+    );
+    expect(after.items.map((p) => p.id)).not.toContain(pkg.id);
+  });
+
+  it("requires a session and answers an unknown package with 404", async () => {
+    const call = (token: string | null, headers: Record<string, string>) =>
+      createMockFetch({ latencyMs: 0 })(
+        new Request("http://localhost:8000/v1/packages/x/approve", {
+          method: "POST",
+          headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}), ...headers },
+          body: "{}",
+        }),
+      );
+    expect((await call(null, {})).status).toBe(401);
+    expect((await call(mockToken("u2"), {})).status).toBe(404);
   });
 });

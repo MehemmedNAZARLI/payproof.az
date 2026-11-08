@@ -3,12 +3,15 @@ import { http, HttpResponse } from "msw";
 
 import type { Schemas } from "../client";
 import { MOCK_FILE_SCHEME } from "../mock-file";
-import { auditLog } from "./audit";
+import { approve } from "./approve";
+import { liveAuditLog } from "./audit";
 import { dashboard } from "./dashboard";
 import { findVersion } from "./documents";
 import { listPackages, QueryError } from "./list-packages";
+import { livePackages } from "./live";
+import { notificationPage, readAll, readOne } from "./notifications";
 import { packageDetail } from "./package-detail";
-import { devUsers, meFor, packageList, userSlug } from "./store";
+import { devUsers, meFor, userSlug } from "./store";
 
 // Tokens are `mock.<fixture user slug>`; the real API issues a JWT for the same users.
 const TOKEN = /^Bearer mock\.(\w+)$/;
@@ -94,7 +97,7 @@ export const handlers = [
         param: unsupported ?? "limit",
       });
     const packageId = params.get("package_id");
-    const items = auditLog.filter((e) => !packageId || e.package?.id === packageId);
+    const items = liveAuditLog().filter((e) => !packageId || e.package?.id === packageId);
     return HttpResponse.json({
       items: items.slice(0, limit),
       next_cursor: null,
@@ -103,7 +106,7 @@ export const handlers = [
   http.get("*/v1/packages", ({ request }) => {
     if (!sessionUser(request)) return unauthenticated();
     try {
-      return HttpResponse.json(listPackages(packageList, new URL(request.url).searchParams));
+      return HttpResponse.json(listPackages(livePackages(), new URL(request.url).searchParams));
     } catch (error) {
       if (!(error instanceof QueryError)) throw error;
       return apiError(422, "VALIDATION_ERROR", "Sorğu parametri yanlışdır.", {
@@ -116,6 +119,40 @@ export const handlers = [
     if (!slug) return unauthenticated();
     const detail = packageDetail(String(params.id), slug);
     return detail ? HttpResponse.json(detail) : notFound();
+  }),
+  http.post("*/v1/packages/:id/approve", async ({ request, params }) => {
+    const slug = sessionSlug(request);
+    if (!slug) return unauthenticated();
+    const body: unknown = await request.json().catch(() => undefined);
+    const key = request.headers.get("Idempotency-Key");
+    const result = approve({ userSlug: slug, packageId: String(params.id), key, body });
+    return result.status === 200
+      ? HttpResponse.json(result.approval)
+      : apiError(result.status, result.error.code, result.error.message, result.error.details);
+  }),
+  http.get("*/v1/notifications", ({ request }) => {
+    const slug = sessionSlug(request);
+    if (!slug) return unauthenticated();
+    const params = new URL(request.url).searchParams;
+    const limit = Number(params.get("limit") ?? 50);
+    // shortcut: one page is all the fixtures fill; paging arrives with S-06.
+    if (params.has("cursor") || !Number.isInteger(limit) || limit < 1 || limit > 200)
+      return apiError(422, "VALIDATION_ERROR", "Sorğu parametri yanlışdır.", {
+        param: params.has("cursor") ? "cursor" : "limit",
+      });
+    const unreadOnly = params.get("unread_only") === "true";
+    return HttpResponse.json(notificationPage(slug, unreadOnly, limit));
+  }),
+  http.post("*/v1/notifications/read-all", ({ request }) => {
+    const slug = sessionSlug(request);
+    if (!slug) return unauthenticated();
+    readAll(slug);
+    return new HttpResponse(null, { status: 204 });
+  }),
+  http.post("*/v1/notifications/:id/read", ({ request, params }) => {
+    const slug = sessionSlug(request);
+    if (!slug) return unauthenticated();
+    return readOne(slug, String(params.id)) ? new HttpResponse(null, { status: 204 }) : notFound();
   }),
   http.get("*/v1/documents/versions/:id/file", ({ request, params }) => {
     if (!sessionUser(request)) return unauthenticated();

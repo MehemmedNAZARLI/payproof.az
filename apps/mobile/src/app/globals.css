@@ -226,3 +226,44 @@
     radial-gradient(90% 80% at 0% 100%, rgb(4 38 45 / 0.6), transparent 70%),
     linear-gradient(160deg, #11707f 0%, #0d5d6b 45%, #08414b 100%);
 }
+
+/* A step the user still has to do, pointed out when they tap a locked "Təsdiqlə". */
+@keyframes nudge {
+  20%,
+  60% {
+    transform: translateX(-6px);
+  }
+  40%,
+  80% {
+    transform: translateX(6px);
+  }
+}
+
+/* The approval success mark: the ring pops in on a spring, then the tick draws itself. */
+@keyframes success-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
+@keyframes success-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+@keyframes success-halo {
+  from {
+    opacity: 0.55;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}

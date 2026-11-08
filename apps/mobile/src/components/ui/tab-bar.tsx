@@ -36,6 +36,7 @@ export function TabBar({ notificationCount = 0 }: { notificationCount?: number }
               <Link
                 href={tab.href}
                 aria-current={active ? "page" : undefined}
+                aria-label={count > 0 ? t.common.notificationsUnread(count) : undefined}
                 className={cx(
                   "flex h-full flex-col items-center justify-center gap-0.5 text-[11px] font-semibold transition-colors active:opacity-60",
                   active ? "text-brand-600" : "text-text-3",
@@ -48,7 +49,6 @@ export function TabBar({ notificationCount = 0 }: { notificationCount?: number }
                   )}
                 </span>
                 {tab.label}
-                {count > 0 && <span className="sr-only">, {t.common.unread(count)}</span>}
               </Link>
             </li>
           );

@@ -87,3 +87,27 @@ export function greeting(date: Date): string {
   if (hour >= 12 && hour < 18) return t.home.greeting.afternoon;
   return t.home.greeting.evening;
 }
+
+/** "15:53" in Baku time. */
+export function formatTime(iso: string): string {
+  const p = bakuParts(new Date(iso));
+  return `${String(p.hour).padStart(2, "0")}:${p.minute}`;
+}
+
+/** The Baku calendar day of a moment, as "2026-11-06" (sorts and compares as text). */
+export function bakuDay(date: Date): string {
+  const p = bakuParts(date);
+  return `${p.year}-${p.month}-${p.day}`;
+}
+
+/** A day heading relative to `now`: "Bu gün", "Dünən", "6 noyabr, cümə" (year if not this one). */
+export function formatDayHeading(day: string, now: Date): string {
+  const today = bakuDay(now);
+  const yesterday = bakuDay(new Date(Date.parse(`${today}T12:00:00+04:00`) - 86_400_000));
+  if (day === today) return t.time.today;
+  if (day === yesterday) return t.time.yesterday;
+  const [year, month, d] = day.split("-");
+  const weekday = WEEKDAYS[new Date(`${day}T00:00:00Z`).getUTCDay()];
+  const sameYear = year === today.slice(0, 4);
+  return `${Number(d)} ${MONTHS[Number(month) - 1]}${sameYear ? "" : ` ${year}`}, ${weekday}`;
+}
