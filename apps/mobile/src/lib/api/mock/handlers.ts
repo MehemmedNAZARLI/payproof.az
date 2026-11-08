@@ -1,7 +1,8 @@
 import { http, HttpResponse } from "msw";
 
 import type { Schemas } from "../client";
-import { meFor } from "./store";
+import { listPackages, QueryError } from "./list-packages";
+import { meFor, packageList } from "./store";
 
 // shortcut: until dev-login (M-04), a request without a token is served as the default
 // demo account — Rəşad, the approver. Tokens are `mock.<fixture user slug>`.
@@ -35,5 +36,16 @@ export const handlers = [
   http.get("*/v1/me", ({ request }) => {
     const me = sessionUser(request);
     return me ? HttpResponse.json(me satisfies Schemas["Me"]) : unauthenticated();
+  }),
+  http.get("*/v1/packages", ({ request }) => {
+    if (!sessionUser(request)) return unauthenticated();
+    try {
+      return HttpResponse.json(listPackages(packageList, new URL(request.url).searchParams));
+    } catch (error) {
+      if (!(error instanceof QueryError)) throw error;
+      return apiError(422, "VALIDATION_ERROR", "Sorğu parametri yanlışdır.", {
+        param: error.param,
+      });
+    }
   }),
 ];
