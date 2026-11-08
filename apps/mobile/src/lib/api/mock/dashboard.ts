@@ -4,6 +4,7 @@ import packages from "@fixtures/packages.json";
 import tasks from "@fixtures/tasks.json";
 
 import type { Schemas } from "../client";
+import { livePackages, sessionApprovalRecords } from "./live";
 import { decimal, toCents } from "./money";
 import { mockUuid, packageList, toUtc, userRef } from "./store";
 
@@ -115,7 +116,7 @@ function recentApprovals(): Schemas["Dashboard"]["recent_approvals"] {
       const item = packageList.find((p) => p.id === mockUuid("package", f.id));
       if (!item?.total) return [];
       const total = item.total;
-      return f.approvals.map((a) => ({
+      const fixture = f.approvals.map((a) => ({
         package: ref(item),
         version: a.package_version,
         approver: userRef(a.approver_id),
@@ -124,13 +125,23 @@ function recentApprovals(): Schemas["Dashboard"]["recent_approvals"] {
         valid: a.valid,
         exported: f.exports.some((e) => e.package_version === a.package_version),
       }));
+      const session = sessionApprovalRecords(item.id).map((a) => ({
+        package: ref(item),
+        version: a.package_version,
+        approver: a.approver,
+        approved_at: a.approved_at,
+        total,
+        valid: true,
+        exported: false,
+      }));
+      return [...fixture, ...session];
     })
     .sort((a, b) => b.approved_at.localeCompare(a.approved_at))
     .slice(0, 5);
 }
 
 /** GET /v1/dashboard over the fixtures, as of the demo's "now". */
-export function dashboard(items: readonly Item[] = packageList): Schemas["Dashboard"] {
+export function dashboard(items: readonly Item[] = livePackages()): Schemas["Dashboard"] {
   const list = [...items];
   const of = (...s: Status[]) => list.filter((p) => s.includes(p.status));
   return {

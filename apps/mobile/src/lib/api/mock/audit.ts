@@ -4,7 +4,8 @@ import packages from "@fixtures/packages.json";
 import tasks from "@fixtures/tasks.json";
 
 import type { Schemas } from "../client";
-import { mockUuid, toUtc, userRef } from "./store";
+import { sessionApprovals } from "./session-db";
+import { mockUuid, packageList, toUtc, userRef } from "./store";
 
 // shortcut: the audit trail the prototype's reset() derives from the fixtures (fixtures/README:
 // history is derived data), until S-06 brings the shared mock store.
@@ -168,3 +169,25 @@ function build(): Event[] {
 
 /** The company audit log, newest first. */
 export const auditLog: readonly Event[] = build();
+
+/** The audit log with this session's approvals on top (append-only, newest first). */
+export function liveAuditLog(): readonly Event[] {
+  const session = sessionApprovals().map((a, i): Event => {
+    const item = packageList.find((p) => p.id === a.packageId);
+    return {
+      id: `0193a000-0000-7000-800a-9${String(i + 1).padStart(11, "0")}`,
+      created_at: a.approvedAt,
+      actor: userRef(a.approverSlug),
+      action: "package.approved",
+      message: `v${a.packageVersion} · qayda dəsti v${a.requirementSetVersion}`,
+      package: { id: a.packageId, invoice_number: item?.invoice_number ?? "" },
+      package_version: a.packageVersion,
+      object_type: "approval",
+      object_id: a.id,
+      details: {},
+    };
+  });
+  return [...session.reverse(), ...auditLog].sort((x, y) =>
+    y.created_at.localeCompare(x.created_at),
+  );
+}

@@ -3,12 +3,13 @@ import { http, HttpResponse } from "msw";
 
 import type { Schemas } from "../client";
 import { MOCK_FILE_SCHEME } from "../mock-file";
-import { auditLog } from "./audit";
+import { liveAuditLog } from "./audit";
 import { dashboard } from "./dashboard";
 import { findVersion } from "./documents";
 import { listPackages, QueryError } from "./list-packages";
+import { livePackages } from "./live";
 import { packageDetail } from "./package-detail";
-import { devUsers, meFor, packageList, userSlug } from "./store";
+import { devUsers, meFor, userSlug } from "./store";
 
 // Tokens are `mock.<fixture user slug>`; the real API issues a JWT for the same users.
 const TOKEN = /^Bearer mock\.(\w+)$/;
@@ -94,7 +95,7 @@ export const handlers = [
         param: unsupported ?? "limit",
       });
     const packageId = params.get("package_id");
-    const items = auditLog.filter((e) => !packageId || e.package?.id === packageId);
+    const items = liveAuditLog().filter((e) => !packageId || e.package?.id === packageId);
     return HttpResponse.json({
       items: items.slice(0, limit),
       next_cursor: null,
@@ -103,7 +104,7 @@ export const handlers = [
   http.get("*/v1/packages", ({ request }) => {
     if (!sessionUser(request)) return unauthenticated();
     try {
-      return HttpResponse.json(listPackages(packageList, new URL(request.url).searchParams));
+      return HttpResponse.json(listPackages(livePackages(), new URL(request.url).searchParams));
     } catch (error) {
       if (!(error instanceof QueryError)) throw error;
       return apiError(422, "VALIDATION_ERROR", "Sorğu parametri yanlışdır.", {
