@@ -9,6 +9,7 @@ import { dashboard } from "./dashboard";
 import { findVersion } from "./documents";
 import { listPackages, QueryError } from "./list-packages";
 import { livePackages } from "./live";
+import { notificationPage, readAll, readOne } from "./notifications";
 import { packageDetail } from "./package-detail";
 import { devUsers, meFor, userSlug } from "./store";
 
@@ -128,6 +129,30 @@ export const handlers = [
     return result.status === 200
       ? HttpResponse.json(result.approval)
       : apiError(result.status, result.error.code, result.error.message, result.error.details);
+  }),
+  http.get("*/v1/notifications", ({ request }) => {
+    const slug = sessionSlug(request);
+    if (!slug) return unauthenticated();
+    const params = new URL(request.url).searchParams;
+    const limit = Number(params.get("limit") ?? 50);
+    // shortcut: one page is all the fixtures fill; paging arrives with S-06.
+    if (params.has("cursor") || !Number.isInteger(limit) || limit < 1 || limit > 200)
+      return apiError(422, "VALIDATION_ERROR", "Sorğu parametri yanlışdır.", {
+        param: params.has("cursor") ? "cursor" : "limit",
+      });
+    const unreadOnly = params.get("unread_only") === "true";
+    return HttpResponse.json(notificationPage(slug, unreadOnly, limit));
+  }),
+  http.post("*/v1/notifications/read-all", ({ request }) => {
+    const slug = sessionSlug(request);
+    if (!slug) return unauthenticated();
+    readAll(slug);
+    return new HttpResponse(null, { status: 204 });
+  }),
+  http.post("*/v1/notifications/:id/read", ({ request, params }) => {
+    const slug = sessionSlug(request);
+    if (!slug) return unauthenticated();
+    return readOne(slug, String(params.id)) ? new HttpResponse(null, { status: 204 }) : notFound();
   }),
   http.get("*/v1/documents/versions/:id/file", ({ request, params }) => {
     if (!sessionUser(request)) return unauthenticated();
