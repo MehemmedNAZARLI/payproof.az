@@ -37,6 +37,8 @@ const textPairs: [fg: string, bg: string][] = [
   ["text-2", "bg"],
   ["text-3", "surface"],
   ["text-3", "bg"],
+  ["text-2", "surface-2"],
+  ["text-3", "surface-2"],
   ["accent-ink", "accent-soft"],
   ["success-ink", "success-soft"],
   ["warning-ink", "warning-soft"],

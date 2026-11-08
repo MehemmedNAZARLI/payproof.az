@@ -10,10 +10,10 @@
   --surface-3: #e3e6ef;
   --separator: rgb(11 13 20 / 0.09);
 
-  /* Labels. text-3 is darker than a typical "tertiary" grey so footnotes keep 4.5:1 on --bg. */
+  /* Labels. text-3 is darker than a typical "tertiary" grey so footnotes keep 4.5:1 on --surface-2. */
   --text: #0b0d14;
   --text-2: #5e6375;
-  --text-3: #6b7083;
+  --text-3: #636879;
 
   /* One accent. --accent is for text and glyphs, --accent-fill for solid controls with white text,
      --accent-soft tints selected/secondary surfaces and --accent-ink is text on that tint. */
