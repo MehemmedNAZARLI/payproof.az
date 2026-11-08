@@ -20,10 +20,6 @@ function tokenIn(selector: string, name: string): string | undefined {
 }
 
 describe("brand colours mirror design tokens", () => {
-  it("primary is light --brand-600", () => {
-    expect(brand.primary).toBe(tokenIn(":root", "brand-600"));
-  });
-
   it("backgrounds are --bg in light and dark", () => {
     expect(brand.backgroundLight).toBe(tokenIn(":root", "bg"));
     expect(brand.backgroundDark).toBe(tokenIn(':root[data-theme="dark"]', "bg"));

@@ -146,6 +146,21 @@
   }
 }
 
+/* Pull-to-refresh: the large title and content follow the pull (components/ui/pull-to-refresh).
+   Only while pulling: an idle transform would trap fixed descendants and cost a layer. */
+@utility pull-shift {
+  [data-pulling] & {
+    translate: 0 var(--pull, 0px);
+  }
+}
+
+/* Clips like overflow: hidden but is not scrollable, so focus inside cannot shift the box.
+   Safari < 16 ignores clip and keeps hidden. */
+@utility overflow-clip-safe {
+  overflow: hidden;
+  overflow: clip;
+}
+
 @utility max-w-app {
   max-width: var(--app-max-w);
 }
@@ -259,6 +274,11 @@
   to {
     opacity: 0;
     transform: scale(1.6);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
   }
 }
 @keyframes rise {

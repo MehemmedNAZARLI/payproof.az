@@ -63,6 +63,15 @@ function item(x: Toast) {
         <p className="text-sm font-semibold">{x.title}</p>
         {x.description && <p className="text-text-2 text-xs">{x.description}</p>}
       </div>
+      {x.action && (
+        <button
+          type="button"
+          onClick={x.action.onPress}
+          className="text-brand-600 min-h-11 shrink-0 rounded-full px-2 text-sm font-semibold active:opacity-50"
+        >
+          {x.action.label}
+        </button>
+      )}
       <button
         type="button"
         aria-label={t.common.dismiss}

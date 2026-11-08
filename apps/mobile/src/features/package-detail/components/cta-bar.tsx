@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { env } from "@/lib/env";
 import { t } from "@/lib/i18n";
+import { useOnline } from "@/lib/online";
 
 import type { PackageCta } from "../cta";
 
@@ -19,16 +20,40 @@ export function OpenOnWeb({ id, label = t.detail.openWeb }: { id: string; label?
   );
 }
 
+// Offline the button is truly disabled and says why right above it; approval needs the server.
+function ApproveButton({ onApprove }: { onApprove?: () => void }) {
+  const online = useOnline();
+  return (
+    <>
+      {!online && (
+        <p
+          id="approve-offline"
+          className="text-warning mb-2 flex items-center justify-center gap-1.5 text-sm font-medium"
+        >
+          <Icon name="wifi-off" size={16} />
+          {t.approval.offline}
+        </p>
+      )}
+      <Button
+        size="lg"
+        block
+        icon={online ? "eye" : "lock"}
+        onClick={onApprove}
+        disabled={!online}
+        aria-describedby={online ? undefined : "approve-offline"}
+      >
+        {t.detail.cta.approve}
+      </Button>
+    </>
+  );
+}
+
 type CtaProps = { cta: PackageCta; id: string; onApprove?: () => void };
 
 function CtaContent({ cta, id, onApprove }: CtaProps) {
   switch (cta.kind) {
     case "approve":
-      return (
-        <Button size="lg" block icon="eye" onClick={onApprove}>
-          {t.detail.cta.approve}
-        </Button>
-      );
+      return <ApproveButton onApprove={onApprove} />;
     case "awaiting-approver":
       return (
         <Banner tone="brand" icon="lock" title={t.detail.cta.awaitingTitle}>

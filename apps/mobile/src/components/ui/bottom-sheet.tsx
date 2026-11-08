@@ -83,7 +83,7 @@ export function BottomSheet({
         style={{ transform: "translate3d(0, 100%, 0)" }}
         onKeyDown={trapTab}
         className={cx(
-          "bg-surface shadow-3 absolute inset-x-0 bottom-0 mx-auto flex max-h-[calc(100dvh-var(--safe-top)-var(--sp-3))] max-w-app flex-col overflow-hidden rounded-t-(--sheet-radius) outline-none will-change-transform",
+          "bg-surface shadow-3 absolute inset-x-0 bottom-0 mx-auto flex max-h-[calc(100dvh-var(--safe-top)-var(--sp-3))] max-w-app flex-col overflow-clip-safe rounded-t-(--sheet-radius) outline-none will-change-transform",
           size === "large" && "short:h-dvh short:max-h-dvh short:max-w-none short:rounded-t-xl",
         )}
       >

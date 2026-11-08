@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { AppHeader } from "@/components/ui/app-header";
@@ -7,6 +8,7 @@ import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { OfflineCard } from "@/components/ui/offline-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useApprovalFlow } from "@/features/approval/use-approval-flow";
 import { ApiError, type Schemas } from "@/lib/api";
@@ -122,6 +124,14 @@ export function PackageDetailScreen({ id }: { id: string }) {
             icon="package"
             title={t.detail.notFound}
             description={t.detail.notFoundBody}
+            action={
+              <Link
+                href="/packages"
+                className="bg-brand-50 text-brand-700 inline-flex h-11 items-center rounded-lg px-4 text-md font-semibold active:opacity-85"
+              >
+                {t.detail.toPackages}
+              </Link>
+            }
           />
         </Card>
       </Shell>
@@ -141,6 +151,12 @@ export function PackageDetailScreen({ id }: { id: string }) {
             }
           />
         </Card>
+      </Shell>
+    );
+  if (query.fetchStatus === "paused")
+    return (
+      <Shell title={t.nav.packages}>
+        <OfflineCard />
       </Shell>
     );
   return (

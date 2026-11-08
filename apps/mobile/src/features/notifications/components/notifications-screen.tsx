@@ -4,10 +4,13 @@ import { AppHeader } from "@/components/ui/app-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { OfflineCard } from "@/components/ui/offline-card";
+import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { ListSkeleton } from "@/components/ui/skeleton";
 import { haptic } from "@/lib/haptics";
 import { t } from "@/lib/i18n";
 import { errorMessage } from "@/lib/query-client";
+import { refreshAll } from "@/lib/refresh";
 
 import { groupByDay } from "../group";
 import { useMarkAllRead, useMarkRead, useNotifications } from "../queries";
@@ -21,7 +24,7 @@ export function NotificationsScreen() {
   const unread = page?.unread_count ?? 0;
 
   return (
-    <>
+    <PullToRefresh onRefresh={() => refreshAll([query])}>
       <AppHeader
         large
         title={t.notifications.title}
@@ -41,7 +44,7 @@ export function NotificationsScreen() {
           )
         }
       />
-      <main className="px-safe pb-tabbar mx-auto max-w-app pt-2">
+      <main className="px-safe pb-tabbar pull-shift mx-auto max-w-app pt-2">
         {page ? (
           page.items.length === 0 ? (
             <Card className="p-0">
@@ -85,6 +88,8 @@ export function NotificationsScreen() {
               }
             />
           </Card>
+        ) : query.fetchStatus === "paused" ? (
+          <OfflineCard />
         ) : (
           <ListSkeleton rows={5} />
         )}
@@ -92,6 +97,6 @@ export function NotificationsScreen() {
           {t.notifications.pushNote}
         </p>
       </main>
-    </>
+    </PullToRefresh>
   );
 }

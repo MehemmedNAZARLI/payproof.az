@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { act, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
 import { AppHeader } from "./app-header";
 import { collapseProgress } from "./use-scroll-collapse";
@@ -43,5 +43,18 @@ describe("AppHeader", () => {
   it("starts with a transparent bar", () => {
     render(<AppHeader large title="Əsas" />);
     expect(screen.getByRole("banner").style.getPropertyValue("--p")).toBe("0");
+  });
+
+  it("says when it is showing saved data because the device is offline", () => {
+    render(<AppHeader title="Paketlər" />);
+    const status = screen.getByRole("status");
+    expect(status).toBeEmptyDOMElement();
+    const online = vi.spyOn(navigator, "onLine", "get").mockReturnValue(false);
+    act(() => void window.dispatchEvent(new Event("offline")));
+    expect(status).toHaveTextContent("Oflayn — son yüklənən məlumat göstərilir");
+    online.mockReturnValue(true);
+    act(() => void window.dispatchEvent(new Event("online")));
+    expect(status).toBeEmptyDOMElement();
+    online.mockRestore();
   });
 });

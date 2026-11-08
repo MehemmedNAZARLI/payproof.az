@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListGroup } from "@/components/ui/list";
+import { OfflineCard } from "@/components/ui/offline-card";
 import { ListSkeleton } from "@/components/ui/skeleton";
 import { t } from "@/lib/i18n";
 import { errorMessage } from "@/lib/query-client";
@@ -11,21 +12,19 @@ import { PackageRow } from "./package-row";
 
 type PackageResultsProps = {
   list: ReturnType<typeof usePackages>;
-  /** A pull of fresh data the user asked for: show the skeleton, as the prototype does. */
-  refreshing: boolean;
+  /** Clears the search and filter (the empty result's action). */
   onClear: () => void;
 };
 
 // The list area's states: offline, loading, error, nothing found, rows.
-export function PackageResults({ list, refreshing, onClear: clear }: PackageResultsProps) {
+export function PackageResults({ list, onClear: clear }: PackageResultsProps) {
   const { data } = list;
-  // A refresh the user asked for shows the skeleton while it really fetches (not while it waits
-  // offline). Loaded rows otherwise stay: a failed background refresh is reported by a toast.
-  const reloading = refreshing && list.fetchStatus === "fetching";
+  // Loaded rows stay through refreshes (pull-to-refresh shows its own spinner); a failed
+  // background refresh is reported by a toast.
   return (
     <>
-      {!data || reloading ? (
-        data || list.fetchStatus === "fetching" ? (
+      {!data ? (
+        list.fetchStatus === "fetching" ? (
           <ListSkeleton rows={5} />
         ) : list.isError ? (
           <Card className="p-0">
@@ -41,9 +40,7 @@ export function PackageResults({ list, refreshing, onClear: clear }: PackageResu
             />
           </Card>
         ) : list.fetchStatus === "paused" ? (
-          <Card className="p-0">
-            <EmptyState icon="alert" title={t.errors.offline} description={t.errors.offlineHint} />
-          </Card>
+          <OfflineCard />
         ) : (
           <ListSkeleton rows={5} />
         )

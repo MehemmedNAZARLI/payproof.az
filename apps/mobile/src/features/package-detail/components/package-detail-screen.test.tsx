@@ -1,6 +1,6 @@
 import { QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { act, render, screen, within } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { mockToken } from "@/lib/api/mock/handlers";
 import { createQueryClient } from "@/lib/query-client";
@@ -33,6 +33,11 @@ function open(pkg: number, user = "u2") {
 }
 
 describe("PackageDetailScreen", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    // TanStack's onlineManager remembers the last event, not navigator.onLine.
+    window.dispatchEvent(new Event("online"));
+  });
   it("shows the summary, every check, the documents and the missing delivery note", async () => {
     open(1042);
     expect(await screen.findByRole("heading", { level: 1, name: "INV-1042" })).toBeVisible();
@@ -55,6 +60,18 @@ describe("PackageDetailScreen", () => {
     expect(await screen.findByRole("button", { name: "Sübutlara baxıb təsdiqlə" })).toBeVisible();
     open(1038, "u1");
     expect(await screen.findByText("Təsdiqçi gözlənilir")).toBeVisible();
+  });
+
+  it("locks approval plainly while offline", async () => {
+    open(1038);
+    await screen.findByRole("button", { name: "Sübutlara baxıb təsdiqlə" });
+    vi.spyOn(navigator, "onLine", "get").mockReturnValue(false);
+    act(() => void window.dispatchEvent(new Event("offline")));
+    const button = await screen.findByRole("button", { name: "Sübutlara baxıb təsdiqlə" });
+    expect(button).toBeDisabled();
+    expect(button).toHaveAccessibleDescription(
+      "İnternet bağlantısı yoxdur — təsdiq oflayn mümkün deyil.",
+    );
   });
 
   it("lists only open tasks, read-only", async () => {

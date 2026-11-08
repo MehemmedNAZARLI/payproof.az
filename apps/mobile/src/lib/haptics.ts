@@ -26,6 +26,9 @@ function iosTap() {
 export function haptic(kind: Kind) {
   if (typeof navigator === "undefined") return;
   if (typeof navigator.vibrate === "function") {
+    // Before the page has had a tap Chrome blocks vibrate() and logs an error (a pull can come
+    // first on a freshly opened page).
+    if (navigator.userActivation?.hasBeenActive === false) return;
     navigator.vibrate(PATTERN[kind]);
     return;
   }
