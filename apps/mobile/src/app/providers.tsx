@@ -6,6 +6,7 @@ import { type ReactNode, useEffect, useState } from "react";
 
 import { Toaster } from "@/components/ui/toaster";
 import { clearSeen } from "@/features/package-detail/seen-store";
+import { UpdatePrompt } from "@/features/pwa/update-prompt";
 import { createQueryClient } from "@/lib/query-client";
 import { clearRuntimeCaches } from "@/lib/runtime-caches";
 import { watchUserChange } from "@/lib/session";
@@ -48,6 +49,7 @@ export function Providers({ children }: { children: ReactNode }) {
     >
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
       <Toaster />
+      <UpdatePrompt />
     </SerwistProvider>
   );
 }
