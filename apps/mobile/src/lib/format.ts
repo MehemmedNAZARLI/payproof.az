@@ -12,3 +12,69 @@ export function formatMoney(amount: string, currency?: string): string {
   const text = `${sign ? MINUS : ""}${grouped},${cents}`;
   return currency ? `${text} ${currency}` : text;
 }
+
+// Dates are shown in Baku time, as the business and the fixtures keep them, on any device.
+const ZONE = "Asia/Baku";
+const MONTHS = [
+  "yanvar",
+  "fevral",
+  "mart",
+  "aprel",
+  "may",
+  "iyun",
+  "iyul",
+  "avqust",
+  "sentyabr",
+  "oktyabr",
+  "noyabr",
+  "dekabr",
+];
+// Sunday first, as Date#getDay counts.
+const WEEKDAYS = [
+  "bazar",
+  "bazar ertəsi",
+  "çərşənbə axşamı",
+  "çərşənbə",
+  "cümə axşamı",
+  "cümə",
+  "şənbə",
+];
+
+const partsFormat = new Intl.DateTimeFormat("en-GB", {
+  timeZone: ZONE,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  hourCycle: "h23",
+});
+
+function bakuParts(date: Date) {
+  const get = (type: Intl.DateTimeFormatPartTypes) =>
+    partsFormat.formatToParts(date).find((p) => p.type === type)?.value ?? "";
+  const [year, month, day] = [get("year"), get("month"), get("day")];
+  // The calendar day in Baku, read back as UTC, gives its weekday without the device's zone.
+  const weekday = new Date(`${year}-${month}-${day}T00:00:00Z`).getUTCDay();
+  return { year, month, day, hour: Number(get("hour")), minute: get("minute"), weekday };
+}
+
+/** "06.11.2026, 15:10" */
+export function formatDateTime(iso: string): string {
+  const p = bakuParts(new Date(iso));
+  return `${p.day}.${p.month}.${p.year}, ${String(p.hour).padStart(2, "0")}:${p.minute}`;
+}
+
+/** "8 noyabr 2026, bazar" */
+export function formatLongDate(date: Date): string {
+  const p = bakuParts(date);
+  return `${Number(p.day)} ${MONTHS[Number(p.month) - 1]} ${p.year}, ${WEEKDAYS[p.weekday]}`;
+}
+
+/** The greeting for the time of day in Baku. */
+export function greeting(date: Date): string {
+  const { hour } = bakuParts(date);
+  if (hour >= 5 && hour < 12) return "Sabahınız xeyir";
+  if (hour >= 12 && hour < 18) return "Günortanız xeyir";
+  return "Axşamınız xeyir";
+}

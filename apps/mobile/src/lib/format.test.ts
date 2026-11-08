@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatMoney } from "./format";
+import { formatDateTime, formatLongDate, formatMoney, greeting } from "./format";
 
 describe("formatMoney", () => {
   it("groups thousands with dots and uses a decimal comma (az-AZ, as the prototype)", () => {
@@ -24,5 +24,25 @@ describe("formatMoney", () => {
   it("rejects strings that are not contract decimals", () => {
     expect(() => formatMoney("12000", "AZN")).toThrow();
     expect(() => formatMoney("1e3", "AZN")).toThrow();
+  });
+});
+
+describe("dates (Baku time)", () => {
+  it("formats a timestamp as day.month.year, hour:minute", () => {
+    expect(formatDateTime("2026-11-06T11:10:00Z")).toBe("06.11.2026, 15:10");
+  });
+
+  it("writes today in words with the weekday", () => {
+    expect(formatLongDate(new Date("2026-11-08T06:30:00Z"))).toBe("8 noyabr 2026, bazar");
+    expect(formatLongDate(new Date("2026-11-09T20:30:00Z"))).toBe(
+      "10 noyabr 2026, çərşənbə axşamı",
+    );
+  });
+
+  it("greets by the time of day", () => {
+    expect(greeting(new Date("2026-11-08T06:30:00Z"))).toBe("Sabahınız xeyir");
+    expect(greeting(new Date("2026-11-08T10:00:00Z"))).toBe("Günortanız xeyir");
+    expect(greeting(new Date("2026-11-08T16:00:00Z"))).toBe("Axşamınız xeyir");
+    expect(greeting(new Date("2026-11-08T22:30:00Z"))).toBe("Axşamınız xeyir");
   });
 });
