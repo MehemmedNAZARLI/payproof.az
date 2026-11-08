@@ -2,19 +2,17 @@
 
 import { useState } from "react";
 
-import { PackageStatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, SectionHeader } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Icon } from "@/components/ui/icon";
 import { IconButton } from "@/components/ui/icon-button";
-import { ListGroup, ListItem } from "@/components/ui/list";
+import { ListGroup } from "@/components/ui/list";
 import { ListSkeleton } from "@/components/ui/skeleton";
+import { PackageRow } from "@/features/packages/components/package-row";
 import { usePackages } from "@/features/packages/queries";
-import type { PackageListQuery, Schemas } from "@/lib/api";
+import type { PackageListQuery } from "@/lib/api";
 import { cx } from "@/lib/cx";
-import { formatMoney } from "@/lib/format";
 import { type PackageStatus, t } from "@/lib/i18n";
 import { errorMessage } from "@/lib/query-client";
 
@@ -88,38 +86,10 @@ export function LivePackagesSection() {
       ) : (
         <ListGroup variant="cards" label={t.nav.packages}>
           {list.data.items.map((p) => (
-            <PackageRow key={p.id} item={p} />
+            <PackageRow key={p.id} item={p} href="/kit" />
           ))}
         </ListGroup>
       )}
     </>
-  );
-}
-
-function PackageRow({ item: p }: { item: Schemas["PackageListItem"] }) {
-  return (
-    <ListItem
-      href="/kit"
-      title={p.invoice_number ?? t.packageItem.processing}
-      subtitle={`${p.customer.name} · v${p.version}`}
-      trailing={
-        p.total && (
-          <span className="text-sm font-bold tabular-nums">
-            {formatMoney(p.total.amount, p.total.currency)}
-          </span>
-        )
-      }
-      meta={
-        <>
-          <PackageStatusBadge status={p.status} />
-          {p.blocking.length > 0 && (
-            <span className="text-danger inline-flex items-center gap-1 text-xs font-semibold">
-              <Icon name="alert" size={14} />
-              {t.packageItem.blocking(p.blocking.length)}
-            </span>
-          )}
-        </>
-      }
-    />
   );
 }
