@@ -3,6 +3,8 @@ import "./globals.css";
 import type { Metadata, Viewport } from "next";
 
 import { appDescription, appName, brand } from "@/lib/brand";
+import { inter, interExt } from "@/lib/fonts";
+import { cx } from "@/lib/cx";
 
 import { Providers } from "./providers";
 
@@ -27,8 +29,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="az">
-      <body className="bg-bg text-text font-sans text-md">
+    <html lang="az" className={cx(inter.variable, interExt.variable)}>
+      <body className="bg-bg text-text font-sans text-subhead">
         <Providers>{children}</Providers>
       </body>
     </html>
