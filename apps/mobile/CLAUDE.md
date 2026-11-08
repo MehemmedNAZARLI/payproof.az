@@ -13,13 +13,15 @@ src/
   app/(auth)/login · app/(tabs)/{home,packages,notifications,profile}/page.tsx · app/packages/[id]/{page,approve,success}
   features/<feature>/{components/,hooks/,queries.ts}
   components/ui/      AppHeader, TabBar, BottomSheet, ListItem, Chip, …
-  lib/{api.ts,query-client.ts,auth.ts,msw.ts,seen-docs.ts}
-public/manifest.webmanifest, icons/
-e2e/                  Playwright (iPhone 13 profili)
+  lib/{api.ts,query-client.ts,auth.ts,msw.ts,seen-docs.ts,brand.ts}
+  app/manifest.ts     → /manifest.webmanifest (rənglər lib/brand.ts-dən; brand.test.ts tokens.css ilə tutuşdurur)
+  app/sw.ts + app/serwist/[path]/route.ts → /serwist/sw.js (Serwist, Turbopack; dev-də söndürülüb)
+public/icons/         SVG mənbə + PNG-lər (`node scripts/generate-icons.mjs` ilə yenidən yarat)
+e2e/                  Playwright (iPhone 13 profili, Chromium; prod build :3101-də)
 ```
 
 ## Əmrlər
-`pnpm --filter mobile dev` (:3001) · `build` · `lint` · `typecheck` · `test` · `e2e`
+`pnpm --filter mobile dev` (:3001) · `build` · `start` · `lint` · `typecheck` · `test` (Vitest) · `e2e` (Playwright, öz build-ini qaldırır)
 Mock: `NEXT_PUBLIC_API_MOCK=1` (default). Real: `NEXT_PUBLIC_API_MOCK=0`, `NEXT_PUBLIC_API_URL=http://localhost:8000`.
 
 ## Qaydalar
