@@ -1,14 +1,14 @@
-import {
-  badgeClass,
-  checkOutcomeTone,
-  packageStatusTone,
-  taskStatusTone,
-  type Tone,
-} from "@payproof/design-tokens";
 import type { ReactNode } from "react";
 
 import { cx } from "@/lib/cx";
 import { type CheckOutcome, type PackageStatus, t, type TaskStatus } from "@/lib/i18n";
+import {
+  checkOutcomeTone,
+  packageStatusTone,
+  taskStatusTone,
+  type Tone,
+  toneClass,
+} from "@/lib/status-tone";
 
 import { Icon, type IconName } from "./icon";
 
@@ -18,8 +18,8 @@ export function Badge({ tone, icon, children, className }: BadgeProps) {
   return (
     <span
       className={cx(
-        "inline-flex h-6 items-center gap-1 rounded-full px-2 text-xs font-semibold whitespace-nowrap",
-        badgeClass[tone],
+        "inline-flex h-6 items-center gap-1 rounded-full pr-2.5 pl-2 text-caption font-semibold whitespace-nowrap",
+        toneClass[tone],
         className,
       )}
     >

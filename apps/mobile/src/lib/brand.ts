@@ -1,10 +1,10 @@
 // Places that cannot read CSS variables (viewport theme-color, web manifest) need literal colours.
-// Each value mirrors packages/design-tokens/tokens.css — brand.test.ts fails if they drift.
+// Each value mirrors src/styles/tokens.css — brand.test.ts fails if they drift.
 export const brand = {
   /** --bg (light) */
-  backgroundLight: "#f4f5f2",
+  backgroundLight: "#f5f6fa",
   /** --bg (dark) */
-  backgroundDark: "#0e1312",
+  backgroundDark: "#05060a",
 } as const;
 
 // shortcut: move to @payproof/api-client/i18n once it exists (S-05).

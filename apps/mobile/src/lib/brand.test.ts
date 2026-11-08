@@ -1,14 +1,11 @@
 import { readFileSync } from "node:fs";
-import { createRequire } from "node:module";
+import { resolve } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
 import { brand } from "./brand";
 
-const css = readFileSync(
-  createRequire(import.meta.url).resolve("@payproof/design-tokens/tokens.css"),
-  "utf8",
-);
+const css = readFileSync(resolve(process.cwd(), "src/styles/tokens.css"), "utf8");
 
 function tokenIn(selector: string, name: string): string | undefined {
   const start = css.indexOf(`${selector} {`);
@@ -22,6 +19,6 @@ function tokenIn(selector: string, name: string): string | undefined {
 describe("brand colours mirror design tokens", () => {
   it("backgrounds are --bg in light and dark", () => {
     expect(brand.backgroundLight).toBe(tokenIn(":root", "bg"));
-    expect(brand.backgroundDark).toBe(tokenIn(':root[data-theme="dark"]', "bg"));
+    expect(brand.backgroundDark).toBe(tokenIn(':root:not([data-theme="light"])', "bg"));
   });
 });

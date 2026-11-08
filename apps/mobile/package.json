@@ -14,7 +14,7 @@
     "e2e": "playwright test"
   },
   "dependencies": {
-    "@payproof/design-tokens": "workspace:^",
+    "@fontsource-variable/inter": "5.3.0",
     "@serwist/turbopack": "9.5.13",
     "@tanstack/react-query": "^5.107.1",
     "msw": "^3.0.4",

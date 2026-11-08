@@ -1,4 +1,4 @@
-import type { checkOutcomeTone, packageStatusTone, taskStatusTone } from "@payproof/design-tokens";
+import type { checkOutcomeTone, packageStatusTone, taskStatusTone } from "./status-tone";
 
 export type PackageStatus = keyof typeof packageStatusTone;
 export type CheckOutcome = keyof typeof checkOutcomeTone;

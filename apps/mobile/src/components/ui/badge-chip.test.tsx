@@ -8,13 +8,13 @@ describe("status badges", () => {
   it("label package statuses in Azerbaijani with the status tone", () => {
     render(<PackageStatusBadge status="READY_FOR_APPROVAL" />);
     const badge = screen.getByText("Təsdiq gözləyir");
-    expect(badge).toHaveClass("bg-brand-50");
+    expect(badge).toHaveClass("bg-accent-soft");
     expect(badge.querySelector("svg")).not.toBeNull();
   });
 
   it("never shows UNKNOWN as passed", () => {
     render(<CheckOutcomeBadge outcome="UNKNOWN" />);
-    expect(screen.getByText("Naməlum")).toHaveClass("bg-warning-bg");
+    expect(screen.getByText("Naməlum")).toHaveClass("bg-warning-soft");
   });
 
   it("label task statuses", () => {
