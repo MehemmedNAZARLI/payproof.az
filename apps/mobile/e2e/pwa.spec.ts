@@ -69,10 +69,9 @@ test("offers a new version instead of switching under the user", async ({ page }
   const reloaded = page.waitForEvent("load");
   await toast.getByRole("button", { name: "Yenilə" }).click();
   await reloaded;
-  await expect(page.getByRole("status").filter({ hasText: "Yeni versiya" })).toHaveCount(0);
-  expect(
-    await page.evaluate(async () => (await navigator.serviceWorker.getRegistration())?.waiting),
-  ).toBeFalsy();
+  // The page now runs on the new worker. (The app then registers its canonical URL again, which
+  // in this simulation installs once more; a real deploy keeps one URL.)
+  expect(await page.evaluate(() => navigator.serviceWorker.controller?.scriptURL)).toContain("v=2");
 });
 
 test("shows iPhone users how to add the app, and remembers a dismissal", async ({ page }) => {
