@@ -4,6 +4,7 @@ import packages from "@fixtures/packages.json";
 import tasks from "@fixtures/tasks.json";
 
 import type { Schemas } from "../client";
+import { decimal, toCents } from "./money";
 import { mockUuid, packageList, toUtc, userRef } from "./store";
 
 type Item = Schemas["PackageListItem"];
@@ -36,12 +37,6 @@ const ref = (p: Item): Schemas["PackageRef"] => ({
   invoice_number: p.invoice_number ?? "",
 });
 
-// Integer cents → contract Decimal ("-0.50" stays "-0.50", not "0.-50").
-function decimal(cents: bigint): string {
-  const abs = cents < 0n ? -cents : cents;
-  return `${cents < 0n ? "-" : ""}${abs / 100n}.${(abs % 100n).toString().padStart(2, "0")}`;
-}
-
 /** Invoice totals per currency, in integer cents — AZN and USD are never added together. */
 function perCurrency(items: Item[]): Schemas["CurrencyTotal"][] {
   const sums = new Map<string, { cents: bigint; count: number }>();
@@ -49,7 +44,7 @@ function perCurrency(items: Item[]): Schemas["CurrencyTotal"][] {
     if (!total) continue;
     const s = sums.get(total.currency) ?? { cents: 0n, count: 0 };
     sums.set(total.currency, {
-      cents: s.cents + BigInt(total.amount.replace(".", "")),
+      cents: s.cents + toCents(total.amount),
       count: s.count + 1,
     });
   }
