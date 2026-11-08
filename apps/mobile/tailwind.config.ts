@@ -47,8 +47,12 @@ const config = {
       warning: tone("warning"),
       danger: { ...tone("danger"), fill: v("danger-fill"), foreground: v("on-danger") },
       neutral: { ink: v("neutral-ink"), soft: v("neutral-soft") },
-      avatar: Object.fromEntries(
-        [1, 2, 3, 4, 5].map((n) => [n, { DEFAULT: v(`av-${n}`), text: v(`av-${n}t`) }]),
+      // Flat keys: a nested numeric key ("avatar.1") is dropped by Tailwind's JS-config bridge.
+      ...Object.fromEntries(
+        [1, 2, 3, 4, 5].flatMap((n) => [
+          [`av-${n}`, v(`av-${n}`)],
+          [`av-${n}-text`, v(`av-${n}t`)],
+        ]),
       ),
       hero: { text2: v("hero-text-2"), fill: v("hero-fill") },
       paper: {

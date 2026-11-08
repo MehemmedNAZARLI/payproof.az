@@ -4,11 +4,11 @@ import { Icon } from "./icon";
 
 // The prototype's five avatar tones; literal classes so Tailwind keeps them.
 const tones = [
-  "bg-avatar-1 text-avatar-1-text",
-  "bg-avatar-2 text-avatar-2-text",
-  "bg-avatar-3 text-avatar-3-text",
-  "bg-avatar-4 text-avatar-4-text",
-  "bg-avatar-5 text-avatar-5-text",
+  "bg-av-1 text-av-1-text",
+  "bg-av-2 text-av-2-text",
+  "bg-av-3 text-av-3-text",
+  "bg-av-4 text-av-4-text",
+  "bg-av-5 text-av-5-text",
 ] as const;
 
 const sizes = { sm: "size-8 text-caption", md: "size-11 text-[15px]", lg: "size-16 text-[22px]" };
