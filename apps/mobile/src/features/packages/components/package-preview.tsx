@@ -3,12 +3,14 @@
 import { AppHeader } from "@/components/ui/app-header";
 import { PackageStatusBadge } from "@/components/ui/badge";
 import { Banner } from "@/components/ui/banner";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { env } from "@/lib/env";
 import { formatMoney } from "@/lib/format";
 import { t } from "@/lib/i18n";
+import { errorMessage } from "@/lib/query-client";
 
 import { usePackages } from "../queries";
 
@@ -18,7 +20,27 @@ export function PackagePreview({ id }: { id: string }) {
   const p = list.data?.items.find((item) => item.id === id);
   const back = { href: "/packages", label: t.nav.packages };
 
-  if (list.isPending)
+  if (!list.data && list.isError)
+    return (
+      <>
+        <AppHeader title={t.nav.packages} back={back} />
+        <main className="px-safe mx-auto max-w-app pt-2">
+          <Card className="p-0">
+            <EmptyState
+              icon="alert"
+              title={t.errors.loadFailed}
+              description={errorMessage(list.error)}
+              action={
+                <Button variant="secondary" onClick={() => void list.refetch()}>
+                  {t.common.retry}
+                </Button>
+              }
+            />
+          </Card>
+        </main>
+      </>
+    );
+  if (!list.data)
     return (
       <>
         <AppHeader title={t.common.loading} back={back} />

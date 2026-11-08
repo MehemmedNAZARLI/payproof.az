@@ -91,6 +91,11 @@ export const t = {
     expired: "Sessiya bitib. Yenidən daxil olun.",
   },
   home: {
+    greeting: {
+      morning: "Sabahınız xeyir",
+      afternoon: "Günortanız xeyir",
+      evening: "Axşamınız xeyir",
+    },
     awaitingYou: "Təsdiqinizi gözləyir",
     awaitingApprover: "Təsdiqçini gözləyir",
     packages: (n: number) => `${n} paket`,

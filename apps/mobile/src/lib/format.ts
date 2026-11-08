@@ -1,3 +1,5 @@
+import { t } from "./i18n";
+
 // shortcut: until @payproof/api-client/format (S-05) exists; same signature, then re-export.
 
 // The contract's Decimal: a string with exactly two fraction digits, never a float.
@@ -74,7 +76,7 @@ export function formatLongDate(date: Date): string {
 /** The greeting for the time of day in Baku. */
 export function greeting(date: Date): string {
   const { hour } = bakuParts(date);
-  if (hour >= 5 && hour < 12) return "Sabahınız xeyir";
-  if (hour >= 12 && hour < 18) return "Günortanız xeyir";
-  return "Axşamınız xeyir";
+  if (hour >= 5 && hour < 12) return t.home.greeting.morning;
+  if (hour >= 12 && hour < 18) return t.home.greeting.afternoon;
+  return t.home.greeting.evening;
 }
