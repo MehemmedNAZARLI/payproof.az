@@ -93,6 +93,8 @@ type EvidenceSheetProps = {
   approval?: ApprovalFlow;
 };
 
+const noop = () => {};
+
 // One sheet for the evidence trail: a check → the document it cites (highlighted) → back.
 export function EvidenceSheet({ pkg, stack, onViewed, approval }: EvidenceSheetProps) {
   const route: SheetRoute | null = stack.shown;
@@ -129,7 +131,8 @@ export function EvidenceSheet({ pkg, stack, onViewed, approval }: EvidenceSheetP
       open={
         stack.top !== null && (check !== undefined || doc !== undefined || reviewing !== undefined)
       }
-      onClose={stack.close}
+      // An approval on its way keeps the sheet up (swipe springs back), so its answer is seen.
+      onClose={reviewing?.pending ? noop : stack.close}
       page={pageKey}
       direction={stack.direction}
       size={doc ? "large" : "auto"}
