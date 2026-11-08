@@ -108,7 +108,7 @@ type ScanProps = {
 export function ScanImage({ url, width, evidence, onLoad, onError, title }: ScanProps) {
   const bbox = evidence?.bbox;
   return (
-    <div className="relative mx-auto" style={{ width }}>
+    <div data-zoom-page className="relative mx-auto" style={{ width }}>
       {/* eslint-disable-next-line @next/next/no-img-element -- a signed, short-lived URL: nothing for the image optimiser to cache */}
       <img
         src={url}

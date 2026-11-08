@@ -30,7 +30,8 @@ type PdfPagesProps = {
   onError: () => void;
 };
 
-// A PDF from a signed link, every page fitted to `width`. Evidence with a bbox is outlined on
+// shortcut: every page renders at once (no virtualisation); fine for 1–3 page invoices, revisit
+// with M-12 if long PDFs arrive. A PDF from a signed link, every page fitted to `width`. Evidence with a bbox is outlined on
 // its page; without one the viewer shows page and quote instead (never a guessed region).
 export default function PdfPages({ url, width, evidence, onLoad, onError }: PdfPagesProps) {
   const [pages, setPages] = useState(0);
@@ -50,6 +51,7 @@ export default function PdfPages({ url, width, evidence, onLoad, onError }: PdfP
       {Array.from({ length: pages }, (_, i) => (
         <div
           key={i}
+          data-zoom-page
           role="img"
           aria-label={`${t.evidence.page(i + 1)} / ${pages}`}
           className="relative overflow-hidden rounded-[4px] bg-white shadow-[0_2px_10px_rgb(0_0_0/0.12)]"

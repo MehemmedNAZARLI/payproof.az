@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { MAX_SCALE, nextStep, pinchScale, toggleScale, zoomScroll } from "./zoom";
+import { MAX_SCALE, nextStep, pinchScale, toggleScale, zoomScrollDelta } from "./zoom";
 
 describe("zoom steps", () => {
   it("steps through fixed levels and stops at the ends", () => {
@@ -30,16 +30,20 @@ describe("zoom steps", () => {
   });
 });
 
-describe("zoomScroll", () => {
-  it("keeps the focus point in place", () => {
-    // A point 100px into the pane at scroll 0 lands at 100 * 2 = 200 of the content after 2×.
-    expect(zoomScroll({ left: 0, top: 0 }, { x: 112, y: 112 }, 2, 12)).toEqual({
-      left: 100,
-      top: 100,
+describe("zoomScrollDelta", () => {
+  it("keeps the point under the fingers in place on a page at the pane's edge", () => {
+    // Page at (12, 12); a point 100px into it doubles to 200px, so scroll on by 100.
+    expect(zoomScrollDelta({ x: 12, y: 12 }, { x: 12, y: 12 }, { x: 112, y: 112 }, 2)).toEqual({
+      x: 100,
+      y: 100,
     });
-    expect(zoomScroll({ left: 50, top: 0 }, { x: 12, y: 12 }, 0.5, 12)).toEqual({
-      left: 25,
-      top: 0,
-    });
+  });
+
+  it("accounts for a centred page that moves as it grows", () => {
+    // A 640px page centred in an 824px pane starts at 92; at 2× it is wider than the pane
+    // and starts at the padding (12). The tapped point 108px into the page must stay at x=200.
+    expect(zoomScrollDelta({ x: 92, y: 12 }, { x: 12, y: 12 }, { x: 200, y: 50 }, 2).x).toBe(
+      12 + 216 - 200,
+    );
   });
 });

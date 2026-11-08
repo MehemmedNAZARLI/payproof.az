@@ -25,15 +25,12 @@ export const toggleScale = (scale: number) => (scale > 1.01 ? 1 : 2.5);
 type Point = { x: number; y: number };
 
 /**
- * Scroll offsets that keep `focus` (pane coordinates) over the same content point after the
- * content grows by `ratio`. `pad` is the unscaled padding around the content.
+ * How far to scroll so the point under `focus` stays put when the page it lies on grows by
+ * `ratio`. `before`/`after` are that page's top-left corner in pane coordinates before and
+ * after the new size is laid out — measured, so centred pages and unscaled gaps between pages
+ * are accounted for.
  */
-export function zoomScroll(
-  scroll: { left: number; top: number },
-  focus: Point,
-  ratio: number,
-  pad = 12,
-) {
-  const keep = (offset: number, at: number) => Math.max(0, (offset + at - pad) * ratio + pad - at);
-  return { left: keep(scroll.left, focus.x), top: keep(scroll.top, focus.y) };
+export function zoomScrollDelta(before: Point, after: Point, focus: Point, ratio: number): Point {
+  const keep = (b: number, a: number, f: number) => a + (f - b) * ratio - f;
+  return { x: keep(before.x, after.x, focus.x), y: keep(before.y, after.y, focus.y) };
 }

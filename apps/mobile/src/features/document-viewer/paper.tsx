@@ -51,6 +51,7 @@ export function Paper({ page, highlight, ariaLabel }: PaperProps) {
   const sig = page.signatures;
   return (
     <article
+      data-zoom-page
       aria-label={ariaLabel}
       style={{ width: PAPER_WIDTH }}
       className={cx(

@@ -6,7 +6,7 @@ import { Icon } from "@/components/ui/icon";
 import { t } from "@/lib/i18n";
 
 import { useZoomGestures } from "./use-zoom-gestures";
-import { nextStep, toggleScale, zoomScroll } from "./zoom";
+import { MAX_SCALE, nextStep, toggleScale, zoomScrollDelta } from "./zoom";
 
 type Layout = { width: number; scale: number };
 type ZoomPaneProps = {
@@ -17,6 +17,19 @@ type ZoomPaneProps = {
 };
 type Focus = { x: number; y: number };
 
+/** A page's top-left corner in pane coordinates. */
+function corner(pane: Element, page: Element): Focus {
+  const p = pane.getBoundingClientRect();
+  const r = page.getBoundingClientRect();
+  return { x: r.left - p.left, y: r.top - p.top };
+}
+
+/** The page (`data-zoom-page`) under a point in the pane, else the nearest one above it. */
+function pageAt(pane: Element, at: Focus): Element | undefined {
+  const pages = [...pane.querySelectorAll("[data-zoom-page]")];
+  return pages.filter((page) => corner(pane, page).y <= at.y).at(-1) ?? pages[0];
+}
+
 // A scrollable reading surface that fits pages to its width and zooms like Photos: pinch and
 // double-tap keep the point under the fingers in place; the buttons zoom around the centre.
 // While pinching, the content is only transformed; the new size is laid out once on release.
@@ -26,7 +39,9 @@ export function ZoomPane({ label, children, initialScale }: ZoomPaneProps) {
   const [width, setWidth] = useState(0);
   const [scale, setScale] = useState(1);
   const scaleRef = useRef(1);
-  const pending = useRef<{ focus: Focus; ratio: number } | null>(null);
+  const pending = useRef<{ focus: Focus; ratio: number; page: Element; before: Focus } | null>(
+    null,
+  );
   // The starting zoom is chosen once, when the pane first appears.
   const initial = useRef(initialScale);
 
@@ -49,7 +64,14 @@ export function ZoomPane({ label, children, initialScale }: ZoomPaneProps) {
     const pane = paneRef.current;
     if (!pane || next === scaleRef.current) return;
     const at = focus ?? { x: pane.clientWidth / 2, y: pane.clientHeight / 2 };
-    pending.current = { focus: at, ratio: next / scaleRef.current };
+    const page = pageAt(pane, at);
+    if (page)
+      pending.current = {
+        focus: at,
+        ratio: next / scaleRef.current,
+        page,
+        before: corner(pane, page),
+      };
     scaleRef.current = next;
     setScale(next);
   }, []);
@@ -60,8 +82,9 @@ export function ZoomPane({ label, children, initialScale }: ZoomPaneProps) {
     const p = pending.current;
     if (!pane || !p) return;
     pending.current = null;
-    const scroll = zoomScroll({ left: pane.scrollLeft, top: pane.scrollTop }, p.focus, p.ratio);
-    pane.scrollTo(scroll);
+    if (!p.page.isConnected) return;
+    const delta = zoomScrollDelta(p.before, corner(pane, p.page), p.focus, p.ratio);
+    pane.scrollBy({ left: delta.x, top: delta.y });
   }, [scale]);
 
   useZoomGestures(paneRef, contentRef, scaleRef, zoomTo);
@@ -87,15 +110,17 @@ export function ZoomPane({ label, children, initialScale }: ZoomPaneProps) {
         <button
           type="button"
           aria-label={t.viewer.zoomOut}
-          disabled={scale <= 1}
+          // aria-disabled, not disabled: a focused button that becomes disabled drops focus.
+          aria-disabled={scale <= 1}
           onClick={() => zoomTo(nextStep(scale, -1))}
-          className="grid size-11 place-items-center rounded-full disabled:opacity-30 active:opacity-50"
+          className="grid size-11 place-items-center rounded-full active:opacity-50 aria-disabled:opacity-30"
         >
           <Icon name="minus" size={20} strokeWidth={2.2} />
         </button>
         <button
           type="button"
-          aria-label={t.viewer.fit}
+          // The visible percentage leads the name (label in name), then what a tap does.
+          aria-label={`${Math.round(scale * 100)}% · ${t.viewer.fit}`}
           onClick={() => zoomTo(1)}
           className="h-11 min-w-12 text-sm font-semibold tabular-nums active:opacity-50"
         >
@@ -104,9 +129,9 @@ export function ZoomPane({ label, children, initialScale }: ZoomPaneProps) {
         <button
           type="button"
           aria-label={t.viewer.zoomIn}
-          disabled={scale >= 4}
+          aria-disabled={scale >= MAX_SCALE}
           onClick={() => zoomTo(nextStep(scale, 1))}
-          className="grid size-11 place-items-center rounded-full disabled:opacity-30 active:opacity-50"
+          className="grid size-11 place-items-center rounded-full active:opacity-50 aria-disabled:opacity-30"
         >
           <Icon name="plus" size={20} strokeWidth={2.2} />
         </button>
