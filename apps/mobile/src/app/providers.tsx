@@ -5,6 +5,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { type ReactNode, useEffect, useState } from "react";
 
 import { Toaster } from "@/components/ui/toaster";
+import { clearSeen } from "@/features/package-detail/seen-store";
 import { createQueryClient } from "@/lib/query-client";
 import { clearRuntimeCaches } from "@/lib/runtime-caches";
 import { watchUserChange } from "@/lib/session";
@@ -31,6 +32,7 @@ export function Providers({ children }: { children: ReactNode }) {
     () =>
       watchUserChange(() => {
         queryClient.clear();
+        clearSeen();
         void clearRuntimeCaches();
       }),
     [queryClient],
