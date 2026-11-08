@@ -31,7 +31,9 @@ export function InstallCard() {
           <img src="/icons/icon-192.png" alt="" className="size-11 shrink-0 rounded-[10px]" />
           <div className="min-w-0">
             <h2 className="text-subhead font-semibold">{t.install.title}</h2>
-            <p className="text-text-2 mt-0.5 text-footnote leading-snug text-pretty">{t.install.body}</p>
+            <p className="text-text-2 mt-0.5 text-footnote leading-snug text-pretty">
+              {t.install.body}
+            </p>
           </div>
         </div>
         <Button

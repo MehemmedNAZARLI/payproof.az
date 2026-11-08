@@ -15,7 +15,7 @@ export function Chip({ pressed, count, children, className, ...rest }: ChipProps
       aria-pressed={pressed}
       className={cx(
         "relative inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-footnote font-semibold",
-        "transition-[background-color,color,transform] duration-base ease-base active:scale-[0.96]",
+        "press",
         "before:absolute before:inset-x-0 before:-inset-y-1 before:content-['']",
         pressed ? "bg-text text-bg" : "bg-surface text-text-2 shadow-1",
         className,

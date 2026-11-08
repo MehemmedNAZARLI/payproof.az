@@ -10,7 +10,9 @@ const css = readFileSync(resolve(process.cwd(), "src/styles/tokens.css"), "utf8"
 function block(selector: string): Record<string, string> {
   const start = css.indexOf(`${selector} {`);
   const body = css.slice(start, css.indexOf("}", start));
-  return Object.fromEntries([...body.matchAll(/--([\w-]+):\s*(#[0-9a-f]{6});/gi)].map((m) => [m[1], m[2]]));
+  return Object.fromEntries(
+    [...body.matchAll(/--([\w-]+):\s*(#[0-9a-f]{6});/gi)].map((m) => [m[1], m[2]]),
+  );
 }
 
 const light = block(":root");

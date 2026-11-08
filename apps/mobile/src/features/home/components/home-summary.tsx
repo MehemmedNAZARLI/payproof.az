@@ -36,9 +36,7 @@ export function ApprovalHero({
         <span className="text-[56px] leading-none font-bold tracking-[-1.6px] tabular-nums">
           {count}
         </span>
-        <span className="text-hero-text2 text-body font-medium">
-          {t.home.packageUnit}
-        </span>
+        <span className="text-hero-text2 text-body font-medium">{t.home.packageUnit}</span>
       </span>
       {dashboard.ready_amounts.length > 0 && (
         <span className="mt-5 flex flex-wrap gap-2">
@@ -92,9 +90,7 @@ export function StatusTiles({ counts }: { counts: Dashboard["status_counts"] }) 
               <Icon name={icon} size={18} strokeWidth={2} />
             </span>
             <span className="mt-3 block">
-              <span className="block text-title1 tabular-nums">
-                {counts[status]}
-              </span>
+              <span className="block text-title1 tabular-nums">{counts[status]}</span>
               <span className="text-text-2 mt-0.5 block text-footnote">
                 {t.package.status[status]}
               </span>

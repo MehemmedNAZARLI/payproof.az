@@ -36,17 +36,13 @@ type BannerProps = {
 // Meaning is carried by icon + title text, never by colour alone.
 export function Banner({ tone, title, children, icon, action, className }: BannerProps) {
   return (
-    <div
-      className={cx(
-        "flex items-start gap-3 rounded-lg p-4",
-        toneClass[tone],
-        className,
-      )}
-    >
+    <div className={cx("flex items-start gap-3 rounded-lg p-4", toneClass[tone], className)}>
       <Icon name={icon ?? toneIcon[tone]} size={22} className="mt-px shrink-0 text-[var(--tone)]" />
       <div className="min-w-0 grow">
         <h3 className="text-subhead font-semibold text-text">{title}</h3>
-        {children && <div className="text-text-2 mt-0.5 text-footnote leading-snug">{children}</div>}
+        {children && (
+          <div className="text-text-2 mt-0.5 text-footnote leading-snug">{children}</div>
+        )}
       </div>
       {action && <div className="shrink-0 self-center">{action}</div>}
     </div>

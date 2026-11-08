@@ -71,12 +71,7 @@ function Approved({
     <>
       <div className="pt-6 pb-2 text-center">
         <SuccessMark />
-        <h2
-          ref={heading}
-          tabIndex={-1}
-          className="mt-6 text-title1 outline-none"
-          style={rise(1)}
-        >
+        <h2 ref={heading} tabIndex={-1} className="mt-6 text-title1 outline-none" style={rise(1)}>
           {t.success.heading}
         </h2>
         <p className="text-text-2 mx-auto mt-2 max-w-80 text-subhead text-pretty" style={rise(2)}>

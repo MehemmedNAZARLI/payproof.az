@@ -96,7 +96,9 @@ function RowContent(props: ListItemProps) {
       {leading && <span className="text-text-2 flex size-8 shrink-0 items-center">{leading}</span>}
       <span className="min-w-0 grow">
         <span className={cx("block text-callout font-semibold", fit)}>{title}</span>
-        {subtitle && <span className={cx("text-text-3 mt-0.5 block text-footnote", fit)}>{subtitle}</span>}
+        {subtitle && (
+          <span className={cx("text-text-3 mt-0.5 block text-footnote", fit)}>{subtitle}</span>
+        )}
         {meta && <span className="mt-1.5 flex flex-wrap items-center gap-1.5">{meta}</span>}
       </span>
       {trailing && <span className="shrink-0 text-right">{trailing}</span>}

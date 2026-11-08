@@ -3,10 +3,17 @@ import type { Config } from "tailwindcss";
 // Mobile-only theme: every value is a variable from src/styles/tokens.css, so light/dark need no
 // `dark:` variants. Tailwind v4 loads this through `@config` in globals.css.
 const v = (name: string) => `var(--${name})`;
-const tone = (name: string) => ({ DEFAULT: v(name), ink: v(`${name}-ink`), soft: v(`${name}-soft`) });
+const tone = (name: string) => ({
+  DEFAULT: v(name),
+  ink: v(`${name}-ink`),
+  soft: v(`${name}-soft`),
+});
 
 // iOS text styles, retuned for Inter (wider than SF, so display sizes track tighter).
-type Style = [size: string, opts: { lineHeight: string; letterSpacing: string; fontWeight?: string }];
+type Style = [
+  size: string,
+  opts: { lineHeight: string; letterSpacing: string; fontWeight?: string },
+];
 const style = (size: number, line: number, tracking: number, weight?: number): Style => [
   `${size}px`,
   {
@@ -57,7 +64,13 @@ const config = {
       overlay: v("overlay"),
     },
     fontFamily: {
-      sans: ["var(--font-inter)", "var(--font-inter-ext)", "-apple-system", "system-ui", "sans-serif"],
+      sans: [
+        "var(--font-inter)",
+        "var(--font-inter-ext)",
+        "-apple-system",
+        "system-ui",
+        "sans-serif",
+      ],
       mono: ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
     },
     fontSize: {

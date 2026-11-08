@@ -12,10 +12,7 @@ export function ListSkeleton({ rows = 4 }: { rows?: number }) {
     <div role="status" aria-busy="true" className="bg-surface overflow-hidden rounded-lg shadow-1">
       <span className="sr-only">{t.common.loading}</span>
       {Array.from({ length: rows }, (_, i) => (
-        <div
-          key={i}
-          className="not-first:hairline-t flex min-h-14 flex-col gap-2 px-4 py-3.5"
-        >
+        <div key={i} className="not-first:hairline-t flex min-h-14 flex-col gap-2 px-4 py-3.5">
           <Skeleton className="h-4 w-2/5" />
           <Skeleton className="h-3 w-3/5" />
           <Skeleton className="h-5 w-1/3 rounded-full" />

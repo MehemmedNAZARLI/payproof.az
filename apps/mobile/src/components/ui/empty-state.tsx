@@ -11,7 +11,9 @@ export function EmptyState({ icon = "info", title, description, action }: EmptyS
         <Icon name={icon} size={30} strokeWidth={1.6} />
       </span>
       <h3 className="text-headline">{title}</h3>
-      {description && <p className="text-text-2 max-w-72 text-footnote leading-snug">{description}</p>}
+      {description && (
+        <p className="text-text-2 max-w-72 text-footnote leading-snug">{description}</p>
+      )}
       {action && <div className="mt-3">{action}</div>}
     </div>
   );
