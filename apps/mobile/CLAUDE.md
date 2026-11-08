@@ -13,13 +13,15 @@ src/
   app/(auth)/login · app/(tabs)/{home,packages,notifications,profile}/page.tsx · app/packages/[id]/{page,approve,success}
   features/<feature>/{components/,hooks/,queries.ts}
   components/ui/      AppHeader, TabBar, BottomSheet, ListItem, Chip, …
-  lib/{api.ts,query-client.ts,auth.ts,msw.ts,seen-docs.ts}
-public/manifest.webmanifest, icons/
-e2e/                  Playwright (iPhone 13 profili)
+  lib/{api.ts,query-client.ts,auth.ts,msw.ts,seen-docs.ts,brand.ts}
+  app/manifest.ts     → /manifest.webmanifest (rənglər lib/brand.ts-dən; brand.test.ts tokens.css ilə tutuşdurur)
+  app/sw.ts + app/serwist/[path]/route.ts → /serwist/sw.js (Serwist, Turbopack; dev-də söndürülüb)
+assets/icons/         ikon SVG mənbələri (public/-dan kənar — precache olunmasın); `node scripts/generate-icons.mjs` → public/icons/*.png, app/icon.svg, app/apple-icon.png
+e2e/                  Playwright (iPhone 13 profili, Chromium; prod build :3101-də)
 ```
 
 ## Əmrlər
-`pnpm --filter mobile dev` (:3001) · `build` · `lint` · `typecheck` · `test` · `e2e`
+`pnpm --filter mobile dev` (:3001) · `build` · `start` (:3002 — dev ilə eyni origin olmasın, SW qarışmasın) · `lint` · `typecheck` · `test` (Vitest) · `e2e` (Playwright, öz build-ini qaldırır)
 Mock: `NEXT_PUBLIC_API_MOCK=1` (default). Real: `NEXT_PUBLIC_API_MOCK=0`, `NEXT_PUBLIC_API_URL=http://localhost:8000`.
 
 ## Qaydalar
@@ -29,4 +31,6 @@ Mock: `NEXT_PUBLIC_API_MOCK=1` (default). Real: `NEXT_PUBLIC_API_MOCK=0`, `NEXT_
 - Offline: keşdən yalnız oxuma; təsdiq offline mümkün deyil — aydın mesaj.
 - API, i18n, format, tokenlər — `@payproof/*` paketlərindən (veblə eyni). Paylaşılan paketdə dəyişiklik lazımdırsa — lead ilə razılaşdır (`/contract-change` və ya ayrıca `fix/` branch).
 - Hər ekran: skeleton, boş vəziyyət, xəta; light/dark; VoiceOver üçün label-lar.
+- Service worker (`src/lib/sw-policy.ts`): `/v1/` və bütün cross-origin sorğular **NetworkOnly** — istifadəçi məlumatı Cache Storage-a düşmür. Oflayn keş siyasəti M-11-dədir.
+- Brauzerin tap highlight-ı və pull-to-refresh söndürülüb: komponentlər öz `:active`/pressed vəziyyətini verir, yeniləmə öz düyməsi/jesti ilədir.
 - UI step-i bitəndə 390×844 viewport-da (və 360, 430) brauzerdə yoxla.

@@ -1,0 +1,43 @@
+{
+  "name": "mobile",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start -p 3002",
+    "lint": "eslint .",
+    "typecheck": "next typegen && tsc --noEmit && tsc --noEmit -p tsconfig.sw.json",
+    "test": "vitest run",
+    "e2e": "playwright test"
+  },
+  "dependencies": {
+    "@payproof/design-tokens": "workspace:^",
+    "@serwist/turbopack": "9.5.13",
+    "next": "16.4.5",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@tailwindcss/postcss": "^4",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^6.2.1",
+    "esbuild": "^0.28.2",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "16.4.5",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-simple-import-sort": "^14.0.0",
+    "jsdom": "^31.0.0",
+    "serwist": "9.5.13",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "vitest": "^5"
+  }
+}
