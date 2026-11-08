@@ -1,6 +1,7 @@
 import { http, HttpResponse } from "msw";
 
 import type { Schemas } from "../client";
+import { auditLog } from "./audit";
 import { dashboard } from "./dashboard";
 import { listPackages, QueryError } from "./list-packages";
 import { devUsers, meFor, packageList, userSlug } from "./store";
@@ -66,6 +67,25 @@ export const handlers = [
   http.get("*/v1/dashboard", ({ request }) =>
     sessionUser(request) ? HttpResponse.json(dashboard()) : unauthenticated(),
   ),
+  http.get("*/v1/audit", ({ request }) => {
+    if (!sessionUser(request)) return unauthenticated();
+    const params = new URL(request.url).searchParams;
+    // shortcut: search, actor, period, CSV and paging arrive with S-06; refused loudly until then.
+    const unsupported = ["q", "actor_id", "from", "to", "format", "cursor"].find((n) =>
+      params.has(n),
+    );
+    const limit = Number(params.get("limit") ?? 50);
+    if (unsupported || !Number.isInteger(limit) || limit < 1 || limit > 200)
+      return apiError(422, "VALIDATION_ERROR", "Sorğu parametri yanlışdır.", {
+        param: unsupported ?? "limit",
+      });
+    const packageId = params.get("package_id");
+    const items = auditLog.filter((e) => !packageId || e.package?.id === packageId);
+    return HttpResponse.json({
+      items: items.slice(0, limit),
+      next_cursor: null,
+    } satisfies Schemas["AuditPage"]);
+  }),
   http.get("*/v1/packages", ({ request }) => {
     if (!sessionUser(request)) return unauthenticated();
     try {
