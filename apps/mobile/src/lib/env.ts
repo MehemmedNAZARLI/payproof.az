@@ -3,4 +3,6 @@ export const env = {
   /** Mock API answered in the page (default until M-12). `NEXT_PUBLIC_API_MOCK=0` → real API. */
   apiMock: process.env.NEXT_PUBLIC_API_MOCK !== "0",
   apiUrl: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000",
+  /** The web app, for work that is not done on mobile ("Vebdə aç"). */
+  webUrl: process.env.NEXT_PUBLIC_WEB_URL ?? "http://localhost:3000",
 };

@@ -5,7 +5,7 @@ import { cx } from "@/lib/cx";
 import { Icon, type IconName } from "./icon";
 
 type ButtonProps = ComponentPropsWithoutRef<"button"> & {
-  variant?: "primary" | "secondary" | "plain";
+  variant?: "primary" | "secondary" | "plain" | "destructive";
   size?: "md" | "lg";
   block?: boolean;
   icon?: IconName;
@@ -15,6 +15,7 @@ const variants = {
   primary: "bg-brand-600 text-brand-foreground shadow-1",
   secondary: "bg-brand-50 text-brand-700",
   plain: "text-brand-600",
+  destructive: "bg-danger text-danger-foreground shadow-1",
 };
 
 export function Button({
