@@ -7,6 +7,7 @@ import { t } from "@/lib/i18n";
 
 import { Icon } from "./icon";
 import { trapKeys, useModalFocus } from "./use-modal-focus";
+import { useSheetDrag } from "./use-sheet-drag";
 import { useSheetMotion } from "./use-sheet-motion";
 
 type BottomSheetProps = {
@@ -34,7 +35,9 @@ export function BottomSheet({
   children,
   footer,
 }: BottomSheetProps) {
-  const { present, sheetRef, backdropRef } = useSheetMotion(open);
+  const motion = useSheetMotion(open);
+  const dragHandlers = useSheetDrag(motion, onClose);
+  const { present, sheetRef, backdropRef } = motion;
   useModalFocus(sheetRef, present);
   const titleId = useId();
   const descId = useId();
@@ -58,7 +61,7 @@ export function BottomSheet({
         onKeyDown={(e) => trapKeys(e, onClose)}
         className="bg-surface shadow-3 absolute inset-x-0 bottom-0 mx-auto flex max-h-[calc(100dvh-var(--safe-top)-var(--sp-3))] max-w-app translate-y-full flex-col rounded-t-(--sheet-radius) outline-none will-change-transform"
       >
-        <div data-sheet-handle className="flex-none touch-none">
+        <div data-sheet-handle className="flex-none touch-none" {...dragHandlers}>
           <div
             aria-hidden="true"
             className="bg-border-strong mx-auto mt-2 mb-1 h-1.25 w-9 rounded-full"

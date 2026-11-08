@@ -6,6 +6,8 @@ import { animateSpring, prefersReducedMotion } from "@/lib/spring";
 
 // Keeps the sheet mounted through its exit animation and springs it between
 // off-screen (its own height) and 0. Offsets are written to the DOM, not React state.
+export type SheetMotion = ReturnType<typeof useSheetMotion>;
+
 export function useSheetMotion(open: boolean) {
   const [present, setPresent] = useState(open);
   if (open && !present) setPresent(true);
@@ -63,5 +65,11 @@ export function useSheetMotion(open: boolean) {
     return () => cancel.current();
   }, [open, present, apply, animateTo]);
 
-  return { present, sheetRef, backdropRef, offset, velocity, apply, animateTo };
+  const stop = useCallback(() => cancel.current(), []);
+  // A drag hands its release velocity to whichever spring runs next (back to 0, or out).
+  const carryVelocity = useCallback((v: number) => {
+    velocity.current = v;
+  }, []);
+
+  return { present, sheetRef, backdropRef, offset, apply, animateTo, stop, carryVelocity };
 }

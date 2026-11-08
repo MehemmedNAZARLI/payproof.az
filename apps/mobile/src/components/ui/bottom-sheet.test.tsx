@@ -86,3 +86,41 @@ describe("BottomSheet", () => {
     expect(last).toHaveFocus();
   });
 });
+
+describe("BottomSheet swipe-down", () => {
+  const swipe = (handle: Element, dy: number) => {
+    fireEvent.pointerDown(handle, { pointerId: 1, isPrimary: true, button: 0, clientY: 100 });
+    fireEvent.pointerMove(handle, { pointerId: 1, isPrimary: true, clientY: 100 + dy / 2 });
+    fireEvent.pointerMove(handle, { pointerId: 1, isPrimary: true, clientY: 100 + dy });
+    fireEvent.pointerUp(handle, { pointerId: 1, isPrimary: true, clientY: 100 + dy });
+  };
+  const handleOf = (dialog: HTMLElement) => dialog.querySelector("[data-sheet-handle]") as Element;
+
+  it("dismisses when dragged down", async () => {
+    const { dialog } = openSheet();
+    swipe(handleOf(dialog), 300);
+    await closed();
+  });
+
+  it("stretches a little when pulled upwards, then springs back", async () => {
+    const { dialog } = openSheet();
+    const handle = handleOf(dialog);
+    fireEvent.pointerDown(handle, { pointerId: 1, isPrimary: true, button: 0, clientY: 300 });
+    fireEvent.pointerMove(handle, { pointerId: 1, isPrimary: true, clientY: 100 });
+    const stretched = Number(/, (-?[\d.]+)px/.exec(dialog.style.transform)?.[1]);
+    expect(stretched).toBeLessThan(0);
+    expect(stretched).toBeGreaterThan(-64);
+    fireEvent.pointerUp(handle, { pointerId: 1, isPrimary: true, clientY: 100 });
+    await waitFor(() => expect(dialog.style.transform).toBe("translate3d(0px, 0px, 0px)"));
+    expect(screen.getByRole("dialog")).toBeVisible();
+  });
+
+  it("treats a tap on the close button as a tap, not a drag", async () => {
+    openSheet();
+    const close = screen.getByRole("button", { name: "Bağla" });
+    fireEvent.pointerDown(close, { pointerId: 1, isPrimary: true, button: 0, clientY: 50 });
+    fireEvent.pointerUp(close, { pointerId: 1, isPrimary: true, clientY: 51 });
+    fireEvent.click(close);
+    await closed();
+  });
+});
