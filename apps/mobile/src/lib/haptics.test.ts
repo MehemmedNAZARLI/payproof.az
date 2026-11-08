@@ -12,6 +12,17 @@ describe("haptic", () => {
     expect(vibrate).toHaveBeenCalledWith([12, 60, 24]);
   });
 
+  it("waits for the first tap: Chrome refuses (and logs) vibration before any activation", () => {
+    const vibrate = vi.fn(() => true);
+    vi.stubGlobal("navigator", {
+      vibrate,
+      userAgent: "Android",
+      userActivation: { hasBeenActive: false },
+    });
+    haptic("tap");
+    expect(vibrate).not.toHaveBeenCalled();
+  });
+
   it("does nothing elsewhere", () => {
     vi.stubGlobal("navigator", { userAgent: "Desktop" });
     expect(() => haptic("tap")).not.toThrow();
