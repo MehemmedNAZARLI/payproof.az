@@ -10,7 +10,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@fixtures/*": ["../../fixtures/*"]
     }
   },
   "include": [

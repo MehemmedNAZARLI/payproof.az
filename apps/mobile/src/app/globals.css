@@ -10,6 +10,109 @@
   --safe-left: env(safe-area-inset-left, 0px);
   /* Widest phone layout; larger screens get a centred column. */
   --app-max-w: 430px;
+  /* iOS bar metrics: compact navigation bar and tab bar (without safe areas). */
+  --navbar-h: 44px;
+  --tabbar-h: 50px;
+  --sheet-radius: 26px;
+  /* Underdamped spring (ζ≈0.62, ~8% overshoot) sampled for CSS linear(). */
+  --ease-spring: linear(
+    0,
+    0.053,
+    0.179,
+    0.341,
+    0.509,
+    0.667,
+    0.801,
+    0.908,
+    0.986,
+    1.038,
+    1.068,
+    1.081,
+    1.082,
+    1.074,
+    1.062,
+    1.048,
+    1.035,
+    1.022,
+    1.012,
+    1.004,
+    0.999,
+    0.996,
+    0.994,
+    0.993,
+    0.993,
+    0.994,
+    1
+  );
+  /* Translucent bar material: tinted surface + blur, like UIKit's system chrome. */
+  --material: color-mix(in srgb, var(--surface) 72%, transparent);
+  --hairline: color-mix(in srgb, var(--text) 16%, transparent);
+  /* Skeleton shimmer: a lighter band in light mode, a brighter one in dark. */
+  --skel-base: var(--surface-3);
+  --skel-band: color-mix(in srgb, var(--surface-3), var(--surface) 75%);
+}
+:root[data-theme="dark"] {
+  --material: color-mix(in srgb, var(--surface) 70%, transparent);
+  --skel-band: color-mix(in srgb, var(--surface-3), var(--text) 10%);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --material: color-mix(in srgb, var(--surface) 70%, transparent);
+    --skel-band: color-mix(in srgb, var(--surface-3), var(--text) 10%);
+  }
+}
+
+/* Custom properties are not validated, so the fallback for Safari < 17.2 needs its own block. */
+@supports not (transition-timing-function: linear(0, 1)) {
+  :root {
+    --ease-spring: cubic-bezier(0.2, 1.2, 0.35, 1);
+  }
+}
+
+@utility material {
+  background-color: var(--material);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+}
+/* 0.5px separators render as one device pixel on retina screens. */
+@utility hairline-t {
+  box-shadow: inset 0 0.5px 0 var(--hairline);
+}
+@utility hairline-b {
+  box-shadow: inset 0 -0.5px 0 var(--hairline);
+}
+@utility pb-tabbar {
+  padding-bottom: calc(var(--tabbar-h) + var(--safe-bottom) + var(--sp-6));
+}
+@utility shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--skel-base);
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, var(--skel-band), transparent);
+    animation: shimmer 1.4s ease-in-out infinite;
+  }
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-110%) scale(0.92);
+  }
+}
+@keyframes toast-out {
+  to {
+    opacity: 0;
+    transform: translateY(-60%) scale(0.92);
+  }
+}
+@keyframes shimmer {
+  to {
+    transform: translateX(100%);
+  }
 }
 
 @utility max-w-app {

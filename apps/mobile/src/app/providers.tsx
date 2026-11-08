@@ -1,7 +1,11 @@
 "use client";
 
 import { SerwistProvider } from "@serwist/turbopack/react";
-import { type ReactNode, useEffect } from "react";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { type ReactNode, useEffect, useState } from "react";
+
+import { Toaster } from "@/components/ui/toaster";
+import { createQueryClient } from "@/lib/query-client";
 
 // The service worker would serve stale bundles during development, so it only runs in builds.
 const isDev = process.env.NODE_ENV === "development";
@@ -19,6 +23,7 @@ function useUnregisterInDev() {
 
 export function Providers({ children }: { children: ReactNode }) {
   useUnregisterInDev();
+  const [queryClient] = useState(createQueryClient);
   // No reload on reconnect (it would drop an open approval sheet) and no per-route HTML caching
   // until M-11 defines the offline policy; TanStack Query refetches on reconnect (M-02).
   return (
@@ -28,7 +33,8 @@ export function Providers({ children }: { children: ReactNode }) {
       reloadOnOnline={false}
       cacheOnNavigation={false}
     >
-      {children}
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <Toaster />
     </SerwistProvider>
   );
 }
