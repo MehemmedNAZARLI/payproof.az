@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 
 import { appDescription, appName, brand } from "@/lib/brand";
 
+import { Providers } from "./providers";
+
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -26,7 +28,9 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="az">
-      <body className="bg-bg text-text font-sans text-md">{children}</body>
+      <body className="bg-bg text-text font-sans text-md">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
