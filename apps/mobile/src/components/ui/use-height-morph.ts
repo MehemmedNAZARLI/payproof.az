@@ -22,6 +22,11 @@ export function useHeightMorph(panelRef: RefObject<HTMLElement | null>, key: str
     return () => observer.disconnect();
   });
 
+  // A closed sheet has no panel: the next opening starts from scratch, not the old height.
+  useLayoutEffect(() => {
+    if (!panelRef.current) last.current = 0;
+  });
+
   useLayoutEffect(() => {
     const panel = panelRef.current;
     if (!panel) return;
@@ -46,5 +51,17 @@ export function useHeightMorph(panelRef: RefObject<HTMLElement | null>, key: str
       clearTimeout(fallback);
       done();
     };
+  }, [panelRef, key]);
+}
+
+// The focused control (an evidence link, "Geri") leaves with the old page; move focus to the
+// panel so the dialog keeps it, Tab stays trapped and VoiceOver reads the new page's title.
+export function usePageFocus(panelRef: RefObject<HTMLElement | null>, key: string | undefined) {
+  const previous = useRef(key);
+  useLayoutEffect(() => {
+    if (previous.current === key) return;
+    previous.current = key;
+    const panel = panelRef.current;
+    if (panel && !panel.contains(document.activeElement)) panel.focus({ preventScroll: true });
   }, [panelRef, key]);
 }

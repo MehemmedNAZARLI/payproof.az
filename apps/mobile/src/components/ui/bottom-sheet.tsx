@@ -7,7 +7,7 @@ import { cx } from "@/lib/cx";
 import { t } from "@/lib/i18n";
 
 import { Icon } from "./icon";
-import { useHeightMorph } from "./use-height-morph";
+import { useHeightMorph, usePageFocus } from "./use-height-morph";
 import { trapTab, useModalFocus } from "./use-modal-focus";
 import { useSheetDrag } from "./use-sheet-drag";
 import { useSheetMotion } from "./use-sheet-motion";
@@ -61,6 +61,7 @@ export function BottomSheet({
   const titleId = useId();
   const descId = useId();
   useHeightMorph(sheetRef, page);
+  usePageFocus(sheetRef, page);
   if (!isClient || !present) return null;
 
   return createPortal(

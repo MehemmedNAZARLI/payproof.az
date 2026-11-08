@@ -195,4 +195,12 @@ describe("BottomSheet pages", () => {
     expect(back.style.animation).toMatch(/sheet-pop$/);
     expect(back.scrollTop).toBe(0);
   });
+
+  it("keeps focus in the dialog when the page under it changes", () => {
+    render(<Pages />);
+    const link = screen.getByRole("button", { name: "Mənbəyə bax" });
+    link.focus();
+    fireEvent.click(link);
+    expect(screen.getByRole("dialog")).toHaveFocus();
+  });
 });
