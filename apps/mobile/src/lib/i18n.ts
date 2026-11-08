@@ -295,7 +295,7 @@ export const t = {
     refreshFailed: "Məlumat yenilənmədi",
     loadFailed: "Məlumat yüklənmədi",
     offline: "İnternet bağlantısı yoxdur",
-    offlineHint: "Bağlantı bərpa olunanda siyahı özü yüklənəcək.",
+    offlineHint: "Bağlantı bərpa olunanda məlumat özü yenilənəcək.",
   },
   offline: {
     strip: "Oflayn — son yüklənən məlumat göstərilir",
