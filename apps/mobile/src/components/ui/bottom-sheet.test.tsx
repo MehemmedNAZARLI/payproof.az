@@ -157,3 +157,42 @@ describe("BottomSheet swipe-down", () => {
     await waitFor(() => expect(dialog.style.transform).toBe("translate3d(0px, 0px, 0px)"));
   });
 });
+
+describe("BottomSheet pages", () => {
+  function Pages() {
+    const [page, setPage] = useState<"check" | "doc">("check");
+    return (
+      <BottomSheet
+        open
+        onClose={() => {}}
+        title={page === "check" ? "R-005" : "Faktura · v1"}
+        page={page}
+        direction={page === "doc" ? "push" : "pop"}
+        size={page === "doc" ? "large" : "auto"}
+        leading={page === "doc" && <button onClick={() => setPage("check")}>Geri</button>}
+      >
+        {page === "check" ? (
+          <button onClick={() => setPage("doc")}>Mənbəyə bax</button>
+        ) : (
+          <p>Sənəd</p>
+        )}
+      </BottomSheet>
+    );
+  }
+
+  it("slides the next page in and the previous one back, with a fresh scroll position", () => {
+    render(<Pages />);
+    const pageOf = (el: HTMLElement) => el.closest<HTMLElement>("[data-sheet-page]")!;
+    const first = pageOf(screen.getByRole("button", { name: "Mənbəyə bax" }));
+    first.scrollTop = 120;
+    fireEvent.click(screen.getByRole("button", { name: "Mənbəyə bax" }));
+    expect(screen.getByRole("dialog", { name: "Faktura · v1" })).toBeInTheDocument();
+    const doc = pageOf(screen.getByText("Sənəd"));
+    expect(doc).not.toBe(first);
+    expect(doc.style.animation).toMatch(/sheet-push$/);
+    fireEvent.click(screen.getByRole("button", { name: "Geri" }));
+    const back = pageOf(screen.getByRole("button", { name: "Mənbəyə bax" }));
+    expect(back.style.animation).toMatch(/sheet-pop$/);
+    expect(back.scrollTop).toBe(0);
+  });
+});

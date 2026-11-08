@@ -97,6 +97,23 @@
     animation: shimmer 1.4s ease-in-out infinite;
   }
 }
+/* A phone on its side: little height, so sheets and documents take the whole screen. */
+@custom-variant short (@media (orientation: landscape) and (max-height: 540px));
+
+/* Navigation inside a sheet (check → document → back): the incoming page slides in. */
+@keyframes sheet-push {
+  from {
+    opacity: 0;
+    transform: translateX(28%);
+  }
+}
+@keyframes sheet-pop {
+  from {
+    opacity: 0;
+    transform: translateX(-28%);
+  }
+}
+
 @keyframes toast-in {
   from {
     opacity: 0;
