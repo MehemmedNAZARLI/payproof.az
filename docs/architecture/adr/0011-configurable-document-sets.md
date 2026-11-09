@@ -6,7 +6,7 @@
 ## Qərar
 
 ### 1. Sənəd növü reyestri (konfiqurasiya, kod yox)
-Hər sənəd növü bir reyestr qeydidir (`fixtures/config/document-types.json`, sxem `fixtures/schema/config/document-types.json`):
+Hər sənəd növü bir reyestr qeydidir (`fixtures/config/document-types.json`, sxem `fixtures/schema/config.json`):
 - `key` (`bank_statement`), `name`, `version`, `builtin`, `accepted_formats` (MIME; security.md-dəki ağ siyahının alt çoxluğu, məzmuna görə yoxlanır).
 - `extraction`: `fields[]` (`key, label, type, critical`), `tables[]` (sətir cədvəli, sütunlar sahə kimi), `transaction_lists[]` (əməliyyat siyahısı — standart sütunlar `date, amount, direction, counterparty` məcburidir, əlavə sütun ola bilər).
 - Sahə tipləri: `text, date, money, decimal, integer, boolean, currency, party`. `money` həmişə string + sənədin `currency` sahəsi; `party` = `{name, tax_id?, id_number?}`.
@@ -36,7 +36,7 @@ Sistem hər dəst üçün `D-001` (`document_count`) yoxlamasını `documents[]`
 | `date_within_period` | `target`, `period {from, to}` (tarix və ya FieldRef) | aralıqdan kənar → FAIL | — |
 | `amount_within_limit` | `target`, `aggregate: each\|sum`, `limit: Money` | valyuta fərqli → UNKNOWN · limitdən çox → FAIL | — |
 | `line_items_match` | `left, right, key_column, compare[], tolerance` | sətir yoxdur → UNKNOWN · fərq → FAIL | R-004/R-005/R-006 |
-| `transaction_match` | `source {…}, against[], amount_tolerance, date_window_days, counterparty, direction` | uyğun əməliyyat yoxdur → FAIL · birdən çox namizəd → UNKNOWN (insan seçir) | — |
+| `transaction_match` | `source {…}, against[], amount_tolerance, date_window_days, counterparty, direction` | uyğun əməliyyat yoxdur → FAIL · birdən çox namizəd və ya oxunmayan çıxarış sətri → UNKNOWN (insan seçir) | — |
 | `no_duplicate_use` | `subjects[] {document_type, key_fields[]}`, `scope: package\|customer` | eyni açar ikinci dəfə → FAIL | — |
 | `party_identity_match` | `parties[]: FieldRef`, `match_on[]` | identifikator fərqli → FAIL · yoxdur → UNKNOWN | R-003 |
 
@@ -65,9 +65,10 @@ AI_BASE_URL=                         # boşdursa provayderin default ünvanı (p
 - Provayder dəyişmək yalnız env-dir; kod, reyestr və qaydalar dəyişmir. Provayder adapteri SDK-nı yalnız `extraction/providers/<ad>.py` daxilində import edir.
 - PDF mətn qatı və CSV/XLSX oxunuşu provayder deyil, ön-emaldır: mətn qatı varsa LLM-ə mətn, yoxdursa şəkil göndərilir. Köhnə `AI_PROVIDER=pdf` keçid dövründə `mock`-dan sonra ilk addım kimi qəbul edilir və sonra silinir (backend step-i).
 - Model ID-si, provayder və prompt versiyası audit metadata-sına yazılır; sənəd mətni log-a yazılmır.
+- Bu gün backend `settings.py` yalnız `mock|pdf|llm` qəbul edir; `anthropic|openai` dəyərləri provayder backend step-i ilə gəlir (o vaxta qədər `AI_PROVIDER=anthropic` başlanğıcda validasiya xətası verir).
 
 ## Müqavilə (0.4.0, pozucu deyil)
-- `RequirementSet` + optional `documents`, `checks`, `output`; yeni sxemlər `DocumentRequirement`, `CheckConfig`, `FieldRef`, `OutputConfig`, `PlaceholderMapping`.
+- `RequirementSet` + optional `documents`, `checks`, `output`; yeni sxemlər `DocumentTypeKey`, `DocumentRequirement`, `CheckConfig`, `OutputConfig`, `PlaceholderMapping`. Sahə istinadı (`{document_type, field}`) ayrıca sxem deyil — `CheckConfig.parameters` daxilindədir və tələb dəsti saxlananda kitabxana ilə yoxlanır.
 - `RuleId` pattern-i genişlənir; `CheckResult` + optional `check_type`.
 - `ExportRecord` + optional `output` (şablon faylı, manifest, doldurulmuş dəyərlər, göndərmə statusu); export `422` təsviri `details.missing_placeholders`-i əhatə edir.
 - **Yeni endpoint və xəta kodu bu dəyişiklikdə yoxdur.** `test_contract_drift.py` müqavilədəki əməliyyatların backend-də xidmət olunmasını, `test_error_codes_match_contract` isə `ErrorCode` bərabərliyini tələb edir. Planlaşdırılan `GET /v1/document-types`, `GET /v1/check-library`, `POST /v1/customers/{id}/output-templates` (multipart `.docx`) və tələb dəsti POST-una yeni sahələr backend step-i ilə eyni PR-da gəlir.

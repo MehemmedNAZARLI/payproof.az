@@ -60,7 +60,8 @@ R-001…R-009 yuxarıdakı kimi qalır (ID, davranış, golden test). Müştəri
 Giriş `GenericSnapshot`: sənədlər (`type`, `fields`, `unreadable`, `tables`, `evidence`), tələb dəsti, müştərinin digər paketləri (`no_duplicate_use`, `scope: customer`). Ümumi qaydalar R-qaydaları ilə eyni prinsiplərə tabedir:
 - Dəyər yalnız oxunubsa və mənbə istinadı varsa "oxunmuş" sayılır; oxunmayan → `UNKNOWN`, olmayan → `FAIL` (`field_present`) və ya `UNKNOWN` (müqayisə qaydaları).
 - Pul tam qəpiklə; valyuta fərqi → `UNKNOWN` və ya `FAIL` (`values_equal(currency)`), heç vaxt çevirmə.
-- `transaction_match`: əvvəl birmənalı cütlər bağlanır (təkrarən), nəticə sənəd sırasından asılı deyil; iki sənədin yeganə namizədi olan əməliyyat heç kimə verilmir; birdən çox namizəd → `UNKNOWN` (insan seçir), namizəd yoxdur → `FAIL` + ən yaxın əməliyyat və fərq `data`-da.
+- `transaction_match`: əvvəl birmənalı cütlər bağlanır (təkrarən), nəticə sənəd sırasından asılı deyil; iki sənədin yeganə namizədi olan əməliyyat heç kimə verilmir; birdən çox namizəd → `UNKNOWN` (insan seçir), namizəd yoxdur → `FAIL` + ən yaxın əməliyyat və fərq `data`-da; çıxarışda oxunmayan sətir varsa cütsüz sənəd `FAIL` yox, `UNKNOWN`-dur.
+- Boş və ya oxunmayan cədvəl, oxunmayan valyuta, birmənalı olmayan dövr sərhədi `NOT_APPLICABLE` deyil, `UNKNOWN`-dur; `NOT_APPLICABLE` yalnız həmin növdən sənəd olmayanda. Məbləğlər yalnız eyni valyutada müqayisə olunur.
 - Hər qərar verilmiş nəticə (`PASS/FAIL/UNKNOWN`) `evidence[]` daşıyır — müqayisə olunan hər dəyərin mənbəyi.
 - Status: `FAIL` → `NEEDS_FIX`, `UNKNOWN` → `NEEDS_REVIEW`, əks halda `READY_FOR_APPROVAL` (sifariş əlaqəsi yoxdur); təsdiq/ixrac R-010 kimi.
 
