@@ -22,7 +22,8 @@ src/
   lib/api/mock/       fixtures-dan store + MSW handler-ləri + createMockFetch (S-06 gələnə qədər); yazılar
                       (təsdiq, oxunmuş bildiriş, idempotency cavabları) session-db.ts-də (sessionStorage);
                       engine/ — prototip qayda mühərrikinin portu (mesaj, sübut), paper.ts — mock sənəd kağızı
-  lib/{query-client.ts,env.ts,format.ts,i18n.ts,spring.ts,cx.ts,brand.ts}
+  lib/{query-client.ts,env.ts,format.ts,i18n.ts,spring.ts,cx.ts,brand.ts,status-tone.ts,fonts.ts}
+  styles/tokens.css   mobil dizayn sistemi (yalnız mobil; veb @payproof/design-tokens-də qalır) + tokens.test.ts (kontrast)
   lib/session.ts      dev-login sessiyası (localStorage), useSession, watchUserChange; lib/runtime-caches.ts — çıxışda SW keşləri
   app/(tabs)/layout.tsx · app/packages/layout.tsx   SessionGate + (tabs üçün) TabBar
   features/<f>/queries.ts  query key factory + hook-lar (useMe, usePackages)
@@ -73,6 +74,14 @@ Mock: `NEXT_PUBLIC_API_MOCK=1` (default). Real: `NEXT_PUBLIC_API_MOCK=0`, `NEXT_
 - Bildirişlər (`features/notifications/`): bir query (`["notifications","list"]`, 60 s polling ön planda) — siyahı, tab bar, zəng və app ikonu (Badging API) eyni `unread_count`-u oxuyur. Oxuma optimistikdir (xətada geri qaytarılır). Qruplar Bakı günü ilə ("Bu gün", "Dünən", "6 noyabr, cümə") — prototipin "Yeni/Əvvəlki" əvəzinə (istifadəçi qərarı); oxunmamış nöqtə + qalın mətn + ekran oxuyucu üçün "Oxunmamış". Toxunuş → oxundu + paketə keçid.
 - Mock: təsdiq paketin sahibinə bildiriş yaradır; təsdiq statusu siyahı, dashboard, detal və auditə tətbiq olunur (`mock/live.ts`). Yeni tab fixtures-dan başlayır.
 
+## Dizayn sistemi
+- Palitra: light `bg #F5F6FA / surface #FFF / surface-2 #EEF0F6`, dark `#05060A / #0E1018 / #161926`; **bir accent** (`#3D5AFE` / dark `#6E86FF`). Mətn üçün `accent`, ağ mətnli dolu düymə üçün `accent-fill` (dark-da `#4B65FF` — `#6E86FF` üzərində ağ 3.2:1-dir).
+- Semantik rənglər iki qatlıdır: `success|warning|danger` (parlaq — dolğu/ikon), `*-ink` (mətn), `*-soft` (fon). Badge = `soft` + `ink` (`lib/status-tone.ts`). Bütün mətn cütləri `tokens.test.ts`-də 4.5:1 yoxlanır — yeni cüt əlavə edəndə testə də yaz.
+- Hero kart (`hero` utility): navy qradiyent `#0B1026 → #1B2550` + accent parıltısı, hər iki temada ağ mətn (`text-hero-text2`, `bg-hero-fill`).
+- Tipoqrafiya: Inter (`lib/fonts.ts`, `next/font/local`, Latin + Latin Extended — ə/ğ/ş üçün), iOS miqyası: `text-large` (34/41, -0.4) · `title1..3` · `headline` · `body` · `callout` · `subhead` (default) · `footnote` · `caption` · `caption2`. Rəqəmlər `tabular-nums`. `tracking-*`/`leading-*` ilə miqyası pozma.
+- Səthlər sərhədsizdir: kölgə `shadow-1|2|3|accent` (dark-da üst highlight). Siyahılar inset grouped (`ListGroup`), künclər 12/16/22 px; `corner-shape` dəstəklənirsə squircle (`globals.css`).
+- Toxunuş: `press` utility (sürətli batma, yay ilə qayıdış). Avatar rəngləri düz açarlardır (`bg-av-1`): iç-içə rəqəmli açarı Tailwind v4 JS-config körpüsü atır.
+
 ## UI dəsti qaydaları (M-03)
 - Bar materialı: `material` (yarımşəffaf surface + blur), ayırıcılar `hairline-t/b` (0.5px). Tab bar üçün səhifə `pb-tabbar` istifadə edir.
 - Hərəkət: sheet — `lib/spring.ts` (yay fizikası, rubber-band, flick proyeksiyası); toast — `--ease-spring` (`linear()`). `prefers-reduced-motion`-da animasiya yoxdur.
@@ -84,7 +93,7 @@ Mock: `NEXT_PUBLIC_API_MOCK=1` (default). Real: `NEXT_PUBLIC_API_MOCK=0`, `NEXT_
 - Naviqasiya: alt tab bar (Əsas, Paketlər, Bildirişlər, Profil); detal ekranlarında sticky başlıq + geri.
 - Təsdiq: **paket versiyasındakı bütün sənədlərə baxılmayınca** və "baxdım" qeydi işarələnməyincə təsdiq düyməsi işləmir. Versiya dəyişəndə baxılma sıfırlanır. `expected_version` + `Idempotency-Key`; 409 → yenilə və yenidən bax.
 - Offline: keşdən yalnız oxuma; təsdiq offline mümkün deyil — aydın mesaj.
-- API, i18n, format, tokenlər — `@payproof/*` paketlərindən (veblə eyni). Paylaşılan paketdə dəyişiklik lazımdırsa — lead ilə razılaşdır (`/contract-change` və ya ayrıca `fix/` branch).
+- API, i18n, format — `@payproof/*` paketlərindən (veblə eyni). Tokenlər mobilə məxsusdur: `src/styles/tokens.css` + `tailwind.config.ts` + `lib/status-tone.ts` (`@payproof/design-tokens` mobil tərəfindən istifadə olunmur). Paylaşılan paketdə dəyişiklik lazımdırsa — lead ilə razılaşdır (`/contract-change` və ya ayrıca `fix/` branch).
 - Hər ekran: skeleton, boş vəziyyət, xəta; light/dark; VoiceOver üçün label-lar.
 - Service worker (`src/lib/sw-policy.ts`): `/v1/` və bütün cross-origin sorğular **NetworkOnly** — istifadəçi məlumatı Cache Storage-a düşmür. Baxılmış səhifələr (HTML/RSC, şəxsi məlumatsız) Serwist-in network-first default-ları ilə keşlənir.
 - Yeniləmə (`features/pwa/sw-update.ts`, `update-prompt.tsx`): `skipWaiting: false`; yeni versiya sticky toast ("Yeni versiya hazırdır" + "Yenilə") — qəbul → `SKIP_WAITING`, `controllerchange`-də reload. İlk quraşdırma (`isUpdate` yox) yeniləmə sayılmır. e2e deploy-u `?v=2` URL-i ilə təqlid edir (brauzerin öz update fetch-i route olunmur).

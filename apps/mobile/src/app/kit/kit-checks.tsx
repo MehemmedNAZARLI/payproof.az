@@ -9,17 +9,17 @@ export function ChecksSection({ onOpen }: { onOpen: () => void }) {
     <>
       <SectionHeader
         title="Yoxlamalar"
-        action={<span className="text-text-3 text-xs">8 keçdi · 1 bloklayır</span>}
+        action={<span className="text-text-3 text-caption">8 keçdi · 1 bloklayır</span>}
       />
       <ListGroup label="Yoxlamalar">
         <ListItem
-          leading={<Icon name="fail" size={22} className="text-danger" />}
+          leading={<Icon name="fail" size={22} className="text-danger-ink" />}
           title="Vahid qiymət uyğunluğu"
           subtitle="R-005 · Uyğunsuz"
           onClick={onOpen}
         />
         <ListItem
-          leading={<Icon name="pass" size={22} className="text-success" />}
+          leading={<Icon name="pass" size={22} className="text-success-ink" />}
           title="Miqdar uyğunluğu"
           subtitle="R-006 · Keçdi"
           onClick={onOpen}
@@ -28,7 +28,7 @@ export function ChecksSection({ onOpen }: { onOpen: () => void }) {
           leading={<Icon name="file" size={22} />}
           title="Faktura · v1"
           subtitle="INV-1044.pdf"
-          trailing={<span className="text-success text-xs font-semibold">Baxılıb</span>}
+          trailing={<span className="text-success-ink text-caption font-semibold">Baxılıb</span>}
         />
       </ListGroup>
     </>

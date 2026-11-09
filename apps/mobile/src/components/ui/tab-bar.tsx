@@ -39,7 +39,7 @@ export function TabBar({ notificationCount = 0 }: { notificationCount?: number }
                 aria-label={count > 0 ? t.common.notificationsUnread(count) : undefined}
                 className={cx(
                   "flex h-full flex-col items-center justify-center gap-0.5 text-[11px] font-semibold transition-colors active:opacity-60",
-                  active ? "text-brand-600" : "text-text-3",
+                  active ? "text-accent" : "text-text-3",
                 )}
               >
                 <span className="relative">

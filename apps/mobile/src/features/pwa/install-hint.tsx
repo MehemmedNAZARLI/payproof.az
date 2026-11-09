@@ -30,8 +30,10 @@ export function InstallCard() {
           {/* eslint-disable-next-line @next/next/no-img-element -- a 44px static icon, no optimiser needed */}
           <img src="/icons/icon-192.png" alt="" className="size-11 shrink-0 rounded-[10px]" />
           <div className="min-w-0">
-            <h2 className="text-md font-semibold">{t.install.title}</h2>
-            <p className="text-text-2 mt-0.5 text-sm leading-snug text-pretty">{t.install.body}</p>
+            <h2 className="text-subhead font-semibold">{t.install.title}</h2>
+            <p className="text-text-2 mt-0.5 text-footnote leading-snug text-pretty">
+              {t.install.body}
+            </p>
           </div>
         </div>
         <Button
@@ -79,10 +81,10 @@ function IosSteps({ open, onClose }: { open: boolean; onClose: () => void }) {
       <ol className="flex flex-col gap-3">
         {STEPS.map((s, i) => (
           <li key={s.icon} className="flex items-center gap-3">
-            <span className="bg-brand-50 text-brand-600 grid size-10 shrink-0 place-items-center rounded-lg">
+            <span className="bg-accent-soft text-accent grid size-10 shrink-0 place-items-center rounded-lg">
               <Icon name={s.icon} size={22} />
             </span>
-            <span className="text-md leading-snug">
+            <span className="text-subhead leading-snug">
               <span className="sr-only">{i + 1}. </span>
               {s.text}
             </span>

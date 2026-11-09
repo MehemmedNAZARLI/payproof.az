@@ -12,10 +12,11 @@ type ButtonProps = ComponentPropsWithoutRef<"button"> & {
 };
 
 const variants = {
-  primary: "bg-brand-600 text-brand-foreground shadow-1",
-  secondary: "bg-brand-50 text-brand-700",
-  plain: "text-brand-600",
-  destructive: "bg-danger text-danger-foreground shadow-1",
+  primary: "bg-accent-fill text-accent-foreground shadow-accent active:bg-accent-press",
+  secondary: "bg-accent-soft text-accent-ink",
+  plain: "text-accent",
+  // iOS draws destructive actions as red text on a plain surface, not a red slab.
+  destructive: "bg-surface text-danger-ink shadow-1",
 };
 
 export function Button({
@@ -32,10 +33,9 @@ export function Button({
     <button
       type={type}
       className={cx(
-        "inline-flex items-center justify-center gap-2 rounded-lg px-4 font-semibold",
-        "transition-[transform,opacity] duration-base ease-base active:scale-[0.97] active:opacity-85",
+        "press inline-flex items-center justify-center gap-2 px-5 font-semibold",
         "disabled:pointer-events-none disabled:opacity-40",
-        size === "lg" ? "h-13 text-lg" : "h-11 text-md",
+        size === "lg" ? "h-13 rounded-lg text-headline" : "h-11 rounded-md text-subhead",
         block && "w-full",
         variants[variant],
         className,

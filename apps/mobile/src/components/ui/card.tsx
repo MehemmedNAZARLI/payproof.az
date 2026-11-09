@@ -12,7 +12,7 @@ type SectionHeaderProps = { title: string; action?: ReactNode; id?: string };
 export function SectionHeader({ title, action, id }: SectionHeaderProps) {
   return (
     <div className="mt-6 mb-2 flex min-h-11 items-end justify-between gap-3 px-1">
-      <h2 id={id} className="text-xl font-bold tracking-tight">
+      <h2 id={id} className="text-title3 font-bold">
         {title}
       </h2>
       {action}

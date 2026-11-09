@@ -13,19 +13,19 @@ export function OpenAmounts({ amounts }: { amounts: Schemas["CurrencyTotal"][] }
   return (
     <>
       {amounts.length === 0 ? (
-        <Card className="text-text-2 text-sm">{t.home.noOpen}</Card>
+        <Card className="text-text-2 text-footnote">{t.home.noOpen}</Card>
       ) : (
         <ListGroup label={t.home.openAmount}>
           {amounts.map(({ total, package_count }) => (
             <ListItem
               key={total.currency}
               leading={
-                <span className="bg-surface-2 text-text-2 grid size-8 place-items-center rounded-full text-[10px] font-bold tracking-tight">
+                <span className="bg-accent-soft text-accent-ink grid size-8 place-items-center rounded-full text-[10px] font-bold">
                   {total.currency}
                 </span>
               }
               title={
-                <span className="text-lg tracking-tight tabular-nums">
+                <span className="text-headline tabular-nums">
                   {formatMoney(total.amount, total.currency)}
                 </span>
               }
@@ -34,7 +34,7 @@ export function OpenAmounts({ amounts }: { amounts: Schemas["CurrencyTotal"][] }
           ))}
         </ListGroup>
       )}
-      <p className="text-text-3 mt-2 flex items-start gap-1.5 px-4 text-xs leading-snug">
+      <p className="text-text-3 mt-2 flex items-start gap-1.5 px-4 text-caption leading-snug">
         <Icon name="info" size={14} className="mt-px shrink-0" />
         {t.home.notLoss}
       </p>
@@ -62,7 +62,7 @@ export function RecentActivity({ events }: { events: Schemas["AuditEvent"][] }) 
           key={e.id}
           leading={<Avatar user={e.actor} />}
           title={
-            <span className="text-sm">
+            <span className="text-footnote">
               {t.audit.action[e.action] ?? e.message}
               {e.package && (
                 <span className="text-text-3 font-normal"> · {e.package.invoice_number}</span>
@@ -70,7 +70,7 @@ export function RecentActivity({ events }: { events: Schemas["AuditEvent"][] }) 
             </span>
           }
           subtitle={
-            <span className="text-xs">
+            <span className="text-caption">
               {e.actor ? shortName(e.actor.full_name) : t.home.system} ·{" "}
               {formatDateTime(e.created_at)}
             </span>

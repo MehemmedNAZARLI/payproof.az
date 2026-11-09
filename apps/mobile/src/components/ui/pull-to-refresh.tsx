@@ -32,7 +32,7 @@ export function PullToRefresh({ onRefresh, children }: Props) {
       <button
         type="button"
         onClick={() => void run()}
-        className="bg-surface text-brand-600 shadow-2 sr-only top-[calc(var(--safe-top)+var(--sp-2))] left-1/2 z-40 -translate-x-1/2 rounded-full px-4 py-2 text-sm font-semibold focus-visible:not-sr-only focus-visible:fixed"
+        className="bg-surface text-accent shadow-2 sr-only top-[calc(var(--safe-top)+var(--sp-2))] left-1/2 z-40 -translate-x-1/2 rounded-full px-4 py-2 text-footnote font-semibold focus-visible:not-sr-only focus-visible:fixed"
       >
         {t.common.refreshData}
       </button>

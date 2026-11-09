@@ -90,7 +90,7 @@ export function BottomSheet({
         <div data-sheet-handle className="flex-none touch-none" {...dragHandlers}>
           <div
             aria-hidden="true"
-            className="bg-border-strong mx-auto mt-2 mb-1 h-1.25 w-9 rounded-full"
+            className="bg-separator mx-auto mt-2 mb-1 h-1.25 w-9 rounded-full"
           />
           <div
             className={cx(
@@ -100,11 +100,11 @@ export function BottomSheet({
           >
             {leading}
             <div className="min-w-0 grow pt-1">
-              <h2 id={titleId} className="text-xl leading-tight font-bold">
+              <h2 id={titleId} className="text-title3 font-bold">
                 {title}
               </h2>
               {description && (
-                <p id={descId} className="text-text-3 mt-0.5 text-sm">
+                <p id={descId} className="text-text-3 mt-0.5 text-footnote">
                   {description}
                 </p>
               )}

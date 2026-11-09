@@ -127,7 +127,7 @@ export function PackageDetailScreen({ id }: { id: string }) {
             action={
               <Link
                 href="/packages"
-                className="bg-brand-50 text-brand-700 inline-flex h-11 items-center rounded-lg px-4 text-md font-semibold active:opacity-85"
+                className="bg-accent-soft text-accent-ink inline-flex h-11 items-center rounded-lg px-4 text-subhead font-semibold active:opacity-85"
               >
                 {t.detail.toPackages}
               </Link>

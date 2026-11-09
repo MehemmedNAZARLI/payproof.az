@@ -23,9 +23,9 @@ export const Note = ({
 }) => (
   <p
     className={cx(
-      "flex items-start gap-1.5 rounded-sm text-xs leading-snug",
+      "flex items-start gap-1.5 rounded-sm text-caption leading-snug",
       tone === "warning"
-        ? "bg-warning-bg text-warning px-2.5 py-1.5"
+        ? "bg-warning-soft text-warning-ink px-2.5 py-1.5"
         : "text-text-3 short:hidden px-0.5",
     )}
   >
@@ -37,8 +37,8 @@ export const Note = ({
 export function QuoteFallback({ evidence }: { evidence: Schemas["Evidence"] }) {
   return (
     <div className="bg-surface-2 rounded-md px-3 py-2">
-      <p className="text-text-2 text-xs">{t.viewer.quoteOnly(evidence.page)}</p>
-      <q className="text-text mt-1 block font-mono text-xs">{evidence.quote}</q>
+      <p className="text-text-2 text-caption">{t.viewer.quoteOnly(evidence.page)}</p>
+      <q className="text-text mt-1 block font-mono text-caption">{evidence.quote}</q>
     </div>
   );
 }

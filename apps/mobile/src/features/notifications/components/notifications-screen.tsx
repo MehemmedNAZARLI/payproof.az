@@ -37,7 +37,7 @@ export function NotificationsScreen() {
                 haptic("tap");
                 markAll.mutate(undefined);
               }}
-              className="text-brand-600 min-h-11 px-2 text-md font-semibold active:opacity-50"
+              className="text-accent min-h-11 px-2 text-subhead font-semibold active:opacity-50"
             >
               {t.notifications.readAll}
             </button>
@@ -59,7 +59,7 @@ export function NotificationsScreen() {
               <section key={g.day} aria-labelledby={`day-${g.day}`}>
                 <h2
                   id={`day-${g.day}`}
-                  className="text-text-3 mt-5 mb-2 px-4 text-sm font-semibold first:mt-1"
+                  className="text-text-3 mt-5 mb-2 px-4 text-footnote font-semibold first:mt-1"
                 >
                   {g.heading}
                 </h2>
@@ -93,7 +93,7 @@ export function NotificationsScreen() {
         ) : (
           <ListSkeleton rows={5} />
         )}
-        <p className="text-text-3 mt-5 px-4 text-center text-sm text-pretty">
+        <p className="text-text-3 mt-5 px-4 text-center text-footnote text-pretty">
           {t.notifications.pushNote}
         </p>
       </main>

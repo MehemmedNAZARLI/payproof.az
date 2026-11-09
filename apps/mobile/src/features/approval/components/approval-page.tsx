@@ -26,7 +26,7 @@ function Facts({ pkg }: { pkg: Detail }) {
       {rows.map(([k, v]) => (
         <div
           key={k}
-          className="hairline-b flex justify-between gap-3 py-2.5 text-sm last:shadow-none"
+          className="hairline-b flex justify-between gap-3 py-2.5 text-footnote last:shadow-none"
         >
           <dt className="text-text-3">{k}</dt>
           <dd className="text-right font-semibold tabular-nums">{v}</dd>
@@ -43,8 +43,8 @@ const nudged = (flow: ApprovalFlow, step: "docs" | "ack") =>
 function StepTitle({ children, aside }: { children: string; aside?: string }) {
   return (
     <div className="mt-5 mb-2 flex items-baseline justify-between px-1">
-      <h3 className="text-md font-bold">{children}</h3>
-      {aside && <span className="text-text-3 text-sm tabular-nums">{aside}</span>}
+      <h3 className="text-subhead font-bold">{children}</h3>
+      {aside && <span className="text-text-3 text-footnote tabular-nums">{aside}</span>}
     </div>
   );
 }
@@ -93,7 +93,7 @@ export function ApprovalPage({ pkg, flow, onOpenDocument }: Props) {
                     {t.detail.seen}
                   </Badge>
                 ) : (
-                  <span className="text-brand-600 flex items-center gap-0.5 text-md font-semibold">
+                  <span className="text-accent flex items-center gap-0.5 text-subhead font-semibold">
                     {t.approval.look}
                     <Icon name="chev-r" size={16} strokeWidth={2.4} />
                   </span>
@@ -125,20 +125,20 @@ export function ApprovalPage({ pkg, flow, onOpenDocument }: Props) {
             aria-hidden="true"
             className={cx(
               "mt-0.5 grid size-6 shrink-0 place-items-center rounded-md border-2 transition-[background-color,border-color,transform] duration-200",
-              "peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand-600",
+              "peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent",
               flow.ack
-                ? "bg-brand-600 border-brand-600 text-brand-foreground scale-100"
-                : "border-border-strong scale-95",
+                ? "bg-accent-fill border-accent-fill text-accent-foreground scale-100"
+                : "border-separator scale-95",
             )}
           >
             {flow.ack && <Icon name="check" size={16} strokeWidth={3} />}
           </span>
-          <span className="text-md leading-snug">{t.approval.ack(pkg.version)}</span>
+          <span className="text-subhead leading-snug">{t.approval.ack(pkg.version)}</span>
         </label>
         {flow.unseen > 0 && (
           <p
             id="approve-ack-locked"
-            className="text-text-3 mt-2 flex items-center gap-1.5 px-1 text-sm"
+            className="text-text-3 mt-2 flex items-center gap-1.5 px-1 text-footnote"
           >
             <Icon name="lock" size={15} />
             {t.approval.ackLocked(flow.unseen)}

@@ -10,10 +10,10 @@ import { Icon, type IconName } from "./icon";
 import { type Toast, toast, type ToastTone, useToasts } from "./toast-store";
 
 const toneIcon: Record<ToastTone, { icon: IconName; color: string }> = {
-  success: { icon: "pass", color: "text-success" },
-  error: { icon: "fail", color: "text-danger" },
-  warning: { icon: "alert", color: "text-warning" },
-  info: { icon: "info", color: "text-info" },
+  success: { icon: "pass", color: "text-success-ink" },
+  error: { icon: "fail", color: "text-danger-ink" },
+  warning: { icon: "alert", color: "text-warning-ink" },
+  info: { icon: "info", color: "text-accent-ink" },
 };
 
 // Floating capsules under the status bar, kept usable above open sheets (data-modal-exempt). Both live regions exist from the start so
@@ -60,14 +60,14 @@ function item(x: Toast) {
     >
       <Icon name={tone.icon} size={22} className={cx("shrink-0", tone.color)} />
       <div className="min-w-0 grow py-1">
-        <p className="text-sm font-semibold">{x.title}</p>
-        {x.description && <p className="text-text-2 text-xs">{x.description}</p>}
+        <p className="text-footnote font-semibold">{x.title}</p>
+        {x.description && <p className="text-text-2 text-caption">{x.description}</p>}
       </div>
       {x.action && (
         <button
           type="button"
           onClick={x.action.onPress}
-          className="text-brand-600 min-h-11 shrink-0 rounded-full px-2 text-sm font-semibold active:opacity-50"
+          className="text-accent min-h-11 shrink-0 rounded-full px-2 text-footnote font-semibold active:opacity-50"
         >
           {x.action.label}
         </button>

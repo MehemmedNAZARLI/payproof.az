@@ -14,10 +14,10 @@ export function Identity({ me }: { me: Schemas["Me"] }) {
     <Card className="flex items-center gap-4">
       <Avatar user={me} size="lg" />
       <div className="min-w-0">
-        <h2 className="truncate text-xl font-bold tracking-tight">{me.full_name}</h2>
-        <p className="text-text-2 truncate text-sm">{me.title}</p>
-        <p className="text-text-3 truncate text-sm">{me.company.name}</p>
-        <Badge tone="brand" icon="user" className="mt-2">
+        <h2 className="truncate text-title3 font-bold">{me.full_name}</h2>
+        <p className="text-text-2 truncate text-footnote">{me.title}</p>
+        <p className="text-text-3 truncate text-footnote">{me.company.name}</p>
+        <Badge tone="accent" icon="user" className="mt-2">
           {t.role[me.role]}
         </Badge>
       </div>
@@ -32,10 +32,10 @@ export function PermissionRow({ label, granted }: { label: string; granted: bool
         <Icon
           name={granted ? "pass" : "na"}
           size={22}
-          className={granted ? "text-success" : "text-text-3"}
+          className={granted ? "text-success-ink" : "text-text-3"}
         />
       }
-      title={<span className="text-md font-normal">{label}</span>}
+      title={<span className="text-subhead font-normal">{label}</span>}
       trailing={
         <Value>
           <span className="sr-only">: </span>
@@ -49,14 +49,14 @@ export function PermissionRow({ label, granted }: { label: string; granted: bool
 // iOS settings: a white glyph on a tinted rounded square.
 export function SettingIcon({ name }: { name: IconName }) {
   return (
-    <span className="bg-brand-600 text-brand-foreground grid size-7.5 place-items-center rounded-[7px]">
+    <span className="bg-accent-fill text-accent-foreground grid size-7.5 place-items-center rounded-sm">
       <Icon name={name} size={18} strokeWidth={2} />
     </span>
   );
 }
 
 export const Value = ({ children }: { children: ReactNode }) => (
-  <span className="text-text-3 text-md">{children}</span>
+  <span className="text-text-3 text-subhead">{children}</span>
 );
 
 export function IdentitySkeleton() {

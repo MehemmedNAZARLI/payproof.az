@@ -35,7 +35,7 @@ export function DocumentsList({ pkg, isSeen = () => false, onOpen }: DocumentsLi
         id="documents-title"
         title={t.detail.documents}
         action={
-          <span className="text-text-3 pb-1 text-sm">
+          <span className="text-text-3 pb-1 text-footnote">
             {t.detail.documentsSeen(seen, docs.length)}
           </span>
         }
@@ -63,7 +63,7 @@ export function DocumentsList({ pkg, isSeen = () => false, onOpen }: DocumentsLi
             leading={<Icon name="truck" size={24} />}
             title={t.detail.noDelivery}
             subtitle={t.detail.noDeliveryBody}
-            trailing={<Icon name="fail" size={22} strokeWidth={2} className="text-danger" />}
+            trailing={<Icon name="fail" size={22} strokeWidth={2} className="text-danger-ink" />}
           />
         )}
       </ListGroup>

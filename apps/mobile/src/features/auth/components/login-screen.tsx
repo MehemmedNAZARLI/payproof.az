@@ -45,25 +45,25 @@ export function LoginScreen() {
     <div className="bg-bg flex min-h-dvh flex-col">
       <header className="hero pt-safe">
         <div className="px-safe mx-auto max-w-app pt-12 pb-14">
-          <span className="grid size-14 place-items-center rounded-[16px] bg-[#fff] text-[#0d5d6b] shadow-2">
+          <span className="grid size-14 place-items-center rounded-lg bg-white text-[#3d5afe] shadow-2">
             <Icon name="shield" size={32} strokeWidth={1.9} />
           </span>
-          <h1 className="mt-5 text-[34px] leading-tight font-bold tracking-tight">{appName}</h1>
-          <p className="mt-1 text-md text-[rgb(255_255_255/0.82)]">{appDescription}</p>
-          <span className="mt-4 inline-flex h-7 items-center gap-1.5 rounded-full bg-[rgb(255_255_255/0.16)] px-3 text-xs font-semibold ring-1 ring-[rgb(255_255_255/0.22)] backdrop-blur">
+          <h1 className="text-large mt-6">{appName}</h1>
+          <p className="text-hero-text2 mt-1 text-subhead">{appDescription}</p>
+          <span className="bg-hero-fill mt-5 inline-flex h-7 items-center gap-1.5 rounded-full px-3 text-caption font-semibold backdrop-blur-md">
             <Icon name="info" size={14} strokeWidth={2} />
             {t.auth.demoBadge}
           </span>
         </div>
       </header>
 
-      <main className="bg-bg pb-safe relative -mt-6 flex-1 rounded-t-[28px]">
+      <main className="bg-bg pb-safe relative -mt-6 flex-1 rounded-t-(--sheet-radius)">
         <div className="px-safe mx-auto max-w-app pt-7 pb-8">
           {session === null && signOutReason() === "expired" && (
             <Banner tone="info" icon="clock" title={t.auth.expired} className="mb-5" />
           )}
-          <h2 className="text-xl font-bold tracking-tight">{t.auth.pickTitle}</h2>
-          <p className="text-text-3 mt-0.5 text-sm">{t.auth.pickHint}</p>
+          <h2 className="text-title3 font-bold">{t.auth.pickTitle}</h2>
+          <p className="text-text-3 mt-0.5 text-footnote">{t.auth.pickHint}</p>
 
           {users.isPending ? (
             <AccountsSkeleton />
@@ -94,7 +94,7 @@ export function LoginScreen() {
             </ul>
           )}
 
-          <p className="text-text-3 mt-6 px-2 text-center text-xs leading-relaxed">
+          <p className="text-text-3 mt-6 px-2 text-center text-caption leading-relaxed">
             {t.auth.footnote}
           </p>
         </div>
@@ -119,20 +119,19 @@ function AccountButton({ user, recommended, busy, disabled, onPress }: AccountBu
       disabled={disabled}
       aria-busy={busy}
       className={cx(
-        "bg-surface flex min-h-18 w-full items-center gap-3.5 rounded-xl px-4 py-3 text-left shadow-1",
-        "transition-[transform,opacity] duration-base ease-base active:scale-[0.98]",
+        "bg-surface press flex min-h-18 w-full items-center gap-3.5 rounded-lg px-4 py-3 text-left shadow-1",
         "disabled:cursor-default",
         disabled && !busy && "opacity-50",
-        recommended && "ring-brand-600/35 ring-[1.5px]",
+        recommended && "ring-accent/45 ring-[1.5px]",
       )}
     >
       <Avatar user={user} size="md" />
       <span className="min-w-0 grow">
         <span className="flex items-center gap-2">
-          <span className="truncate text-md font-semibold">{user.full_name}</span>
-          {recommended && <Badge tone="brand">{t.auth.recommended}</Badge>}
+          <span className="truncate text-callout font-semibold">{user.full_name}</span>
+          {recommended && <Badge tone="accent">{t.auth.recommended}</Badge>}
         </span>
-        <span className="text-text-3 block truncate text-sm">
+        <span className="text-text-3 block truncate text-footnote">
           {user.title} · {t.role[user.role]}
         </span>
       </span>
@@ -140,7 +139,7 @@ function AccountButton({ user, recommended, busy, disabled, onPress }: AccountBu
         <span
           role="status"
           aria-label={t.auth.signingIn}
-          className="text-brand-600 size-5 shrink-0 animate-spin rounded-full border-2 border-current border-t-transparent"
+          className="text-accent size-5 shrink-0 animate-spin rounded-full border-2 border-current border-t-transparent"
         />
       ) : (
         <Icon name="chev-r" size={18} strokeWidth={2.2} className="text-text-3 shrink-0" />
@@ -156,7 +155,7 @@ function AccountsSkeleton() {
       {[0, 1, 2].map((i) => (
         <div
           key={i}
-          className="bg-surface flex min-h-18 items-center gap-3.5 rounded-xl px-4 shadow-1"
+          className="bg-surface flex min-h-18 items-center gap-3.5 rounded-lg px-4 shadow-1"
         >
           <Skeleton className="size-11 rounded-full" />
           <span className="flex grow flex-col gap-2">

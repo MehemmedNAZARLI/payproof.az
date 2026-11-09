@@ -1,9 +1,14 @@
 import "@testing-library/jest-dom/vitest";
 
 import { cleanup } from "@testing-library/react";
-import { afterEach } from "vitest";
+import { afterEach, vi } from "vitest";
 
 afterEach(cleanup);
+
+// next/font is a compiler transform; outside Next it only has to hand back class names.
+vi.mock("next/font/local", () => ({
+  default: () => ({ className: "font", variable: "font-var", style: { fontFamily: "Inter" } }),
+}));
 
 // jsdom has no matchMedia. Report reduced motion so sheets and toasts settle in one frame.
 Object.defineProperty(window, "matchMedia", {
