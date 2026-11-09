@@ -47,7 +47,7 @@ const shortName = (name: string) => {
   return last ? `${first} ${last[0]}.` : first;
 };
 
-/** The latest events from the audit log, as in the prototype's "Son fəaliyyət". */
+/** The latest events from the audit log, as in the prototype's "Recent activity". */
 export function RecentActivity({ events }: { events: Schemas["AuditEvent"][] }) {
   if (events.length === 0)
     return (

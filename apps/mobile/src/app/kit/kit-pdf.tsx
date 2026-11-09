@@ -34,29 +34,29 @@ export function PdfSection() {
   );
   return (
     <>
-      <SectionHeader title="PDF görüntüləyici" />
+      <SectionHeader title="PDF viewer" />
       <Card className="flex items-center justify-between gap-3">
-        <span className="text-text-2 text-footnote">2 səhifə · bbox vurğusu · {state}</span>
+        <span className="text-text-2 text-footnote">2 pages · source highlight · {state}</span>
         <Button variant="secondary" onClick={() => setOpen(true)}>
-          PDF-ə bax
+          View PDF
         </Button>
       </Card>
       <BottomSheet
         open={open}
         onClose={() => setOpen(false)}
-        title="Nümunə PDF"
+        title="Sample PDF"
         description="sample.pdf"
         size="large"
       >
-        <ZoomPane label="Nümunə PDF: sənəd səhifələri">
+        <ZoomPane label="Sample PDF: document pages">
           {({ width, scale }) => (
             <Suspense fallback={<Skeleton className="h-96 rounded-md" />}>
               <PdfPages
                 url={url}
                 width={fitWidth(width) * scale}
                 evidence={TOTAL}
-                onLoad={() => setState("yükləndi")}
-                onError={() => setState("xəta")}
+                onLoad={() => setState("loaded")}
+                onError={() => setState("error")}
               />
             </Suspense>
           )}

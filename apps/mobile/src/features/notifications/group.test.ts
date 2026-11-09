@@ -23,8 +23,8 @@ describe("groupByDay", () => {
       now,
     );
     expect(groups.map((g) => [g.heading, g.items.map((i) => i.id)])).toEqual([
-      ["Bu gün", ["a", "b"]],
-      ["Dünən", ["c"]],
+      ["Today", ["a", "b"]],
+      ["Yesterday", ["c"]],
       ["3 noyabr, çərşənbə axşamı", ["d"]],
     ]);
   });

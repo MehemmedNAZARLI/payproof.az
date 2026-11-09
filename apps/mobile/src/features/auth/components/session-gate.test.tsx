@@ -23,7 +23,7 @@ const signIn = () =>
 const gate = () =>
   render(
     <SessionGate>
-      <p>Paketlər</p>
+      <p>Packages</p>
     </SessionGate>,
   );
 
@@ -36,14 +36,14 @@ describe("SessionGate", () => {
   it("shows the page with a session", () => {
     signIn();
     gate();
-    expect(screen.getByText("Paketlər")).toBeInTheDocument();
+    expect(screen.getByText("Packages")).toBeInTheDocument();
     expect(replace).not.toHaveBeenCalled();
   });
 
   it("sends a signed-out visitor to the login and back to this page afterwards", () => {
     endSession("expired");
     gate();
-    expect(screen.queryByText("Paketlər")).toBeNull();
+    expect(screen.queryByText("Packages")).toBeNull();
     expect(replace).toHaveBeenCalledWith("/login?next=%2Fpackages%3Fstatus%3Dready");
   });
 
@@ -51,7 +51,7 @@ describe("SessionGate", () => {
     signIn();
     gate();
     act(() => endSession("user"));
-    expect(screen.queryByText("Paketlər")).toBeNull();
+    expect(screen.queryByText("Packages")).toBeNull();
     expect(replace).toHaveBeenCalledWith("/login");
   });
 });

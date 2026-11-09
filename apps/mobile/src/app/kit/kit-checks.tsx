@@ -8,27 +8,27 @@ export function ChecksSection({ onOpen }: { onOpen: () => void }) {
   return (
     <>
       <SectionHeader
-        title="Yoxlamalar"
-        action={<span className="text-text-3 text-caption">8 keçdi · 1 bloklayır</span>}
+        title="Checks"
+        action={<span className="text-text-3 text-caption">8 passed · 1 blocking</span>}
       />
-      <ListGroup label="Yoxlamalar">
+      <ListGroup label="Checks">
         <ListItem
           leading={<Icon name="fail" size={22} className="text-danger-ink" />}
-          title="Vahid qiymət uyğunluğu"
-          subtitle="R-005 · Uyğunsuz"
+          title="Unit price match"
+          subtitle="R-005 · Failed"
           onClick={onOpen}
         />
         <ListItem
           leading={<Icon name="pass" size={22} className="text-success-ink" />}
-          title="Miqdar uyğunluğu"
-          subtitle="R-006 · Keçdi"
+          title="Quantity match"
+          subtitle="R-006 · Passed"
           onClick={onOpen}
         />
         <ListItem
           leading={<Icon name="file" size={22} />}
-          title="Faktura · v1"
+          title="Invoice · v1"
           subtitle="INV-1044.pdf"
-          trailing={<span className="text-success-ink text-caption font-semibold">Baxılıb</span>}
+          trailing={<span className="text-success-ink text-caption font-semibold">Reviewed</span>}
         />
       </ListGroup>
     </>

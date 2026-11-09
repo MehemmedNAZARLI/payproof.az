@@ -147,7 +147,7 @@ export function Paper({ page, highlight, ariaLabel }: PaperProps) {
         >
           {page.stamp}
           <br />
-          MÖHÜR
+          STAMP
         </div>
       )}
       <footer className="border-paper-line text-paper-muted mt-3.5 flex justify-between gap-2 border-t border-dashed pt-2 text-[11px]">

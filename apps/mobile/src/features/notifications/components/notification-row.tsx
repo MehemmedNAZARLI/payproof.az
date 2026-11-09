@@ -8,7 +8,7 @@ import { t } from "@/lib/i18n";
 
 type Props = { notification: Schemas["Notification"]; onOpen: () => void };
 
-// One notification. Unread: a dot and bold text (and "Oxunmamış" for screen readers).
+// One notification. Unread: a dot and bold text (and "Unread" for screen readers).
 // With a package it opens it; the tap also marks it read.
 export function NotificationRow({ notification: n, onOpen }: Props) {
   const unread = n.read_at === null;

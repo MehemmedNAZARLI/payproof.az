@@ -36,7 +36,7 @@ function Facts({ pkg }: { pkg: Detail }) {
   );
 }
 
-// Re-keyed on every nudge, so tapping a locked "Təsdiqlə" again replays the shake.
+// Re-keyed on every nudge, so tapping a locked "Approve" again replays the shake.
 const nudged = (flow: ApprovalFlow, step: "docs" | "ack") =>
   flow.nudge?.step === step ? `${step}-${flow.nudge.n}` : step;
 
@@ -147,7 +147,7 @@ export function ApprovalPage({ pkg, flow, onOpenDocument }: Props) {
       </section>
 
       <Banner tone="neutral" title={t.approval.notPayment} className="mt-5" />
-      {/* Says out loud what the shake shows when a locked "Təsdiqlə" is tapped. */}
+      {/* Says out loud what the shake shows when a locked "Approve" is tapped. */}
       <p role="status" className="sr-only">
         {flow.nudge &&
           (flow.nudge.step === "docs" ? t.approval.needDocs : t.approval.needAck) +
