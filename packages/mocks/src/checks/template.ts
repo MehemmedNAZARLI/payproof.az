@@ -1,7 +1,7 @@
 // Output template values (ADR-0011 §4): only mapped placeholders, only from validated sources.
 // Any missing value refuses the export — a partially filled document is never produced.
 import { cents, decimal } from "../money";
-import { docsOf, read } from "./read";
+import { currencyOf, docsOf, read } from "./read";
 import type { GenericPkg, GenericRequirementSet, PlaceholderSource } from "./types";
 
 export interface Approval {
@@ -29,16 +29,22 @@ function valueOf(p: GenericPkg, s: PlaceholderSource, approval: Approval | null)
       if (s.op === "count") return String(docs.length);
       const reads = docs.map((d) => ({
         r: read(d, s.field ?? ""),
-        cur: String(d.fields.currency),
+        cur: currencyOf(d),
       }));
       const currencies = new Set(reads.map((x) => x.cur));
-      if (!docs.length || currencies.size !== 1 || reads.some((x) => x.r.status !== "ok"))
+      const [currency] = currencies;
+      if (
+        !docs.length ||
+        currencies.size !== 1 ||
+        !currency ||
+        reads.some((x) => x.r.status !== "ok")
+      )
         return null;
       const total = reads.reduce(
         (sum, x) => sum + cents(String((x.r as { value: unknown }).value)),
         0,
       );
-      return `${decimal(total)} ${[...currencies][0]}`;
+      return `${decimal(total)} ${currency}`;
     }
   }
 }

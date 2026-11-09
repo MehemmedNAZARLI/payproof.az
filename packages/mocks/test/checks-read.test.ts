@@ -30,6 +30,7 @@ describe("generic check field reading", () => {
     expect(read(doc(), "po_ref").status).toBe("missing");
     expect(read(doc(), "seller.id_number").status).toBe("missing");
     expect(read(doc({ evidence: {} }), "total").status).toBe("missing");
+    expect(read(doc({ fields: { seller: "Kitab" } }), "seller.tax_id").status).toBe("missing");
   });
 
   it("an unreadable field is UNKNOWN material, cited at the document when it has no source", () => {
@@ -47,5 +48,7 @@ describe("generic check field reading", () => {
     expect(sameCounterparty("İnam MMC", "INAM")).toBe(true);
     expect(sameCounterparty("COFFEE MOFFIE", "Kitab Evi MMC")).toBe(false);
     expect(sameCounterparty("MMC", "Kitab Evi MMC")).toBe(false);
+    expect(sameCounterparty("Kitab MMC", "KITAB ALEMI")).toBe(false); // too short to contain-match
+    expect(sameCounterparty("Kitab MMC", "KITAB")).toBe(true); // equal after normalization
   });
 });

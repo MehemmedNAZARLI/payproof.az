@@ -28,11 +28,18 @@ export function read(d: GenericDoc, field: string): Read {
   if (d.unreadable.includes(top))
     return { status: "unreadable", evidence: cite(d, top) ?? whole(d) };
   let value = d.fields[top];
-  if (part !== undefined && value !== null && typeof value === "object")
-    value = (value as Record<string, unknown>)[part];
+  if (part !== undefined)
+    value =
+      value !== null && typeof value === "object" ? (value as Record<string, unknown>)[part] : null;
   const evidence = cite(d, top);
   if (value === null || value === undefined || !evidence) return { status: "missing" };
   return { status: "ok", value, evidence };
+}
+
+/** The document's read currency, or null when it was not read (never the package currency by default). */
+export function currencyOf(d: GenericDoc): string | null {
+  const r = read(d, "currency");
+  return r.status === "ok" ? String(r.value) : null;
 }
 
 /** Every document of the reference's type, with its read value. */
@@ -50,11 +57,15 @@ export function normalizeName(s: string): string {
     .replace(/[^a-z0-9]/g, "");
 }
 
+/** Shorter normalized names match too much ("kitab" in every "KITAB …" descriptor). */
+const MIN_NAME = 6;
+
 /** Same counterparty when one normalized name contains the other (bank descriptors shorten names). */
 export function sameCounterparty(a: string, b: string): boolean {
   const x = normalizeName(a);
   const y = normalizeName(b);
-  return x.length > 0 && y.length > 0 && (x.includes(y) || y.includes(x));
+  if (x === y) return x.length > 0;
+  return Math.min(x.length, y.length) >= MIN_NAME && (x.includes(y) || y.includes(x));
 }
 
 /** Whole days from `a` to `b` (ISO dates). */

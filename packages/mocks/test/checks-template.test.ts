@@ -48,6 +48,13 @@ describe("output template fill (UNEC act)", () => {
     expect(fill.missing.map((m) => m.placeholder)).toEqual(["{{total_spent}}"]);
   });
 
+  it("a sum whose currency was not read is never produced", () => {
+    const p = pkg();
+    for (const d of p.documents.filter((x) => x.type === "invoice")) d.fields.currency = null;
+    const fill = fillTemplate(p, rs, approval);
+    expect(fill.missing.map((m) => m.placeholder)).toEqual(["{{total_spent}}"]);
+  });
+
   it("a customer without an output template has nothing to fill", () => {
     expect(fillTemplate(pkg(), { ...rs, output: null }, approval)).toEqual({
       values: [],
