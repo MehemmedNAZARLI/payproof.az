@@ -96,7 +96,7 @@ export const t = {
     stepAck: "2. Confirm your review",
     seenProgress: (seen: number, total: number) => `${seen}/${total} reviewed`,
     look: "View",
-    ack: (v: number) => `I reviewed the documents and check results for v${v} .`,
+    ack: (v: number) => `I reviewed the documents and check results for v${v}.`,
     ackLocked: (n: number) => `First review ${n} more documents.`,
     notPayment:
       "This approval confirms the document set is ready. It does not authorize a bank payment.",
@@ -108,7 +108,7 @@ export const t = {
     offline: "No internet connection. Approval requires you to be online.",
     conflictTitle: "Package updated. Review it again",
     conflictBody: (v?: number) =>
-      `${v ? `A new package version is available (v${v}) var.` : "The package or rule set has changed."} Review the documents again and confirm your review.`,
+      `${v ? `A new package version is available (v${v}).` : "The package or rule set has changed."} Review the documents again and confirm your review.`,
     forbiddenTitle: "You do not have approval permission",
     forbiddenBody:
       "Only an approver can approve a ready package. Your role may have changed.",
