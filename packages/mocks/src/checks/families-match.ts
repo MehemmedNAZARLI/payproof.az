@@ -1,6 +1,6 @@
 // Check library family (ADR-0011) — document ↔ statement transaction matching.
 import { cents } from "../money";
-import { cite, daysBetween, docsOf, read, sameCounterparty, whole } from "./read";
+import { cite, currencyOf, daysBetween, docsOf, read, sameCounterparty, whole } from "./read";
 import type { EvidenceRef, GenericDoc, GenericPkg, Verdict } from "./types";
 import { fmt, money, NA, verdict } from "./verdict";
 
@@ -34,9 +34,21 @@ const citeTxn = (t: Txn) => cite(t.doc, `${t.list}[${t.index}]`) ?? whole(t.doc)
  * result does not depend on document order; what stays ambiguous is UNKNOWN — a person picks.
  */
 export function transactionMatch(p: GenericPkg, params: MatchParams): Verdict {
+  // statements or rows that were not read could hold the payment: an unpaired document is then UNKNOWN
+  const unreadRows = params.against.flatMap((a) =>
+    docsOf(p, a.document_type).flatMap((doc) => {
+      const rows = doc.tables[a.list] ?? [];
+      if (doc.unreadable.includes(a.list)) return [whole(doc)];
+      return rows.flatMap((row, i) =>
+        typeof row.amount !== "string" || typeof row.date !== "string" || !row.direction
+          ? [cite(doc, `${a.list}[${i}]`) ?? whole(doc)]
+          : [],
+      );
+    }),
+  );
   const txns: Txn[] = params.against.flatMap((a) =>
     docsOf(p, a.document_type).flatMap((doc) =>
-      (doc.tables[a.list] ?? []).flatMap((row, index) =>
+      (doc.unreadable.includes(a.list) ? [] : (doc.tables[a.list] ?? [])).flatMap((row, index) =>
         row.direction === params.direction && typeof row.amount === "string"
           ? [
               {
@@ -63,7 +75,9 @@ export function transactionMatch(p: GenericPkg, params: MatchParams): Verdict {
       c: ok ? cents(amount!) : 0,
       date: date!,
       cp: cp!,
-      evidence: cite(doc, s.amount_field) ?? whole(doc),
+      evidence: [s.amount_field, s.date_field, s.counterparty_field].map(
+        (f) => cite(doc, f.split(".")[0]!) ?? whole(doc),
+      ),
     };
   });
   if (!sources.length) return NA("Tutuşdurulacaq sənəd yoxdur.");
@@ -97,15 +111,17 @@ export function transactionMatch(p: GenericPkg, params: MatchParams): Verdict {
   const unmatched: Record<string, unknown>[] = [];
   const ambiguous: string[] = [];
   const unreadable: string[] = [];
-  const cur = (d: GenericDoc) => String(d.fields.currency ?? p.currency);
+  const cur = (d: GenericDoc) => currencyOf(d) ?? "?";
   for (const src of sources) {
-    evidence.push(src.evidence);
+    evidence.push(...src.evidence);
     const t = paired.get(src.doc.id);
     if (t) {
       matches.push({ document_id: src.doc.id, transaction: at(t) });
       evidence.push(citeTxn(t));
-    } else if (!src.ok) unreadable.push(src.doc.id);
-    else if (txns.some((x) => !used.has(x) && fits(src, x))) ambiguous.push(src.doc.id);
+    } else if (!src.ok || unreadRows.length) {
+      unreadable.push(src.doc.id);
+      evidence.push(...unreadRows);
+    } else if (txns.some((x) => !used.has(x) && fits(src, x))) ambiguous.push(src.doc.id);
     else {
       const near = txns
         .filter(

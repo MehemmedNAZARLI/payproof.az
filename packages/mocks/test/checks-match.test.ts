@@ -28,6 +28,27 @@ describe("check library: invoice ↔ statement transaction match", () => {
     expect(v.evidence.map((e) => e.field)).toContain("transactions[2]");
   });
 
+  it("an unread statement row could be the payment: UNKNOWN, not 'no transaction'", () => {
+    const p = pkg(0);
+    card(p).tables.transactions![0]!.amount = null;
+    expect(transactionMatch(p, params)).toMatchObject({
+      outcome: "UNKNOWN",
+      data: { unmatched: [], unreadable: ["unec_0914_ke2231"] },
+    });
+    const q = pkg(0);
+    card(q).unreadable = ["transactions"];
+    expect(transactionMatch(q, params).outcome).toBe("UNKNOWN");
+  });
+
+  it("cites the date and counterparty it compared, not only the amount", () => {
+    const cited = transactionMatch(pkg(0), params).evidence.map(
+      (e) => `${e.document_id}:${e.field}`,
+    );
+    expect(cited).toEqual(
+      expect.arrayContaining(["unec_0914_ke2231:invoice_date", "unec_0914_ke2231:seller"]),
+    );
+  });
+
   it("a debit outside the date window or to another counterparty does not match", () => {
     const late = pkg(0);
     card(late).tables.transactions![0]!.date = "2026-09-16";
