@@ -1087,7 +1087,9 @@ paths:
         Internal AI explanations and audit records are never included. Checks in this order: 403 → 409
         VERSION_CONFLICT → 200 with the existing export if the current version is already exported (no new audit
         event) → 409 PACKAGE_NOT_READY if the status is not APPROVED_READY → 422 INVOICE_REQUIRED if no current
-        invoice version is selected (an empty list is a 422 VALIDATION_ERROR) → 200 with a new export.
+        invoice version is selected (an empty list is a 422 VALIDATION_ERROR) → 422 VALIDATION_ERROR with
+        `details.missing_placeholders` (`[{placeholder, source}]`) if the requirement set has an output template and a
+        mapped value is missing — no partially filled document is produced (ADR-0011) → 200 with a new export.
       parameters:
         - $ref: "#/components/parameters/IdempotencyKey"
       requestBody:
@@ -1180,7 +1182,9 @@ paths:
                     },
                 }
         "422":
-          description: INVOICE_REQUIRED or VALIDATION_ERROR (e.g. a non-current document version)
+          description: |
+            INVOICE_REQUIRED or VALIDATION_ERROR (e.g. a non-current document version, or a missing output template
+            value with `details.missing_placeholders`)
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Error" }
@@ -2578,6 +2582,36 @@ components:
               document_version_id: { $ref: "#/components/schemas/Uuid" }
               type: { $ref: "#/components/schemas/DocumentType" }
               file_name: { type: string }
+        output: { $ref: "#/components/schemas/ExportOutput" }
+    ExportOutput:
+      type: object
+      additionalProperties: false
+      required: [template_file_name, manifest_file_name, values, submission]
+      description: |
+        Present when the requirement set has an output template (ADR-0011 §4): the filled template and
+        `manifest.json` are in the zip next to the documents. Absent otherwise.
+      properties:
+        template_file_name: { type: string, examples: ["UNEC_qrant_xerc_akti_QR-2026-0914.docx"] }
+        manifest_file_name: { type: string, examples: ["manifest.json"] }
+        values:
+          type: array
+          description: Every mapped placeholder with the value written into the template.
+          items:
+            type: object
+            additionalProperties: false
+            required: [placeholder, value]
+            properties:
+              placeholder: { type: string }
+              value: { type: string }
+        submission:
+          type: object
+          additionalProperties: false
+          required: [address, status, attempted_at]
+          description: Background e-mail delivery to the requirement set's address; a failure does not undo the export.
+          properties:
+            address: { type: string, format: email }
+            status: { type: string, enum: [QUEUED, SENT, FAILED] }
+            attempted_at: { type: ["string", "null"], format: date-time }
     Task:
       type: object
       additionalProperties: false

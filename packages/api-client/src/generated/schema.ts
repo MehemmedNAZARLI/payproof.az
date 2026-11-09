@@ -378,7 +378,9 @@ export interface paths {
          * @description Internal AI explanations and audit records are never included. Checks in this order: 403 → 409
          *     VERSION_CONFLICT → 200 with the existing export if the current version is already exported (no new audit
          *     event) → 409 PACKAGE_NOT_READY if the status is not APPROVED_READY → 422 INVOICE_REQUIRED if no current
-         *     invoice version is selected (an empty list is a 422 VALIDATION_ERROR) → 200 with a new export.
+         *     invoice version is selected (an empty list is a 422 VALIDATION_ERROR) → 422 VALIDATION_ERROR with
+         *     `details.missing_placeholders` (`[{placeholder, source}]`) if the requirement set has an output template and a
+         *     mapped value is missing — no partially filled document is produced (ADR-0011) → 200 with a new export.
          */
         post: operations["exportPackage"];
         delete?: never;
@@ -1090,6 +1092,31 @@ export interface components {
                 type: components["schemas"]["DocumentType"];
                 file_name: string;
             }[];
+            output?: components["schemas"]["ExportOutput"];
+        };
+        /**
+         * @description Present when the requirement set has an output template (ADR-0011 §4): the filled template and
+         *     `manifest.json` are in the zip next to the documents. Absent otherwise.
+         */
+        ExportOutput: {
+            /** @example UNEC_qrant_xerc_akti_QR-2026-0914.docx */
+            template_file_name: string;
+            /** @example manifest.json */
+            manifest_file_name: string;
+            /** @description Every mapped placeholder with the value written into the template. */
+            values: {
+                placeholder: string;
+                value: string;
+            }[];
+            /** @description Background e-mail delivery to the requirement set's address; a failure does not undo the export. */
+            submission: {
+                /** Format: email */
+                address: string;
+                /** @enum {string} */
+                status: "QUEUED" | "SENT" | "FAILED";
+                /** Format: date-time */
+                attempted_at: string | null;
+            };
         };
         Task: {
             id: components["schemas"]["Uuid"];
@@ -3013,7 +3040,10 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description INVOICE_REQUIRED or VALIDATION_ERROR (e.g. a non-current document version) */
+            /**
+             * @description INVOICE_REQUIRED or VALIDATION_ERROR (e.g. a non-current document version, or a missing output template
+             *     value with `details.missing_placeholders`)
+             */
             422: {
                 headers: {
                     [name: string]: unknown;
