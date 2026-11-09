@@ -34,7 +34,10 @@ test("an approval in one tab shows in the other within 2 s, without a reload", a
   // Survives only if the page is not reloaded.
   await watcher.evaluate(() => ((window as unknown as { marker: number }).marker = 1));
 
+  // Reviewing documents is a foreground action; Chrome throttles animation frames in hidden tabs.
+  await writer.bringToFront();
   await approve(writer);
+  await watcher.bringToFront();
 
   await expect(hero(watcher)).toContainText(/1\s*packages/, { timeout: 2_000 });
   expect(await watcher.evaluate(() => (window as unknown as { marker?: number }).marker)).toBe(1);
