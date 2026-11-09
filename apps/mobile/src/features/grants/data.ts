@@ -3,11 +3,16 @@ import scenario from "@fixtures/scenarios/unec.json";
 
 export type Source = { page: number; quote: string };
 export type GrantDocument = {
-  id: string; type: string; file_name: string;
+  id: string;
+  type: string;
+  file_name: string;
   fields: Record<string, unknown>;
   evidence: Record<string, Source | undefined>;
   unreadable: string[];
-  tables: { lines?: Record<string, unknown>[]; transactions?: { date: string; amount: string; direction: string; counterparty: string }[] };
+  tables: {
+    lines?: Record<string, unknown>[];
+    transactions?: { date: string; amount: string; direction: string; counterparty: string }[];
+  };
 };
 type Expected = {
   status: "READY_FOR_APPROVAL" | "NEEDS_FIX";
@@ -16,7 +21,14 @@ type Expected = {
     "U-06": { total: { amount: string; currency: string } };
     "U-07": {
       matches: { document_id: string; transaction: { document_id: string; index: number } }[];
-      unmatched: { document_id: string; amount: { amount: string; currency: string }; nearest: { amount: { amount: string; currency: string }; difference: { amount: string; currency: string } } }[];
+      unmatched: {
+        document_id: string;
+        amount: { amount: string; currency: string };
+        nearest: {
+          amount: { amount: string; currency: string };
+          difference: { amount: string; currency: string };
+        };
+      }[];
     };
   };
   template_values?: Record<string, string>;

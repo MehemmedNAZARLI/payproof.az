@@ -8,7 +8,11 @@ import { Icon, type IconName } from "@/components/ui/icon";
 const KEY = "payproof.welcome.v1";
 const subscribe = () => () => {};
 const seen = () => {
-  try { return localStorage.getItem(KEY) === "seen"; } catch { return false; }
+  try {
+    return localStorage.getItem(KEY) === "seen";
+  } catch {
+    return false;
+  }
 };
 const cards: { title: string; body: string; icon: IconName }[] = [
   {
@@ -34,7 +38,11 @@ export function Welcome({ children }: { children: React.ReactNode }) {
   const [index, setIndex] = useState(0);
   const track = useRef<HTMLDivElement>(null);
   const finish = () => {
-    try { localStorage.setItem(KEY, "seen"); } catch { /* Storage may be disabled. */ }
+    try {
+      localStorage.setItem(KEY, "seen");
+    } catch {
+      /* Storage may be disabled. */
+    }
     setFinished(true);
   };
   if (alreadySeen === undefined) return null;
@@ -43,7 +51,9 @@ export function Welcome({ children }: { children: React.ReactNode }) {
     <main className="px-safe pt-safe pb-safe mx-auto flex min-h-dvh max-w-app flex-col">
       <header className="flex items-center justify-between py-5">
         <h1 className="text-title3 font-bold">PayProof</h1>
-        <Button variant="plain" onClick={finish}>Skip</Button>
+        <Button variant="plain" onClick={finish}>
+          Skip
+        </Button>
       </header>
       <p className="text-accent mt-5 text-footnote font-semibold">Your documents, accounted for.</p>
       <div
@@ -57,7 +67,11 @@ export function Welcome({ children }: { children: React.ReactNode }) {
         }}
       >
         {cards.map((card, i) => (
-          <section key={card.title} aria-label={`Step ${i + 1} of 3`} className="w-full shrink-0 snap-center">
+          <section
+            key={card.title}
+            aria-label={`Step ${i + 1} of 3`}
+            className="w-full shrink-0 snap-center"
+          >
             <div className="hero mb-8 flex h-48 items-center justify-center rounded-xl">
               <span className="bg-hero-fill grid size-24 place-items-center rounded-xl">
                 <Icon name={card.icon} size={48} strokeWidth={1.4} />
@@ -70,16 +84,29 @@ export function Welcome({ children }: { children: React.ReactNode }) {
       </div>
       <div className="mt-6 flex justify-center gap-1" aria-label="Welcome steps">
         {cards.map((card, i) => (
-          <button key={card.title} type="button" aria-label={`Show step ${i + 1}`} aria-current={index === i ? "step" : undefined}
+          <button
+            key={card.title}
+            type="button"
+            aria-label={`Show step ${i + 1}`}
+            aria-current={index === i ? "step" : undefined}
             className="grid size-11 place-items-center"
-            onClick={() => track.current?.scrollTo({ left: i * track.current.clientWidth, behavior: "smooth" })}>
-            <span className={`h-2 rounded-full ${index === i ? "bg-accent w-6" : "bg-surface-3 w-2"}`} />
+            onClick={() =>
+              track.current?.scrollTo({ left: i * track.current.clientWidth, behavior: "smooth" })
+            }
+          >
+            <span
+              className={`h-2 rounded-full ${index === i ? "bg-accent w-6" : "bg-surface-3 w-2"}`}
+            />
           </button>
         ))}
       </div>
       <div className="mt-auto pt-6 pb-6">
-        <Button block size="lg" onClick={finish}>Get started</Button>
-        <p className="text-text-3 mt-3 text-center text-caption">Review and approve on mobile. Upload and send on the web.</p>
+        <Button block size="lg" onClick={finish}>
+          Get started
+        </Button>
+        <p className="text-text-3 mt-3 text-center text-caption">
+          Review and approve on mobile. Upload and send on the web.
+        </p>
       </div>
     </main>
   );
