@@ -78,6 +78,12 @@ Həqiqət mənbəyi: `packages/contracts/openapi.yaml` (S-04). Bu sənəd onun q
 ```
 `permissions` UI üçün ipucudur; server hər sorğuda yenidən yoxlayır.
 
+## Konfiqurasiya olunan sənəd dəstləri (0.4.0, ADR-0011)
+- `RequirementSet` + optional `documents[]` (`DocumentRequirement`), `checks[]` (`CheckConfig`: `id, type, title, parameters`), `output` (`OutputConfig` | null). Legacy dəstlər `invoice 1..1, order 0..1, delivery 0|1..1` və `R-001…R-009` (`type: legacy_rule`) kimi ifadə olunur.
+- `RuleId` = `^[A-Z]{1,4}-[0-9]{2,3}$` (`R-001`, `D-001`, `U-07`); `CheckResult.check_type` — kitabxana ailəsi.
+- `ExportRecord.output` — doldurulmuş şablon, manifest, placeholder dəyərləri, göndərmə statusu. Xəritələnmiş dəyər yoxdursa export `422 VALIDATION_ERROR` + `details.missing_placeholders[]`.
+- **Planlaşdırılıb (backend step-i ilə eyni PR-da, çünki `test_contract_drift` müqavilə = xidmət olunan əməliyyatlar tələb edir):** `GET /v1/document-types`, `GET /v1/check-library`, `POST /v1/customers/{id}/output-templates` (multipart `.docx`), `createRequirementSet` body-sinə `documents/checks/output`.
+
 ## Canlı hadisələr — `GET /v1/events` (ADR-0010)
 - `Authorization: Bearer` header-i ilə (fetch əsaslı klient; token query string-də qəbul edilmir). Tenant yalnız JWT-dən.
 - Cavab `text/event-stream`; hər hadisə `id: <event_id>`, `event: <type>`, `data: <LiveEvent JSON>`. Hər 15 s `: ping`.

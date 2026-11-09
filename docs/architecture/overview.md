@@ -14,7 +14,7 @@ apps/api (FastAPI) ── auth / tenant / permission (hər sorğuda)
  ├─ services/   use-case-lər (tranzaksiya sərhədi, audit, versiya)
  ├─ domain/     təmiz domen: pul, qaydalar, status, versiya — I/O yoxdur
  ├─ repositories/  SQLAlchemy, tenant filtri məcburi
- ├─ extraction/ adapter interfeysi: mock | pdf_text | ocr | llm
+ ├─ extraction/ reyestr sxemi → ön-emal (pdf mətni / CSV / XLSX) → provayder: mock | anthropic | openai
  ├─ storage/    S3 client (MinIO lokal)
  ├─ realtime/   LISTEN/NOTIFY hub → GET /v1/events (SSE)
  └─ worker/     jobs cədvəli + SKIP LOCKED worker
@@ -54,5 +54,6 @@ Bir istifadəçinin dəyişikliyi digərində refresh-siz, ≤ 2 s görünür (A
 ## Sonrakı genişlənmə nöqtələri
 - ERP connector-u (P1): `apps/api/src/payproof/connectors/<erp>/` — qayda mühərrikinə toxunmadan
 - Queue: `JobQueue` interfeysi → Redis/SQS
-- AI provayderi: `ExtractionAdapter` interfeysi
+- AI provayderi: `ExtractionAdapter` interfeysi, seçim yalnız env ilə (`AI_PROVIDER`, ADR-0011 §5)
+- Yeni sənəd dəsti: sənəd növü reyestri + tələb dəsti + yoxlama kitabxanası (ADR-0011) — kod yalnız yeni kitabxana ailəsi üçün
 - Native mobil (lazım olsa): `apps/mobile`-i Expo ilə əvəzləmək; api-client və tokenlər paylaşılır

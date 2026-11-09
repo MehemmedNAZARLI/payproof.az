@@ -36,6 +36,17 @@
 | `notifications` | id, company_id, user_id, package_id, text, read_at | |
 | `idempotency_keys` | key, company_id, endpoint, response JSONB, created_at | Approve/export/upload üçün |
 
+## Konfiqurasiya olunan sənəd dəstləri (ADR-0011, planlaşdırılıb — backend step-i)
+| Cədvəl / sütun | Əsas sütunlar | Qeyd |
+|---|---|---|
+| `document_types` | key, version, name, builtin, accepted_formats, extraction JSONB, instructions | Unikal (key, version); qlobal konfiqurasiya (tenant-a aid deyil), seed `fixtures/config/document-types.json`-dan |
+| `requirement_sets` + | documents JSONB, checks JSONB, output JSONB NULL | Köhnə bayraqlar qalır; `documents/checks` boşdursa legacy profil törədilir |
+| `documents.type` | registry key (`TEXT`, FK → `document_types.key`) | `invoice/order/delivery` CHECK-i reyestr FK-si ilə əvəzlənir |
+| `extracted_documents` | document_version_id, type_version, fields JSONB, tables JSONB | Ümumi çıxarış nəticəsi; pul sahələri string; mənbə `evidence_refs`-də (`field_path`: `seller`, `transactions[2]`) |
+| `output_templates` | id, company_id, customer_id, file_name, storage_key, sha256, placeholders TEXT[] | `.docx` yüklənəndə placeholder-lər çıxarılır; xəritəsiz placeholder → tələb dəsti saxlanmır |
+| `export_records` + | output JSONB NULL (template_file_name, values, manifest_key) | |
+| `export_submissions` | id, export_id, address, status (`QUEUED/SENT/FAILED`), attempts, attempted_at | Fon işi; ixracı ləğv etmir |
+
 ## Versiya modeli
 `invoice_packages.version` artır: yeni sənəd versiyası, kritik sahə düzəlişi, sifariş əlaqəsinin dəyişməsi və **müştərinin yeni qayda dəsti** (ADR-0009 — müştərinin cari versiyası ixrac edilməmiş bütün paketləri üçün). Versiya artanda cari təsdiq `valid=false` olur (auditdə qalır), təsdiqçiyə bildiriş gedir, yoxlama təkrarlanır. Cari versiyası ixrac edilmiş paket ixrac zamanındakı qayda dəstində qalır. Approve/export əlavə olaraq `expected_requirement_set_version` yoxlayır. Bütün dəyişikliklər `expected_version` ilə optimistic locking istifadə edir.
 

@@ -52,5 +52,19 @@ Rule version: paket cari versiyada ixrac edilibsə, ixrac zamanı qüvvədə ola
 - Mesaj yeni rəqəm uydurmur — yalnız `data`-dakı hesablanmış dəyərləri göstərir.
 - Hər qayda ayrıca funksiyadır: `def r001(s: PackageSnapshot) -> CheckResult`. `evaluate(s) -> list[CheckResult]` onları ardıcıl çağırır (R-008 R-007-nin nəticəsindən asılıdır).
 
+## Konfiqurasiya olunan yoxlamalar (ADR-0011)
+R-001…R-009 yuxarıdakı kimi qalır (ID, davranış, golden test). Müştərinin tələb dəsti ümumi sənəd dəsti istifadə edirsə, mühərrik əlavə olaraq:
+- **`D-001` `document_count`** — `documents[]`-dən avtomatik: hər növün sayı `min_count..max_count` daxilində.
+- **Konfiqurasiya olunmuş yoxlamalar** (`checks[]`, sıra ilə) — hər biri kitabxana ailəsinin parametrli nüsxəsidir: `field_present`, `values_equal`, `totals_sum`, `date_within_period`, `amount_within_limit`, `line_items_match`, `transaction_match`, `no_duplicate_use`, `party_identity_match`. Ailələrin parametrləri və nəticə məntiqi: ADR-0011 §3 və `fixtures/config/check-library.json`.
+
+Giriş `GenericSnapshot`: sənədlər (`type`, `fields`, `unreadable`, `tables`, `evidence`), tələb dəsti, müştərinin digər paketləri (`no_duplicate_use`, `scope: customer`). Ümumi qaydalar R-qaydaları ilə eyni prinsiplərə tabedir:
+- Dəyər yalnız oxunubsa və mənbə istinadı varsa "oxunmuş" sayılır; oxunmayan → `UNKNOWN`, olmayan → `FAIL` (`field_present`) və ya `UNKNOWN` (müqayisə qaydaları).
+- Pul tam qəpiklə; valyuta fərqi → `UNKNOWN` və ya `FAIL` (`values_equal(currency)`), heç vaxt çevirmə.
+- `transaction_match`: əvvəl birmənalı cütlər bağlanır (təkrarən), nəticə sənəd sırasından asılı deyil; iki sənədin yeganə namizədi olan əməliyyat heç kimə verilmir; birdən çox namizəd → `UNKNOWN` (insan seçir), namizəd yoxdur → `FAIL` + ən yaxın əməliyyat və fərq `data`-da.
+- Hər qərar verilmiş nəticə (`PASS/FAIL/UNKNOWN`) `evidence[]` daşıyır — müqayisə olunan hər dəyərin mənbəyi.
+- Status: `FAIL` → `NEEDS_FIX`, `UNKNOWN` → `NEEDS_REVIEW`, əks halda `READY_FOR_APPROVAL` (sifariş əlaqəsi yoxdur); təsdiq/ixrac R-010 kimi.
+
+Referans implementasiya `packages/mocks/src/checks/` (golden: `fixtures/scenarios/unec.expected.json`); backend eyni nəticəni verməlidir.
+
 ## Tapşırıqların avtomatik bağlanması
 Hər validation run-dan sonra: həmin paketin açıq tapşırıqları üçün `task.rule_id` nəticəsi `PASS` və ya `NOT_APPLICABLE`-dirsə → `RESOLVED` (actor: system). `SUBMITTED_FOR_RECHECK` vəziyyətindəki tapşırıq qaydası hələ keçmirsə → `IN_PROGRESS` (audit: "yoxlama keçmədi").
