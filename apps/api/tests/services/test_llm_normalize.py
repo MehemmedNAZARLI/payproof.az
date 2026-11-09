@@ -9,7 +9,7 @@ TYPES = {t["key"]: t for t in json.loads((FIXTURES / "config/document-types.json
 BANK = TYPES["bank_statement"]
 
 
-def item(value: Any, conf: float = 0.97, page: int | None = 1, quote: str | None = "q") -> Any:
+def item(value: Any, conf: Any = 0.97, page: int | None = 1, quote: str | None = "q") -> Any:
     return {"value": value, "page": page, "quote": quote, "confidence": conf}
 
 

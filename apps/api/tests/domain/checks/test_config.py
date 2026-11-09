@@ -122,3 +122,17 @@ def test_template_must_be_uploaded_and_contain_every_placeholder() -> None:
     assert e == {"output.template": "şablon bu müştəri üçün yüklənməyib"}
     e = errors(lambda rs: None, placeholders=PLACEHOLDERS - {"{{grantee_fin}}"})
     assert e == {"output.placeholders[2]": "{{grantee_fin}} şablonda yoxdur"}
+
+
+def test_amounts_and_dates_must_have_fitting_types() -> None:
+    def m(rs: dict[str, Any]) -> None:
+        rs["checks"][5]["parameters"]["target"]["field"] = "invoice_number"
+        rs["checks"][4]["parameters"]["target"]["field"] = "total"
+        rs["checks"][3]["parameters"]["amount_column"] = "description"
+        rs["checks"][6]["parameters"]["source"]["date_field"] = "invoice_number"
+
+    e = errors(m)
+    assert e["checks[5].parameters"] == "invoice.invoice_number money sahəsi olmalıdır"
+    assert e["checks[4].parameters"] == "invoice.total date sahəsi olmalıdır"
+    assert e["checks[3].parameters"] == "lines.description money sütunu olmalıdır"
+    assert e["checks[6].parameters"] == "invoice.invoice_number date sahəsi olmalıdır"

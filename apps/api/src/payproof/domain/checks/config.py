@@ -106,10 +106,39 @@ class _Validator:
         if bad:
             return  # shapes are wrong: references cannot be followed safely
         problems = list(dict.fromkeys(self.references(fam["type"], params)))
+        if not problems:  # references resolve: their types must fit the family's arithmetic
+            problems = list(dict.fromkeys(self.typed(fam["type"], params)))
         if problems:
             self.fail(f"{at}.parameters", "; ".join(problems))
         elif fam["type"] == "field_present":
             self.present |= {f"{t['document_type']}.{t['field']}" for t in params["targets"]}
+
+    def column_type(self, doc_type: str, key: str, column: str) -> str | None:
+        x = self.registry[doc_type]["extraction"]
+        lists = [*x.get("tables", []), *x.get("transaction_lists", [])]
+        cols: list[Json] = next((t["columns"] for t in lists if t["key"] == key), [])
+        return next((str(c["type"]) for c in cols if c["key"] == column), None)
+
+    def typed(self, family: str, p: Json) -> Iterator[str]:
+        """Money where the family sums or compares amounts, dates where it compares dates —
+        a text field there would fail at evaluation instead of at saving."""
+        want: list[tuple[str, str, str]] = []  # (document_type, field, type)
+        if family == "amount_within_limit":
+            want = [(p["target"]["document_type"], p["target"]["field"], "money")]
+        elif family == "totals_sum":
+            want = [(p["document_type"], p["total_field"], "money")]
+            if self.column_type(p["document_type"], p["table"], p["amount_column"]) != "money":
+                yield f"{p['table']}.{p['amount_column']} money sütunu olmalıdır"
+        elif family == "transaction_match":
+            src = p["source"]
+            want = [(src["document_type"], src["amount_field"], "money"),
+                    (src["document_type"], src["date_field"], "date")]  # fmt: skip
+        elif family == "date_within_period":
+            bounds = [b for b in (p["period"]["from"], p["period"]["to"]) if isinstance(b, dict)]
+            want = [(r["document_type"], r["field"], "date") for r in [p["target"], *bounds]]
+        for doc_type, field, kind in want:
+            if self.field_type(doc_type, field) != kind:
+                yield f"{doc_type}.{field} {kind} sahəsi olmalıdır"
 
     def references(self, family: str, p: Json) -> Iterator[str]:
         for doc_type, field, key in references(p):
