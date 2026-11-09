@@ -210,7 +210,10 @@
         "fix_hint": null,
         "data": {
           "matched_on": "id_number",
-          "values": ["5ZK8M2P", "5ZK8M2P"]
+          "values": [
+            "5ZK8M2P",
+            "5ZK8M2P"
+          ]
         }
       },
       {
@@ -681,7 +684,9 @@
   },
   "base_0927": {
     "status": "NEEDS_FIX",
-    "primary_blockers": ["U-07"],
+    "primary_blockers": [
+      "U-07"
+    ],
     "results": [
       {
         "rule_id": "D-001",
@@ -854,7 +859,10 @@
         "fix_hint": null,
         "data": {
           "matched_on": "id_number",
-          "values": ["7HD2KQ1", "7HD2KQ1"]
+          "values": [
+            "7HD2KQ1",
+            "7HD2KQ1"
+          ]
         }
       },
       {
@@ -1447,7 +1455,10 @@
         "fix_hint": null,
         "data": {
           "matched_on": "id_number",
-          "values": ["5ZK8M2P", "5ZK8M2P"]
+          "values": [
+            "5ZK8M2P",
+            "5ZK8M2P"
+          ]
         }
       },
       {
@@ -1925,7 +1936,10 @@
   },
   "export_refusal": {
     "status": "NEEDS_REVIEW",
-    "primary_blockers": ["U-01", "U-02"],
+    "primary_blockers": [
+      "U-01",
+      "U-02"
+    ],
     "results": [
       {
         "rule_id": "D-001",
@@ -2620,7 +2634,12 @@
   },
   "invoice_total_unread": {
     "status": "NEEDS_REVIEW",
-    "primary_blockers": ["U-01", "U-04", "U-06", "U-07"],
+    "primary_blockers": [
+      "U-01",
+      "U-04",
+      "U-06",
+      "U-07"
+    ],
     "results": [
       {
         "rule_id": "D-001",
@@ -2834,7 +2853,10 @@
         "fix_hint": null,
         "data": {
           "matched_on": "id_number",
-          "values": ["5ZK8M2P", "5ZK8M2P"]
+          "values": [
+            "5ZK8M2P",
+            "5ZK8M2P"
+          ]
         }
       },
       {
@@ -3170,7 +3192,9 @@
           ],
           "unmatched": [],
           "ambiguous": [],
-          "unreadable": ["unec_0914_ke2231"]
+          "unreadable": [
+            "unec_0914_ke2231"
+          ]
         }
       },
       {
@@ -3274,7 +3298,12 @@
   },
   "invoice_total_without_evidence": {
     "status": "NEEDS_FIX",
-    "primary_blockers": ["U-01", "U-04", "U-06", "U-07"],
+    "primary_blockers": [
+      "U-01",
+      "U-04",
+      "U-06",
+      "U-07"
+    ],
     "results": [
       {
         "rule_id": "D-001",
@@ -3488,7 +3517,10 @@
         "fix_hint": null,
         "data": {
           "matched_on": "id_number",
-          "values": ["5ZK8M2P", "5ZK8M2P"]
+          "values": [
+            "5ZK8M2P",
+            "5ZK8M2P"
+          ]
         }
       },
       {
@@ -3818,7 +3850,9 @@
           ],
           "unmatched": [],
           "ambiguous": [],
-          "unreadable": ["unec_0914_ke2231"]
+          "unreadable": [
+            "unec_0914_ke2231"
+          ]
         }
       },
       {
@@ -3922,7 +3956,10 @@
   },
   "currency_usd": {
     "status": "NEEDS_FIX",
-    "primary_blockers": ["U-03", "U-06"],
+    "primary_blockers": [
+      "U-03",
+      "U-06"
+    ],
     "results": [
       {
         "rule_id": "D-001",
@@ -4131,7 +4168,10 @@
         "fix_hint": null,
         "data": {
           "matched_on": "id_number",
-          "values": ["5ZK8M2P", "5ZK8M2P"]
+          "values": [
+            "5ZK8M2P",
+            "5ZK8M2P"
+          ]
         }
       },
       {
@@ -4599,7 +4639,11 @@
   },
   "currency_unread": {
     "status": "NEEDS_REVIEW",
-    "primary_blockers": ["U-03", "U-04", "U-06"],
+    "primary_blockers": [
+      "U-03",
+      "U-04",
+      "U-06"
+    ],
     "results": [
       {
         "rule_id": "D-001",
@@ -4808,7 +4852,10 @@
         "fix_hint": null,
         "data": {
           "matched_on": "id_number",
-          "values": ["5ZK8M2P", "5ZK8M2P"]
+          "values": [
+            "5ZK8M2P",
+            "5ZK8M2P"
+          ]
         }
       },
       {
@@ -5255,7 +5302,10 @@
   },
   "seller_tax_id_missing": {
     "status": "NEEDS_FIX",
-    "primary_blockers": ["U-01", "U-08"],
+    "primary_blockers": [
+      "U-01",
+      "U-08"
+    ],
     "results": [
       {
         "rule_id": "D-001",
@@ -5469,7 +5519,10 @@
         "fix_hint": null,
         "data": {
           "matched_on": "id_number",
-          "values": ["5ZK8M2P", "5ZK8M2P"]
+          "values": [
+            "5ZK8M2P",
+            "5ZK8M2P"
+          ]
         }
       },
       {
@@ -5940,7 +5993,9 @@
   },
   "statement_row_unread": {
     "status": "NEEDS_REVIEW",
-    "primary_blockers": ["U-07"],
+    "primary_blockers": [
+      "U-07"
+    ],
     "results": [
       {
         "rule_id": "D-001",
@@ -6149,7 +6204,10 @@
         "fix_hint": null,
         "data": {
           "matched_on": "id_number",
-          "values": ["5ZK8M2P", "5ZK8M2P"]
+          "values": [
+            "5ZK8M2P",
+            "5ZK8M2P"
+          ]
         }
       },
       {
@@ -6515,7 +6573,9 @@
           ],
           "unmatched": [],
           "ambiguous": [],
-          "unreadable": ["unec_0914_ke2231"]
+          "unreadable": [
+            "unec_0914_ke2231"
+          ]
         }
       },
       {
@@ -6613,7 +6673,9 @@
   },
   "statement_list_unreadable": {
     "status": "NEEDS_REVIEW",
-    "primary_blockers": ["U-07"],
+    "primary_blockers": [
+      "U-07"
+    ],
     "results": [
       {
         "rule_id": "D-001",
@@ -6786,7 +6848,10 @@
         "fix_hint": null,
         "data": {
           "matched_on": "id_number",
-          "values": ["7HD2KQ1", "7HD2KQ1"]
+          "values": [
+            "7HD2KQ1",
+            "7HD2KQ1"
+          ]
         }
       },
       {
@@ -7056,7 +7121,10 @@
           "matches": [],
           "unmatched": [],
           "ambiguous": [],
-          "unreadable": ["unec_0927_ke2307", "unec_0927_tm88412"]
+          "unreadable": [
+            "unec_0927_ke2307",
+            "unec_0927_tm88412"
+          ]
         }
       },
       {
@@ -7142,7 +7210,9 @@
   },
   "line_total_off": {
     "status": "NEEDS_FIX",
-    "primary_blockers": ["U-04"],
+    "primary_blockers": [
+      "U-04"
+    ],
     "results": [
       {
         "rule_id": "D-001",
@@ -7351,7 +7421,10 @@
         "fix_hint": null,
         "data": {
           "matched_on": "id_number",
-          "values": ["5ZK8M2P", "5ZK8M2P"]
+          "values": [
+            "5ZK8M2P",
+            "5ZK8M2P"
+          ]
         }
       },
       {
@@ -7822,7 +7895,9 @@
   },
   "lines_empty": {
     "status": "NEEDS_REVIEW",
-    "primary_blockers": ["U-04"],
+    "primary_blockers": [
+      "U-04"
+    ],
     "results": [
       {
         "rule_id": "D-001",
@@ -8031,7 +8106,10 @@
         "fix_hint": null,
         "data": {
           "matched_on": "id_number",
-          "values": ["5ZK8M2P", "5ZK8M2P"]
+          "values": [
+            "5ZK8M2P",
+            "5ZK8M2P"
+          ]
         }
       },
       {
@@ -8475,7 +8553,10 @@
   },
   "invoice_outside_period": {
     "status": "NEEDS_FIX",
-    "primary_blockers": ["U-05", "U-07"],
+    "primary_blockers": [
+      "U-05",
+      "U-07"
+    ],
     "results": [
       {
         "rule_id": "D-001",
@@ -8684,7 +8765,10 @@
         "fix_hint": null,
         "data": {
           "matched_on": "id_number",
-          "values": ["5ZK8M2P", "5ZK8M2P"]
+          "values": [
+            "5ZK8M2P",
+            "5ZK8M2P"
+          ]
         }
       },
       {
@@ -9173,7 +9257,10 @@
   },
   "period_unread": {
     "status": "NEEDS_REVIEW",
-    "primary_blockers": ["U-01", "U-05"],
+    "primary_blockers": [
+      "U-01",
+      "U-05"
+    ],
     "results": [
       {
         "rule_id": "D-001",
@@ -9387,7 +9474,10 @@
         "fix_hint": null,
         "data": {
           "matched_on": "id_number",
-          "values": ["5ZK8M2P", "5ZK8M2P"]
+          "values": [
+            "5ZK8M2P",
+            "5ZK8M2P"
+          ]
         }
       },
       {
@@ -9856,7 +9946,9 @@
   },
   "over_limit_sum": {
     "status": "NEEDS_FIX",
-    "primary_blockers": ["U-06"],
+    "primary_blockers": [
+      "U-06"
+    ],
     "results": [
       {
         "rule_id": "D-001",
@@ -10065,7 +10157,10 @@
         "fix_hint": null,
         "data": {
           "matched_on": "id_number",
-          "values": ["5ZK8M2P", "5ZK8M2P"]
+          "values": [
+            "5ZK8M2P",
+            "5ZK8M2P"
+          ]
         }
       },
       {
@@ -10536,7 +10631,9 @@
   },
   "over_limit_each": {
     "status": "NEEDS_FIX",
-    "primary_blockers": ["U-06"],
+    "primary_blockers": [
+      "U-06"
+    ],
     "results": [
       {
         "rule_id": "D-001",
@@ -10745,7 +10842,10 @@
         "fix_hint": null,
         "data": {
           "matched_on": "id_number",
-          "values": ["5ZK8M2P", "5ZK8M2P"]
+          "values": [
+            "5ZK8M2P",
+            "5ZK8M2P"
+          ]
         }
       },
       {
@@ -11217,7 +11317,9 @@
   },
   "limit_in_usd": {
     "status": "NEEDS_REVIEW",
-    "primary_blockers": ["U-06"],
+    "primary_blockers": [
+      "U-06"
+    ],
     "results": [
       {
         "rule_id": "D-001",
@@ -11426,7 +11528,10 @@
         "fix_hint": null,
         "data": {
           "matched_on": "id_number",
-          "values": ["5ZK8M2P", "5ZK8M2P"]
+          "values": [
+            "5ZK8M2P",
+            "5ZK8M2P"
+          ]
         }
       },
       {
@@ -11888,7 +11993,10 @@
   },
   "duplicate_in_package": {
     "status": "NEEDS_FIX",
-    "primary_blockers": ["U-07", "U-08"],
+    "primary_blockers": [
+      "U-07",
+      "U-08"
+    ],
     "results": [
       {
         "rule_id": "D-001",
@@ -12133,7 +12241,10 @@
         "fix_hint": null,
         "data": {
           "matched_on": "id_number",
-          "values": ["5ZK8M2P", "5ZK8M2P"]
+          "values": [
+            "5ZK8M2P",
+            "5ZK8M2P"
+          ]
         }
       },
       {
@@ -12561,7 +12672,10 @@
             }
           ],
           "unmatched": [],
-          "ambiguous": ["unec_0914_ke2231", "unec_0914_ke2231_copy"],
+          "ambiguous": [
+            "unec_0914_ke2231",
+            "unec_0914_ke2231_copy"
+          ],
           "unreadable": []
         }
       },
@@ -12678,7 +12792,10 @@
   },
   "duplicate_across_packages": {
     "status": "NEEDS_FIX",
-    "primary_blockers": ["U-07", "U-08"],
+    "primary_blockers": [
+      "U-07",
+      "U-08"
+    ],
     "results": [
       {
         "rule_id": "D-001",
@@ -12851,7 +12968,10 @@
         "fix_hint": null,
         "data": {
           "matched_on": "id_number",
-          "values": ["7HD2KQ1", "7HD2KQ1"]
+          "values": [
+            "7HD2KQ1",
+            "7HD2KQ1"
+          ]
         }
       },
       {
@@ -13241,7 +13361,11 @@
   },
   "bank_statement_missing": {
     "status": "NEEDS_FIX",
-    "primary_blockers": ["D-001", "U-05", "U-07"],
+    "primary_blockers": [
+      "D-001",
+      "U-05",
+      "U-07"
+    ],
     "results": [
       {
         "rule_id": "D-001",
@@ -13283,7 +13407,9 @@
             "bank_statement": 0,
             "card_statement": 1
           },
-          "missing": ["bank_statement"]
+          "missing": [
+            "bank_statement"
+          ]
         }
       },
       {
@@ -13864,7 +13990,10 @@
   },
   "two_card_statements": {
     "status": "NEEDS_FIX",
-    "primary_blockers": ["D-001", "U-07"],
+    "primary_blockers": [
+      "D-001",
+      "U-07"
+    ],
     "results": [
       {
         "rule_id": "D-001",
@@ -14092,7 +14221,11 @@
         "fix_hint": null,
         "data": {
           "matched_on": "id_number",
-          "values": ["5ZK8M2P", "5ZK8M2P", "5ZK8M2P"]
+          "values": [
+            "5ZK8M2P",
+            "5ZK8M2P",
+            "5ZK8M2P"
+          ]
         }
       },
       {
@@ -14450,7 +14583,10 @@
             }
           ],
           "unmatched": [],
-          "ambiguous": ["unec_0914_ke2231", "unec_0914_ol5520"],
+          "ambiguous": [
+            "unec_0914_ke2231",
+            "unec_0914_ol5520"
+          ],
           "unreadable": []
         }
       },
@@ -14549,7 +14685,9 @@
   },
   "holder_mismatch": {
     "status": "NEEDS_FIX",
-    "primary_blockers": ["U-02"],
+    "primary_blockers": [
+      "U-02"
+    ],
     "results": [
       {
         "rule_id": "D-001",
@@ -14758,7 +14896,10 @@
         "fix_hint": null,
         "data": {
           "matched_on": "id_number",
-          "values": ["5ZK8M2P", "7AB1C2D"]
+          "values": [
+            "5ZK8M2P",
+            "7AB1C2D"
+          ]
         }
       },
       {
@@ -15229,7 +15370,10 @@
   },
   "holder_without_common_identifier": {
     "status": "NEEDS_FIX",
-    "primary_blockers": ["U-01", "U-02"],
+    "primary_blockers": [
+      "U-01",
+      "U-02"
+    ],
     "results": [
       {
         "rule_id": "D-001",
@@ -15920,7 +16064,9 @@
   },
   "ambiguous_transaction": {
     "status": "NEEDS_REVIEW",
-    "primary_blockers": ["U-07"],
+    "primary_blockers": [
+      "U-07"
+    ],
     "results": [
       {
         "rule_id": "D-001",
@@ -16129,7 +16275,10 @@
         "fix_hint": null,
         "data": {
           "matched_on": "id_number",
-          "values": ["5ZK8M2P", "5ZK8M2P"]
+          "values": [
+            "5ZK8M2P",
+            "5ZK8M2P"
+          ]
         }
       },
       {
@@ -16488,7 +16637,9 @@
             }
           ],
           "unmatched": [],
-          "ambiguous": ["unec_0914_ke2231"],
+          "ambiguous": [
+            "unec_0914_ke2231"
+          ],
           "unreadable": []
         }
       },
@@ -16587,7 +16738,9 @@
   },
   "counterparty_ignored": {
     "status": "NEEDS_FIX",
-    "primary_blockers": ["U-07"],
+    "primary_blockers": [
+      "U-07"
+    ],
     "results": [
       {
         "rule_id": "D-001",
@@ -16760,7 +16913,10 @@
         "fix_hint": null,
         "data": {
           "matched_on": "id_number",
-          "values": ["7HD2KQ1", "7HD2KQ1"]
+          "values": [
+            "7HD2KQ1",
+            "7HD2KQ1"
+          ]
         }
       },
       {
@@ -17144,7 +17300,11 @@
   },
   "invoice_date_unread": {
     "status": "NEEDS_REVIEW",
-    "primary_blockers": ["U-01", "U-05", "U-07"],
+    "primary_blockers": [
+      "U-01",
+      "U-05",
+      "U-07"
+    ],
     "results": [
       {
         "rule_id": "D-001",
@@ -17322,7 +17482,10 @@
         "fix_hint": null,
         "data": {
           "matched_on": "id_number",
-          "values": ["7HD2KQ1", "7HD2KQ1"]
+          "values": [
+            "7HD2KQ1",
+            "7HD2KQ1"
+          ]
         }
       },
       {
@@ -17587,7 +17750,9 @@
           ],
           "unmatched": [],
           "ambiguous": [],
-          "unreadable": ["unec_0927_tm88412"]
+          "unreadable": [
+            "unec_0927_tm88412"
+          ]
         }
       },
       {
@@ -17673,7 +17838,11 @@
   },
   "receipt_line_items_and_totals": {
     "status": "NEEDS_FIX",
-    "primary_blockers": ["X-01", "X-02", "X-03"],
+    "primary_blockers": [
+      "X-01",
+      "X-02",
+      "X-03"
+    ],
     "results": [
       {
         "rule_id": "D-001",
@@ -17882,7 +18051,10 @@
         "fix_hint": null,
         "data": {
           "matched_on": "id_number",
-          "values": ["5ZK8M2P", "5ZK8M2P"]
+          "values": [
+            "5ZK8M2P",
+            "5ZK8M2P"
+          ]
         }
       },
       {
@@ -18337,7 +18509,9 @@
         ],
         "fix_hint": null,
         "data": {
-          "missing": ["Qələm"],
+          "missing": [
+            "Qələm"
+          ],
           "differences": [
             {
               "key": "Makroiqtisadiyyat dərsliyi",
@@ -18447,7 +18621,12 @@
         "fix_hint": null,
         "data": {
           "matched_on": "tax_id",
-          "values": ["1403216781", "1403216781", "1501122334", "1702334455"]
+          "values": [
+            "1403216781",
+            "1403216781",
+            "1501122334",
+            "1702334455"
+          ]
         }
       },
       {
@@ -18715,7 +18894,10 @@
         "fix_hint": null,
         "data": {
           "matched_on": "id_number",
-          "values": ["5ZK8M2P", "5ZK8M2P"]
+          "values": [
+            "5ZK8M2P",
+            "5ZK8M2P"
+          ]
         }
       },
       {
