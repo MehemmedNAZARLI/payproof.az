@@ -109,3 +109,20 @@ Hər step: öz branch-ı, kiçik commit-lər (≤200 sətir), `/finish-step` il�
 - [ ] CI PR-da yaşıl; olmayan app-lər üçün job-lar skip olunur
 - [ ] Komanda yoldaşı clone → `./scripts/setup.sh` → `pnpm install` → `pnpm --filter @payproof/mocks test` işləyir
 **Commit planı:** 1) check-commit-size skriptini ayırmaq 2) ci.yml packages/contracts 3) api job 4) web/mobile job-ları
+
+---
+
+### S-09 · Canlı hadisələr müqaviləsi və mock axını
+**Branch:** `feat/S-09-live-events` · **Asılılıq:** S-06 · **Skills:** `api-and-interface-design`, `superpowers:test-driven-development`
+**Məqsəd:** ADR-0010-un paylaşılan hissəsi — `GET /v1/events` müqaviləsi, fetch əsaslı SSE klienti və mock rejimində işləyən hadisə axını; B-12b, W-05b, M-04b bunun üzərində qurulur.
+**Daxildir:**
+- `/contract-change`: `GET /v1/events` (`text/event-stream`, bearer, `Last-Event-ID` header-i, `401`), `LiveEvent` sxemi `{event_id, company_id, type, package_id|null, package_version|null, actor_id, at}`, `LiveEventType` enum: `package.created`, `package.updated` (sənəd, sahə, əlaqə, yoxlama, versiya/status), `package.approved`, `package.exported`, `package.deleted`, `task.changed`, `notification.created`, `requirements.changed`; nümunələr; `CONTRACT-CHANGELOG.md` qeydi; client regenerasiyası
+- `@payproof/api-client`: `subscribeEvents({ baseUrl, getToken, signal, onEvent, onOpen, onError })` — `fetch` + `ReadableStream` SSE parser (`id`/`event`/`data`, çoxsətirli `data`, `: ping` şərhləri), `Authorization` header-i, `Last-Event-ID` ötürülməsi, yenidən qoşulma (1 s → 30 s backoff + jitter), `401`-də dayanma; asılılıq əlavə edilmir
+- `@payproof/mocks`: store-da hadisə emitter-i — hər yazma handler-i uğurlu dəyişiklikdən **sonra** audit yazısına uyğun `LiveEvent` buraxır (xəta/409/idempotent təkrar → hadisə yoxdur); MSW `GET /v1/events` handler-i emitter-dən `ReadableStream` qaytarır (15 s heartbeat; testdə konfiqurasiya olunan); browser-də `BroadcastChannel('payproof-mock')` — yazan tab hadisə + mock DB snapshot-u yayır, qəbul edən tab öz DB-sini əvəz edib hadisəni öz axınına ötürür; tenant filtri mock-da da
+**Daxil deyil:** backend (B-12b), React hook-ları və UI (W-05b, M-04b), replay (P0-da yoxdur), veb↔mobil mock sinxronu (ayrı origin — ADR-0010).
+**Qəbul meyarları:**
+- [ ] `pnpm contracts:lint` təmiz; generasiya drift-i yoxdur
+- [ ] Parser testləri: hissələrə bölünmüş chunk-lar, çoxsətirli `data`, heartbeat, `id` → növbəti qoşulmada `Last-Event-ID`
+- [ ] Mock: approve → bir `package.approved` hadisəsi (`package_version` cari); təkrar approve və 409 → hadisə yoxdur; başqa şirkətin hadisəsi axına düşmür
+- [ ] İki tab (eyni origin): bir tab-da təsdiq → digər tab-ın mock DB-si və axını ≤ 2 s-də yenilənir (Vitest-də `BroadcastChannel` ilə)
+**Commit planı:** 1) müqavilə: `/v1/events` + `LiveEvent` + changelog 2) client regenerasiyası 3) SSE parser + testlər 4) `subscribeEvents` (auth, backoff, 401) + testlər 5) mock emitter + yazma handler-lərinin hadisələri 6) MSW `/v1/events` axını 7) `BroadcastChannel` tab sinxronu + test

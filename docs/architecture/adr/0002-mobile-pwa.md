@@ -10,3 +10,5 @@
 **Alternativ:** React Native (Expo). Ehtiyac sübut olunarsa `apps/mobile` əvəzlənir; api-client tipləri və tokenlər qalır.
 
 **Nəticələr:** + bir dil/stack; + quraşdırma yoxdur (link ilə açılır). − push bildirişi P2 (Web Push); native kamera inteqrasiyası yoxdur.
+
+**Qeyd (2026-11-09):** mobil tətbiq praktikada **ayrı repo-da** inkişaf etdirilir və bu repo-nun `docker compose`-una daxil deyil. Müqavilə ilə əlaqə `packages/contracts/openapi.yaml`-dır: mobil repo eyni versiyadan (hazırda 0.3.0) client generasiya edir. I-01-də mobil öz repo-sundan `:3001`-də işə salınır və real API-yə qoşulur; I-01-in asılılığı M-12 əvəzinə "mobil repo müqavilə 0.3.0 ilə sinxron və real API-yə qoşulub" şərtidir.

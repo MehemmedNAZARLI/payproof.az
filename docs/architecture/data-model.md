@@ -37,7 +37,7 @@
 | `idempotency_keys` | key, company_id, endpoint, response JSONB, created_at | Approve/export/upload üçün |
 
 ## Versiya modeli
-`invoice_packages.version` artır: yeni sənəd versiyası, kritik sahə düzəlişi, sifariş əlaqəsinin dəyişməsi. Qayda dəsti dəyişəndə versiya artmır, amma `requirement_set_id` fərqli olduğu üçün təsdiq etibarsız sayılır. Bütün dəyişikliklər `expected_version` ilə optimistic locking istifadə edir.
+`invoice_packages.version` artır: yeni sənəd versiyası, kritik sahə düzəlişi, sifariş əlaqəsinin dəyişməsi və **müştərinin yeni qayda dəsti** (ADR-0009 — müştərinin cari versiyası ixrac edilməmiş bütün paketləri üçün). Versiya artanda cari təsdiq `valid=false` olur (auditdə qalır), təsdiqçiyə bildiriş gedir, yoxlama təkrarlanır. Cari versiyası ixrac edilmiş paket ixrac zamanındakı qayda dəstində qalır. Approve/export əlavə olaraq `expected_requirement_set_version` yoxlayır. Bütün dəyişikliklər `expected_version` ilə optimistic locking istifadə edir.
 
 ## Status saxlanmır
 Paket statusu son `validation_run` + `approval_records` + `export_records`-dan **törədilir** (rules-engine.md). Siyahı sorğuları üçün `invoice_packages.cached_status` sütunu ola bilər, amma yalnız servis tərəfindən yenilənir və həqiqət mənbəyi deyil.

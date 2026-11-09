@@ -3,9 +3,12 @@
 **Sahib:** lead (M hissələri üçün komanda yoldaşı ilə birlikdə)
 
 ### I-01 · Tam axın real stack-də
-**Branch:** `feat/I-01-e2e-real` · **Asılılıq:** W-18, M-12
-**Daxildir:** `docker compose up` (postgres, minio, api, worker, web, mobile — Dockerfile-lar), `make demo` (up + migrate + seed), Playwright: veb-də INV-1042 düzəliş axını → mobildə təsdiq → veb-də ixrac; audit-də bütün addımlar.
-**Qəbul:** [ ] təmiz maşında `make demo` ilə 5 dəqiqədə işləyir
+**Branch:** `feat/I-01-e2e-real` · **Asılılıq:** W-18; mobil repo müqavilə 0.3.0 ilə sinxron və real API-yə qoşulub (M-12 əvəzinə — mobil ayrı repo-dadır, ADR-0002 qeydi)
+**Daxildir:**
+- `docker compose up` bu repo-dan: postgres, minio, api, worker (Dockerfile-lar `chore/I-01-prep`-də hazırdır), web (W-18-dən sonra əlavə olunur). **Mobil bu compose-a daxil deyil** — öz repo-sundan `:3001`-də işə salınır və real API-yə (`http://localhost:8000`, `CORS_ORIGINS`-də `:3001` var) qoşulur
+- `make demo` (up + migrate + seed)
+- Playwright: veb-də INV-1042 düzəliş axını → mobildə təsdiq → veb-də ixrac; audit-də bütün addımlar
+**Qəbul:** [ ] təmiz maşında `make demo` ilə 5 dəqiqədə işləyir (mobil: öz repo-sunun README-si ilə ayrıca) [ ] mobil repo `openapi.yaml` 0.3.0 ilə sinxron (generasiya olunmuş client eynidir) və mock-suz real API ilə işləyir [ ] iki cihazda (Aygün veb, Rəşad mobil) dəyişiklik ≤ 2 s-də refresh-siz görünür — hər iki istiqamətdə (SSE, ADR-0010)
 
 ### I-02 · Demo hazırlığı
 **Branch:** `feat/I-02-demo-ready` · **Asılılıq:** I-01
