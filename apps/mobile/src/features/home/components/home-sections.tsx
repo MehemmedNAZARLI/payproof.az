@@ -63,7 +63,7 @@ export function RecentActivity({ events }: { events: Schemas["AuditEvent"][] }) 
           leading={<Avatar user={e.actor} />}
           title={
             <span className="text-footnote">
-              {t.audit.action[e.action] ?? e.message}
+              {t.audit.action[e.action] ?? "Package activity updated"}
               {e.package && (
                 <span className="text-text-3 font-normal"> · {e.package.invoice_number}</span>
               )}

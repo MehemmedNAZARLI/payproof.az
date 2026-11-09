@@ -14,6 +14,7 @@ import { toast } from "@/components/ui/toast-store";
 import type { Schemas } from "@/lib/api";
 import { appDescription, appName } from "@/lib/brand";
 import { cx } from "@/lib/cx";
+import { jobTitle } from "@/lib/english";
 import { t } from "@/lib/i18n";
 import { errorMessage } from "@/lib/query-client";
 import { signOutReason, useSession } from "@/lib/session";
@@ -132,7 +133,7 @@ function AccountButton({ user, recommended, busy, disabled, onPress }: AccountBu
           {recommended && <Badge tone="accent">{t.auth.recommended}</Badge>}
         </span>
         <span className="text-text-3 block truncate text-footnote">
-          {user.title} · {t.role[user.role]}
+          {jobTitle(user.title)} · {t.role[user.role]}
         </span>
       </span>
       {busy ? (

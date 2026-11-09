@@ -3,6 +3,7 @@ import { Icon, type IconName } from "@/components/ui/icon";
 import { ListGroup, ListItem } from "@/components/ui/list";
 import type { Schemas } from "@/lib/api";
 import { cx } from "@/lib/cx";
+import { checkTitle } from "@/lib/english";
 import { type CheckOutcome, t } from "@/lib/i18n";
 
 const outcomeIcon: Record<CheckOutcome, { name: IconName; className: string }> = {
@@ -44,7 +45,7 @@ export function ChecksList({ pkg, onOpen }: ChecksListProps) {
             key={c.rule_id}
             multiline
             leading={<OutcomeIcon outcome={c.outcome} />}
-            title={c.title}
+            title={checkTitle(c)}
             subtitle={`${c.rule_id} · ${t.check.outcome[c.outcome]}`}
             onClick={onOpen && (() => onOpen(c))}
           />

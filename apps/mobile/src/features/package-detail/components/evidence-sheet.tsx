@@ -10,6 +10,7 @@ import { ApprovalPage } from "@/features/approval/components/approval-page";
 import type { ApprovalFlow } from "@/features/approval/use-approval-flow";
 import { DocumentViewer } from "@/features/document-viewer/document-viewer";
 import type { Schemas } from "@/lib/api";
+import { checkMessage, checkTitle } from "@/lib/english";
 import { formatMoney } from "@/lib/format";
 import { t } from "@/lib/i18n";
 
@@ -40,7 +41,7 @@ function CheckPage({
   const blocking = check.outcome === "FAIL" || check.outcome === "UNKNOWN";
   return (
     <>
-      <p className="text-text-2 text-subhead leading-snug">{check.message}</p>
+      <p className="text-text-2 text-subhead leading-snug">{checkMessage(check)}</p>
       <h3 className="text-text-3 mt-5 mb-2 text-footnote font-semibold">{t.evidence.source}</h3>
       {check.evidence.length === 0 ? (
         <p className="text-text-3 text-footnote">{t.evidence.none}</p>
@@ -137,7 +138,7 @@ export function EvidenceSheet({ pkg, stack, onViewed, approval }: EvidenceSheetP
       direction={stack.direction}
       size={doc ? "large" : "auto"}
       title={
-        check ? check.title : reviewing ? t.approval.title(pkg.invoice_number ?? "") : docTitle
+        check ? checkTitle(check) : reviewing ? t.approval.title(pkg.invoice_number ?? "") : docTitle
       }
       description={
         check
