@@ -12,7 +12,7 @@ async def test_snapshot_from_db_reproduces_expected_checks(db: AsyncSession) -> 
     """The DB round trip (seed -> tables -> snapshot) loses nothing the rules read."""
     await seed(db)
     bind_tenant(db, uid("company_a"))
-    for state in await load_states(db):
+    for state in await load_states(db, invoices_only=True):
         number = state.package.invoice_number
         snapshot = await build_snapshot(db, state)
         if state.package.processing:

@@ -43,7 +43,9 @@ def _ref(st: PackageState) -> s.PackageRef:
 
 
 async def build_dashboard(session: AsyncSession, *, now: dt.datetime) -> s.Dashboard:
-    states = sorted(await load_states(session), key=lambda x: x.package.invoice_number or "")
+    states = sorted(
+        await load_states(session, invoices_only=True), key=lambda x: x.package.invoice_number or ""
+    )
     counts = {status.value: 0 for status in PackageStatus}
     for st in states:
         counts[st.status.value] += 1

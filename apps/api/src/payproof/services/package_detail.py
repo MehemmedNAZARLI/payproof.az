@@ -34,6 +34,12 @@ async def package_detail(
     states = await load_states(session, [package_id])
     if not states:
         raise NotFound  # also for another tenant's package
+    if states[0].package.reference is not None:
+        # ADR-0011 configured packages do not fit PackageDetail (invoice/order/delivery documents)
+        # until the generic detail lands with the UI steps (M-13)
+        raise NotFound(
+            "Bu paket konfiqurasiya olunan sənəd dəstinə aiddir; detal görünüşü hələ yoxdur."
+        )
     st = states[0]
     p = st.package
     docs = await dr.documents(session, p.id)
