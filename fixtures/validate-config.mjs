@@ -1,5 +1,6 @@
 // Configurable document sets (ADR-0011): fixtures/config/*.json and fixtures/scenarios/*.json.
 // Schema validity plus cross-file invariants. Called from validate.mjs (pnpm fixtures:check).
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -61,14 +62,15 @@ export function validateConfig({ ajv, dir, fail, customers, users }) {
       fail(`check-library: ${r.rule_id} → unknown family ${r.family}`);
 
   // --- Scenarios
-  const customerIds = new Set(customers.map((c) => c.id));
   const userIds = new Set(users.map((u) => u.id));
   for (const name of SCENARIOS) {
     const label = `scenarios/${name}.json`;
     const s = read(`scenarios/${name}.json`);
     check("scenario", s, label);
-    if (customerIds.has(s.customer.id))
-      fail(`${label}: customer ${s.customer.id} collides with customers.json`);
+    // the scenario customer is also in customers.json (seed, mock list): same set, plus legacy flags
+    const listed = customers.find((c) => c.id === s.customer.id);
+    if (listed && JSON.stringify(withoutFlags(listed)) !== JSON.stringify(s.customer))
+      fail(`${label}: customer ${s.customer.id} differs from customers.json`);
     for (const rs of s.customer.requirement_sets)
       checkRequirementSet(rs, `${label} v${rs.version}`);
     for (const p of s.packages) checkPackage(p, s, label);
@@ -86,6 +88,14 @@ export function validateConfig({ ajv, dir, fail, customers, users }) {
     for (const [ref, e] of Object.entries(expected.packages))
       if (Object.keys(e.results).join() !== checkIds)
         fail(`${name}.expected.json ${ref}: results must be ${checkIds}`);
+  }
+
+  function withoutFlags(c) {
+    const flags = ["require_po", "require_delivery", "require_signature", "tolerance"];
+    const sets = c.requirement_sets.map((rs) =>
+      Object.fromEntries(Object.entries(rs).filter(([k]) => !flags.includes(k))),
+    );
+    return { ...c, requirement_sets: sets };
   }
 
   function checkRequirementSet(rs, label) {
@@ -139,6 +149,15 @@ export function validateConfig({ ajv, dir, fail, customers, users }) {
             fail(`${label} ${c.id}: a period bound needs a document type with max_count 1`);
       if (c.type === "field_present")
         for (const t of c.parameters.targets) present.add(`${t.document_type}.${t.field}`);
+    }
+    if (rs.output) {
+      // the demo template is a real file (seed uploads it; the API reads its placeholders)
+      const file = path.join(dir, "templates", rs.output.template.file_name);
+      const sha = fs.existsSync(file)
+        ? crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex")
+        : null;
+      if (sha !== rs.output.template.sha256)
+        fail(`${label}: templates/${rs.output.template.file_name} missing or sha256 differs`);
     }
     const names = (rs.output?.placeholders ?? []).map((x) => x.placeholder);
     if (new Set(names).size !== names.length) fail(`${label}: a placeholder is mapped twice`);

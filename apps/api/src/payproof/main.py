@@ -9,6 +9,7 @@ from payproof.api import (
     approval,
     audit,
     auth,
+    config,
     customers,
     demo,
     documents,
@@ -23,15 +24,20 @@ from payproof.api import (
     tasks,
 )
 from payproof.api.ratelimit import body_limit_middleware
+from payproof.core.db import get_sessionmaker
 from payproof.core.errors import register_error_handlers
 from payproof.core.logging import configure_logging, correlation_id_middleware
 from payproof.core.settings import Settings, get_settings
 from payproof.realtime.hub import Hub
+from payproof.services import registry
 
 
 @asynccontextmanager
 async def _lifespan(app: FastAPI) -> AsyncIterator[None]:
     hub: Hub = app.state.hub
+    async with get_sessionmaker()() as session:  # ADR-0011: registry file → document_types
+        await registry.sync(session)
+        await session.commit()
     await hub.start()  # this process's one LISTEN connection
     yield
     await hub.stop()
@@ -67,6 +73,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(approval.router, prefix="/v1")
     app.include_router(export.router, prefix="/v1")
     app.include_router(customers.router, prefix="/v1")
+    app.include_router(config.router, prefix="/v1")
     app.include_router(notifications.router, prefix="/v1")
     app.include_router(package_writes.router, prefix="/v1")
     app.include_router(events.router, prefix="/v1")

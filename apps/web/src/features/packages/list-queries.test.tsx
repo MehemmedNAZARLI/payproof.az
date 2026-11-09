@@ -29,7 +29,7 @@ test("status filter (KPI link) and search", async () => {
 test("filter options: customers and possible owners (no read-only users)", async () => {
   const customers = renderHookWithQuery(() => useCustomers());
   const owners = renderHookWithQuery(() => useAssignableUsers());
-  await waitFor(() => expect(customers.result.current.data).toHaveLength(2));
+  await waitFor(() => expect(customers.result.current.data).toHaveLength(3));
   await waitFor(() => expect(owners.result.current.isSuccess).toBe(true));
   expect(owners.result.current.data!.some((u) => u.role === "readonly")).toBe(false);
 });

@@ -44,4 +44,4 @@ async def test_demo_reset_restores_the_fixtures(
     assert (await client.post("/v1/demo/reset", headers=auth("u1"))).status_code == 204
     seeded.expire_all()
     assert (await seeded.get_one(InvoicePackage, uid("pkg_1042"))).version == 1
-    assert await seeded.scalar(select(func.count()).select_from(InvoicePackage)) == 14
+    assert await seeded.scalar(select(func.count()).select_from(InvoicePackage)) == 16

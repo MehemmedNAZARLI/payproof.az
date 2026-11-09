@@ -25,6 +25,13 @@ PayProof B2B satış fakturasını müştərinin sifarişi və təhvil sənədi 
 - Postgres: `localhost:5432`, MinIO API: `localhost:9000`, konsol: http://localhost:9001 (giriş: `S3_ACCESS_KEY` / `S3_SECRET_KEY`).
 - Port məşğuldursa `.env`-də `POSTGRES_PORT`, `MINIO_PORT`, `MINIO_CONSOLE_PORT`-u dəyişin və `DATABASE_URL` / `S3_ENDPOINT_URL`-u uyğunlaşdırın.
 
+### Çıxarış (AI) və göndərmə
+Provayder yalnız env ilə seçilir (ADR-0011 §5); `.env.example`-a baxın.
+- `AI_PROVIDER=mock` (default) — hazır demo nəticələri, açar tələb olunmur; `pdf` — yalnız faktura PDF mətn qatı.
+- `AI_PROVIDER=anthropic` — Claude (rəsmi Python SDK). `AI_API_KEY` məcburidir (yoxdursa API və worker başlamır); `AI_MODEL` boşdursa `claude-opus-5-5`; `AI_BASE_URL` — proksi üçün. Hər sahə `value + page + quote + confidence` ilə qayıdır; `AI_MIN_CONFIDENCE`-dən aşağı və ya mənbəsiz dəyər oxunmamış sayılır (yoxlama `UNKNOWN`), heç vaxt təxmin edilmir. Sənəd mətni və açar log-a yazılmır.
+- `AI_PROVIDER=openai` — eyni interfeys arxasında stub (konfiqurasiya yoxlanılır, çıxarış hələ yoxdur).
+- İxrac e-poçtu: `RESEND_API_KEY` (+ `RESEND_FROM`); açar yoxdursa dev/test yalnız log yazır, prod `FAILED` qeyd edir.
+
 ## Sənədlər
 - Məhsul: `docs/product/` (brif, prototip, komanda bələdçisi PDF)
 - Arxitektura: `docs/architecture/`

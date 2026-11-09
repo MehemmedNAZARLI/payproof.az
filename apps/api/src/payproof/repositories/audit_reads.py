@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from payproof.domain.enums import Role
 from payproof.repositories.models import AuditEvent, InvoicePackage, Membership, User
+from payproof.repositories.models.packages import PACKAGE_NAME
 
 SYSTEM_NAME = "Sistem"
 
@@ -33,7 +34,7 @@ class AuditRow:
 
 def _query(f: AuditFilter) -> Select[AuditEvent, str | None, User, str]:  # outer joins: may be NULL
     q = (
-        select(AuditEvent, InvoicePackage.invoice_number, User, Membership.role)
+        select(AuditEvent, PACKAGE_NAME, User, Membership.role)
         .outerjoin(InvoicePackage, InvoicePackage.id == AuditEvent.package_id)
         .outerjoin(User, User.id == AuditEvent.actor_id)
         .outerjoin(
@@ -60,7 +61,7 @@ def _query(f: AuditFilter) -> Select[AuditEvent, str | None, User, str]:  # oute
             or_(
                 AuditEvent.message.ilike(like, escape="\\"),
                 AuditEvent.action.ilike(like, escape="\\"),
-                InvoicePackage.invoice_number.ilike(like, escape="\\"),
+                PACKAGE_NAME.ilike(like, escape="\\"),
                 func.coalesce(User.full_name, SYSTEM_NAME).ilike(like, escape="\\"),
             )
         )

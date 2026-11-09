@@ -16,6 +16,7 @@ from payproof.domain.enums import TaskStatus
 from payproof.domain.permissions import Permission
 from payproof.repositories import package_reads as reads
 from payproof.repositories.models import InvoicePackage, ResolutionTask
+from payproof.repositories.models.packages import PACKAGE_NAME
 from payproof.schemas.auth import UserRef
 from payproof.schemas.detail import Task
 from payproof.services import detail_parts as parts
@@ -44,7 +45,7 @@ async def task_out(session: AsyncSession, t: ResolutionTask) -> Task:
         user, role = users[user_id]
         return UserRef(id=user.id, full_name=user.full_name, title=user.title, role=role)
 
-    return parts.task(t, pkg.invoice_number or "", ref)
+    return parts.task(t, pkg.invoice_number or pkg.reference or "", ref)
 
 
 class UpdateTask(BaseModel):
@@ -95,7 +96,7 @@ async def list_tasks(
     cursor: str | None = None,
 ) -> TaskPage:
     base = (
-        select(ResolutionTask, InvoicePackage.invoice_number)
+        select(ResolutionTask, PACKAGE_NAME)
         .join(InvoicePackage, InvoicePackage.id == ResolutionTask.package_id)
         .where(ResolutionTask.deleted_at.is_(None), InvoicePackage.deleted_at.is_(None))
     )

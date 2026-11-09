@@ -3,6 +3,7 @@ import { http, HttpResponse } from "msw";
 import { MockError } from "../domain/audit";
 import { saveRequirements } from "../domain/rules";
 import { id, slugOf } from "../ids";
+import type { RequirementSet } from "../types";
 import { requirementSet } from "../views/records";
 import {
   body,
@@ -44,6 +45,24 @@ export const settingsHandlers = (ctx: Ctx) => [
       const flags = ["require_po", "require_delivery", "require_signature"] as const;
       if (flags.some((k) => typeof b[k] !== "boolean"))
         throw new MockError("VALIDATION_ERROR", "Qayda sahələri məcburidir.", 422);
+      // ADR-0011: documents + checks together make a configured set; neither = legacy flags only.
+      // shortcut: the mock does not re-validate parameters against the library (the API does).
+      const configured = b.documents !== undefined || b.checks !== undefined;
+      if (configured && !(Array.isArray(b.documents) && Array.isArray(b.checks)))
+        throw new MockError("VALIDATION_ERROR", "documents və checks birlikdə göndərilir.", 422, {
+          fields: { documents: "checks ilə birlikdə" },
+        });
+      // omitted (a flags-only edit): the configuration in force carries over, as in the API
+      const { documents, checks, output } = c.requirement_sets.at(-1)!;
+      const config = configured
+        ? {
+            documents: b.documents as RequirementSet["documents"],
+            checks: b.checks as RequirementSet["checks"],
+            output: (b.output ?? null) as RequirementSet["output"],
+          }
+        : checks
+          ? { documents, checks, output: output ?? null }
+          : {};
       const set = saveRequirements(
         db,
         c,
@@ -54,6 +73,7 @@ export const settingsHandlers = (ctx: Ctx) => [
           tolerance,
           effective_from: required(b.effective_from, "effective_from"),
           reason,
+          ...config,
         },
         user.id,
       );

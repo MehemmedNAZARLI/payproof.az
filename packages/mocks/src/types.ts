@@ -1,4 +1,5 @@
 // Internal mock state — fixture shapes (fixtures/schema) made mutable. Slugs as ids; serializers map to UUIDs.
+import type { Schemas } from "@payproof/api-client";
 import type { DocType } from "./ids";
 
 export type Currency = "AZN" | "USD";
@@ -22,6 +23,10 @@ export interface RequirementSet {
   effective_from: string;
   approved_by: string;
   reason: string;
+  /** ADR-0011 configured set (UNEC); absent on legacy (flags only) sets. */
+  documents?: { type: string; min_count: number; max_count: number | null }[];
+  checks?: { id: string; type: string; title: string; parameters: Record<string, unknown> }[];
+  output?: Schemas["OutputConfig"] | null;
 }
 export interface Customer {
   id: string;

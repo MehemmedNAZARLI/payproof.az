@@ -15,21 +15,23 @@ from payproof.repositories.orm import (
 
 # shortcut: mirror openapi.yaml enums that B-06 did not move into domain.enums; move them
 # there when a rule or service needs them
-DOCUMENT_TYPES = ("invoice", "order", "delivery")
 SOURCE_KINDS = ("pdf", "scan", "spreadsheet")
 
 
 class Document(TenantEntity, Base):
     __tablename__ = "documents"
     __table_args__ = (
-        UniqueConstraint("package_id", "type"),
+        # one document per type and position: invoice packages only ever use position 1
+        UniqueConstraint("package_id", "type", "position"),
         tenant_key(),
         same_tenant_fk("package_id", "invoice_packages"),
-        one_of("type", DOCUMENT_TYPES, "type_known"),
+        CheckConstraint("type ~ '^[a-z][a-z0-9_]{1,39}$'", name="type_key"),  # registry key
+        CheckConstraint("position >= 1", name="position_positive"),
     )
 
     package_id: Mapped[uuid.UUID] = mapped_column()
     type: Mapped[str] = mapped_column(Text)
+    position: Mapped[int] = mapped_column(Integer, server_default="1")
 
 
 class DocumentVersion(TenantEntity, Base):

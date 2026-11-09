@@ -79,6 +79,8 @@ CASES: list[tuple[str, str, str, dict[str, Any]]] = [
      {"json": {"require_po": True, "require_delivery": True, "require_signature": True,
                "tolerance": "0.01", "effective_from": "2030-01-01",
                "reason": "Başqa şirkətin qaydası", "expected_version": 1}}),
+    ("POST", "/v1/customers/{customer}/output-templates", "u2",
+     {"files": {"file": ("akt.docx", b"PK\x03\x04 not a template")}}),
     ("POST", "/v1/notifications/{note}/read", "u1", {}),
     ("POST", "/v1/packages", "u1",
      {"data": {"customer_id": "{customer}", "owner_id": str(uid("u1"))},

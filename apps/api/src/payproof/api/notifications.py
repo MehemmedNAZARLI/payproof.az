@@ -12,6 +12,7 @@ from payproof.api.deps import CurrentMember, Session
 from payproof.core.errors import NotFound
 from payproof.core.paging import decode_cursor, encode_cursor
 from payproof.repositories.models import InvoicePackage, Notification
+from payproof.repositories.models.packages import PACKAGE_NAME
 from payproof.schemas.packages import PackageRef
 
 router = APIRouter(tags=["notifications"])
@@ -44,7 +45,7 @@ async def list_notifications(
         select(func.count()).select_from(Notification).where(mine, Notification.read_at.is_(None))
     )
     q = (
-        select(Notification, InvoicePackage.invoice_number)
+        select(Notification, PACKAGE_NAME)
         .outerjoin(InvoicePackage, InvoicePackage.id == Notification.package_id)
         .where(mine)
         .order_by(Notification.created_at.desc(), Notification.id.desc())

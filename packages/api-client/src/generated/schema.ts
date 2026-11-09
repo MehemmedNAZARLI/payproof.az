@@ -481,6 +481,64 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/document-types": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Document type registry — the current version of every type (ADR-0011) */
+        get: operations["listDocumentTypes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/check-library": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Check library families and the legacy R-rule map (ADR-0011 §3) */
+        get: operations["getCheckLibrary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/customers/{customer_id}/output-templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload a .docx output template (approver only); a requirement set references it by sha256
+         * @description The file must be a .docx (checked by content) with at least one `{{placeholder}}`. The placeholders found
+         *     are returned; a requirement set's `output.placeholders` must all be among them. Uploading the same
+         *     content again returns the stored template (201, no new row).
+         */
+        post: operations["uploadOutputTemplate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/notifications": {
         parameters: {
             query?: never;
@@ -931,6 +989,72 @@ export interface components {
                 address: string;
             };
         };
+        DocumentRequirementInput: {
+            type: components["schemas"]["DocumentTypeKey"];
+            min_count: number;
+            max_count: number | null;
+        };
+        RegistryColumn: {
+            key: string;
+            label: string;
+            /** @enum {string} */
+            type: "text" | "date" | "money" | "decimal" | "integer" | "boolean" | "currency" | "party";
+            critical: boolean;
+        };
+        RegistryList: {
+            key: string;
+            label: string;
+            columns: components["schemas"]["RegistryColumn"][];
+        };
+        /** @description A document type registry entry (current version). Extraction instructions stay server-side. */
+        DocumentTypeInfo: {
+            key: components["schemas"]["DocumentTypeKey"];
+            name: string;
+            version: number;
+            builtin: boolean;
+            accepted_formats: string[];
+            extraction: {
+                fields: components["schemas"]["RegistryColumn"][];
+                tables: components["schemas"]["RegistryList"][];
+                transaction_lists: components["schemas"]["RegistryList"][];
+            };
+        };
+        CheckLibrary: {
+            families: {
+                type: string;
+                name: string;
+                description: string;
+                /** @description Derived by the server (document_count); not configurable */
+                system: boolean;
+                parameters: {
+                    name: string;
+                    /**
+                     * @example field_refs
+                     * @example enum:debit,credit
+                     */
+                    type: string;
+                    required: boolean;
+                    description: string;
+                }[];
+                related_rules: components["schemas"]["RuleId"][];
+            }[];
+            legacy_rules: {
+                rule_id: components["schemas"]["RuleId"];
+                family: string | null;
+                note: string;
+            }[];
+        };
+        OutputTemplate: {
+            id: components["schemas"]["Uuid"];
+            file_name: string;
+            sha256: string;
+            size: number;
+            /** @description Distinct `{{placeholder}}` names found in the document, in order of appearance */
+            placeholders: string[];
+            uploaded_by: components["schemas"]["UserRef"];
+            /** Format: date-time */
+            created_at: string;
+        };
         PlaceholderMapping: {
             /** @example {{total_spent}} */
             placeholder: string;
@@ -1089,7 +1213,8 @@ export interface components {
             created_at: string;
             files: {
                 document_version_id: components["schemas"]["Uuid"];
-                type: components["schemas"]["DocumentType"];
+                /** @description invoice | order | delivery for invoice packages; any registry type for configured ones */
+                type: components["schemas"]["DocumentTypeKey"];
                 file_name: string;
             }[];
             output?: components["schemas"]["ExportOutput"];
@@ -3329,6 +3454,16 @@ export interface operations {
                     reason: string;
                     /** @description Current requirement set version */
                     expected_version: number;
+                    /**
+                     * @description ADR-0011 configured set — sent together with `checks`. Omitting both (and `output`) keeps the
+                     *     current version's configuration, or gives a legacy (flags only) set when there is none.
+                     *     The legacy flags are still required and kept as given.
+                     */
+                    documents?: components["schemas"]["DocumentRequirementInput"][];
+                    /** @description Configured checks in evaluation order, validated against the check library. */
+                    checks?: components["schemas"]["CheckConfig"][];
+                    /** @description Output template mapping; the template must be uploaded for this customer first. */
+                    output?: null | components["schemas"]["OutputConfig"];
                 };
             };
         };
@@ -3366,6 +3501,177 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             409: components["responses"]["Conflict"];
+            422: components["responses"]["ValidationError"];
+        };
+    };
+    listDocumentTypes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Registry entries, built-in types first */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "key": "bank_statement",
+                     *           "name": "Bank çıxarışı",
+                     *           "version": 1,
+                     *           "builtin": false,
+                     *           "accepted_formats": [
+                     *             "application/pdf",
+                     *             "text/csv"
+                     *           ],
+                     *           "extraction": {
+                     *             "fields": [
+                     *               {
+                     *                 "key": "account_holder",
+                     *                 "label": "Hesab sahibi",
+                     *                 "type": "party",
+                     *                 "critical": true
+                     *               }
+                     *             ],
+                     *             "tables": [],
+                     *             "transaction_lists": [
+                     *               {
+                     *                 "key": "transactions",
+                     *                 "label": "Əməliyyatlar",
+                     *                 "columns": [
+                     *                   {
+                     *                     "key": "date",
+                     *                     "label": "Tarix",
+                     *                     "type": "date",
+                     *                     "critical": true
+                     *                   }
+                     *                 ]
+                     *               }
+                     *             ]
+                     *           }
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": {
+                        items: components["schemas"]["DocumentTypeInfo"][];
+                    };
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+        };
+    };
+    getCheckLibrary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Families with their parameters */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "families": [
+                     *         {
+                     *           "type": "field_present",
+                     *           "name": "Sahə mövcuddur",
+                     *           "description": "Hədəf sahələr hər uyğun sənəddə çıxarılıb və mənbə istinadı var.",
+                     *           "system": false,
+                     *           "parameters": [
+                     *             {
+                     *               "name": "targets",
+                     *               "type": "field_refs",
+                     *               "required": true,
+                     *               "description": "Yoxlanan sahələr"
+                     *             }
+                     *           ],
+                     *           "related_rules": [
+                     *             "R-001"
+                     *           ]
+                     *         }
+                     *       ],
+                     *       "legacy_rules": [
+                     *         {
+                     *           "rule_id": "R-001",
+                     *           "family": "field_present",
+                     *           "note": "require_po bayrağı ilə"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["CheckLibrary"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+        };
+    };
+    uploadOutputTemplate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** @description .docx, ≤ 20 MB */
+                    file: Blob;
+                };
+            };
+        };
+        responses: {
+            /** @description Stored template */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "0193a000-0000-7000-800e-000000000301",
+                     *       "file_name": "UNEC_qrant_xerc_akti.docx",
+                     *       "sha256": "85bfba98fdb6cfd678d1f6adb7d37c3411a118de5c7ca3b91651b66d182f69bf",
+                     *       "size": 14211,
+                     *       "placeholders": [
+                     *         "{{report_reference}}",
+                     *         "{{grantee_name}}",
+                     *         "{{total_spent}}"
+                     *       ],
+                     *       "uploaded_by": {
+                     *         "id": "0193a000-0000-7000-8000-000000000002",
+                     *         "full_name": "Rəşad Əliyev",
+                     *         "title": "Maliyyə direktoru",
+                     *         "role": "approver"
+                     *       },
+                     *       "created_at": "2026-11-09T08:00:00Z"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["OutputTemplate"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            413: components["responses"]["FileTooLarge"];
+            415: components["responses"]["UnsupportedFileType"];
             422: components["responses"]["ValidationError"];
         };
     };

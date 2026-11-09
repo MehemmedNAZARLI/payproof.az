@@ -69,4 +69,4 @@ async def list_packages(
         limit=limit,
         cursor=cursor,
     )
-    return package_list.page(await load_states(session), query)
+    return package_list.page(await load_states(session, invoices_only=True), query)

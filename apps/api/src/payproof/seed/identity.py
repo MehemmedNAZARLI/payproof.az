@@ -45,4 +45,7 @@ def _rule_set(customer: str, rs: Fixture) -> RequirementSet:
         effective_from=dt.date.fromisoformat(rs["effective_from"]),
         approved_by=uid(rs["approved_by"]),
         reason=rs["reason"],
+        documents=rs.get("documents"),  # ADR-0011 configured set (UNEC); absent = legacy
+        checks=rs.get("checks"),
+        output=rs.get("output"),
     )

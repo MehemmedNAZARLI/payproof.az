@@ -112,3 +112,22 @@ async def test_requirement_set_cannot_be_deleted(db: AsyncSession, ctx: Ctx) -> 
     await db.delete(rules)
     with pytest.raises(IntegrityError):
         await db.flush()
+
+
+@pytest.mark.parametrize(
+    "config",
+    [{"documents": []}, {"checks": []}, {"output": {"placeholders": []}}],
+    ids=["no-checks", "no-documents", "legacy-with-output"],
+)
+async def test_configured_set_needs_documents_and_checks(
+    db: AsyncSession, ctx: Ctx, config: dict[str, object]
+) -> None:
+    customer = _customer(ctx.a)
+    await _add(db, customer)
+    await _fails(db, _rules(customer, ctx.approver, **config))
+
+
+async def test_configured_set_is_stored(db: AsyncSession, ctx: Ctx) -> None:
+    customer = _customer(ctx.a)
+    await _add(db, customer)
+    await _add(db, _rules(customer, ctx.approver, documents=[], checks=[]))

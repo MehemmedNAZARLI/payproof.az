@@ -30,8 +30,8 @@ async def test_one_result_per_rule_and_run(db: AsyncSession, a: Tenant) -> None:
 
 @pytest.mark.parametrize(
     ("rule_id", "over"),
-    [("R-011", {}), ("R-1", {}), ("R-002", {"outcome": "OK"}), ("R-002", {"data": [1]})],
-    ids=["rule-range", "rule-format", "outcome", "data-object"],
+    [("r-001", {}), ("R-1", {}), ("R-002", {"outcome": "OK"}), ("R-002", {"data": [1]})],
+    ids=["rule-case", "rule-format", "outcome", "data-object"],
 )
 async def test_check_result_checks(
     db: AsyncSession, a: Tenant, rule_id: str, over: dict[str, object]

@@ -18,10 +18,20 @@ async def test_one_document_per_type(db: AsyncSession, a: Tenant) -> None:
     await add_fails(db, other)
 
 
-async def test_unknown_document_type(db: AsyncSession, a: Tenant) -> None:
+async def test_document_type_must_be_a_registry_key(db: AsyncSession, a: Tenant) -> None:
     pkg = package(a)
     await add(db, pkg)
-    await add_fails(db, Document(company_id=a.company.id, package_id=pkg.id, type="receipt"))
+    await add_fails(db, Document(company_id=a.company.id, package_id=pkg.id, type="Bank Çıxarışı"))
+
+
+async def test_configured_package_holds_several_documents_of_a_type(
+    db: AsyncSession, a: Tenant
+) -> None:
+    pkg = package(a)
+    await add(db, pkg)
+    doc = {"company_id": a.company.id, "package_id": pkg.id, "type": "invoice"}
+    await add(db, Document(**doc, position=1), Document(**doc, position=2))
+    await add_fails(db, Document(**doc, position=2))
 
 
 async def test_document_package_must_be_same_tenant(db: AsyncSession, a: Tenant, b: Tenant) -> None:

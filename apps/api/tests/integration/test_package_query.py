@@ -30,7 +30,7 @@ def count_queries(db: AsyncSession) -> Iterator[list[str]]:
 async def test_status_and_blockers_from_latest_run_match_expected(db: AsyncSession) -> None:
     await seed(db)
     bind_tenant(db, uid("company_a"))
-    states = {s.package.invoice_number: s for s in await load_states(db)}
+    states = {s.package.invoice_number: s for s in await load_states(db, invoices_only=True)}
     assert len(states) == 14
     for number, expected in EXPECTED["packages"].items():
         state = states[number]
@@ -43,7 +43,7 @@ async def test_status_and_blockers_from_latest_run_match_expected(db: AsyncSessi
 async def test_list_fields(db: AsyncSession) -> None:
     await seed(db)
     bind_tenant(db, uid("company_a"))
-    s = {x.package.invoice_number: x for x in await load_states(db)}
+    s = {x.package.invoice_number: x for x in await load_states(db, invoices_only=True)}
     assert (str(s["INV-1042"].total), s["INV-1042"].po_ref) == ("12000.00", None)
     assert s["INV-1047"].po_unreadable and not s["INV-1042"].po_unreadable
     assert s["INV-1038"].order_po == "PO-377" and s["INV-1042"].order_po is None
@@ -55,7 +55,7 @@ async def test_query_count_does_not_grow_with_packages(db: AsyncSession) -> None
     await seed(db)
     bind_tenant(db, uid("company_a"))
     with count_queries(db) as first:
-        await load_states(db)
+        await load_states(db, invoices_only=True)
     a = Tenant(
         company=await db.get(Company, uid("company_a")),  # type: ignore[arg-type]
         user=await db.get(User, uid("u1")),  # type: ignore[arg-type]
@@ -63,5 +63,5 @@ async def test_query_count_does_not_grow_with_packages(db: AsyncSession) -> None
     )
     await add(db, *(package(a, f"X-{i}") for i in range(5)))
     with count_queries(db) as second:
-        assert len(await load_states(db)) == 19
+        assert len(await load_states(db, invoices_only=True)) == 19
     assert len(first) == len(second) <= 12  # fixed per call: no N+1

@@ -44,7 +44,7 @@ async def test_identity_rows_match_fixture_counts(db: AsyncSession) -> None:
     assert await _count(db, User) == len(users) == 7
     assert await _count(db, Membership) == len(users)
     bind_tenant(db, uid("company_a"))
-    assert await _count(db, Customer) == len(customers) == 2
+    assert await _count(db, Customer) == len(customers) == 3
     assert await _count(db, RequirementSet) == sum(len(c["requirement_sets"]) for c in customers)
 
 

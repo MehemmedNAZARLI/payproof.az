@@ -6,7 +6,7 @@ describe("mock store from fixtures", () => {
     const db = createMockDb();
     expect(db.packages).toHaveLength(14);
     expect(Object.keys(db.orders)).toHaveLength(18);
-    expect(db.customers).toHaveLength(2);
+    expect(db.customers).toHaveLength(3);
     expect(db.users).toHaveLength(7);
     expect(db.tasks).toHaveLength(9);
     expect(db.samples).toHaveLength(8);

@@ -44,10 +44,14 @@ class PackageState:
 
 
 async def load_states(
-    session: AsyncSession, package_ids: Collection[uuid.UUID] | None = None
+    session: AsyncSession,
+    package_ids: Collection[uuid.UUID] | None = None,
+    *,
+    invoices_only: bool = False,
 ) -> list[PackageState]:
     """Live (not deleted) packages of the session's tenant, optionally only `package_ids`,
-    in a fixed number of queries."""
+    in a fixed number of queries. `invoices_only`: leave out ADR-0011 configured packages —
+    the invoice-shaped list and dashboard cannot show them yet (UI steps)."""
     q = (
         select(InvoicePackage, Customer.name)
         .join(Customer, Customer.id == InvoicePackage.customer_id)
@@ -55,6 +59,8 @@ async def load_states(
     )
     if package_ids is not None:
         q = q.where(InvoicePackage.id.in_(package_ids))
+    if invoices_only:
+        q = q.where(InvoicePackage.reference.is_(None))
     rows = [(p, name) for p, name in (await session.execute(q)).all()]
     packages = [p for p, _ in rows]
     ids = [p.id for p in packages]
@@ -85,7 +91,8 @@ async def load_states(
                 checks=found,
                 status=derive_status(
                     processing=p.processing,
-                    link_confirmed=p.order_id is not None,
+                    # a configured package (ADR-0011) has no order link to confirm
+                    link_confirmed=p.order_id is not None or p.reference is not None,
                     checks=found,
                     approved=p.id in approved,
                     exported=p.id in exported,

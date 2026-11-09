@@ -1,13 +1,16 @@
 """Export (state-machines.md): selected current versions + manifest.json in one zip — never AI
 explanations, comments or audit (internal report only). Order: 403 (route) → 409 VERSION_CONFLICT
-→ 200 existing → 409 PACKAGE_NOT_READY → 422 INVOICE_REQUIRED → 200 new."""
+→ 200 existing → 409 PACKAGE_NOT_READY → 422 INVOICE_REQUIRED (configured set: its required
+types) → 422 missing_placeholders (output template) → 200 new, with the template e-mail queued."""
 
 import datetime as dt
+import hashlib
 import io
 import json
 import uuid
 import zipfile
 from dataclasses import dataclass
+from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -23,9 +26,11 @@ from payproof.repositories.models import (
     RequirementSet,
 )
 from payproof.services.audit import record
+from payproof.services.export_output import fill_output, output_record, require_documents
 from payproof.services.linking import locked_package
 from payproof.services.package_query import load_states
 from payproof.storage.s3 import Storage
+from payproof.worker.queue import PostgresQueue
 
 
 class InvoiceRequired(DomainError):
@@ -99,7 +104,9 @@ async def export(
             {"fields": {"document_version_ids": unknown}},
         )
     chosen = [current[i] for i in version_ids]
-    if not any(t == "invoice" for _, t in chosen):
+    if rs.checks is not None:  # ADR-0011 configured set: its required types, not the invoice
+        require_documents(rs, version_ids, current)
+    elif not any(t == "invoice" for _, t in chosen):
         raise InvoiceRequired
     approval = await session.scalar(
         select(ApprovalRecord).where(
@@ -109,12 +116,14 @@ async def export(
         )
     )
     assert approval is not None  # noqa: S101 — APPROVED_READY implies it
+    filled = await fill_output(session, storage, pkg, rs, approval) if rs.output else None
     files = [
         {"document_version_id": str(v.id), "type": t, "file_name": v.file_name} for v, t in chosen
     ]
     prefix = f"{pkg.company_id}/{pkg.id}/exports/v{pkg.version}"
-    manifest = {
+    manifest: dict[str, Any] = {
         "invoice_number": pkg.invoice_number,
+        "reference": pkg.reference,
         "package_version": pkg.version,
         "requirement_set_version": rs.version,
         "approved_at": approval.created_at.isoformat(),
@@ -125,10 +134,19 @@ async def export(
         ],
         "note": "Paket göndərilməyə hazırdır. Bu, ödəniş təsdiqi deyil.",
     }
+    if filled is not None:  # every value with the source it was read from (no document text)
+        manifest["output"] = {
+            "file_name": filled.file_name,
+            "sha256": hashlib.sha256(filled.data).hexdigest(),
+            "template_sha256": rs.output["template"]["sha256"] if rs.output else None,
+            "values": filled.values,
+        }
     body = json.dumps(manifest, ensure_ascii=False, indent=2).encode()
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
         z.writestr("manifest.json", body)
+        if filled is not None:
+            z.writestr(filled.file_name, filled.data)
         for v, t in chosen:
             z.writestr(f"{t}/{v.file_name}", await storage.get(v.storage_key))
     await storage.put(f"{prefix}/manifest.json", body, "application/json")
@@ -136,13 +154,17 @@ async def export(
     rec = ExportRecord(
         company_id=pkg.company_id, package_id=pkg.id, package_version=pkg.version,
         approval_id=approval.id, files=files, manifest_key=f"{prefix}/manifest.json",
-        created_by=actor_id,
+        created_by=actor_id, output=output_record(filled) if filled else None,
     )  # fmt: skip
     session.add(rec)
     await session.flush()
+    if filled is not None:  # background e-mail to the set's address only (never a request's)
+        await PostgresQueue().enqueue(session, company_id=pkg.company_id, kind="send_export",
+                                      payload={"export_id": str(rec.id)})  # fmt: skip
     await record(
         session, actor_id=actor_id, action="export.created",
-        message=f"v{pkg.version} · manifest: {', '.join(f['file_name'] for f in files)}",
+        message=f"v{pkg.version} · manifest: {', '.join(f['file_name'] for f in files)}"
+        + (f" · şablon: {filled.file_name}" if filled else ""),
         object_type="export", object_id=rec.id, package=pkg,
     )  # fmt: skip
     return Exported(rec, rs.version, f"{prefix}/package.zip", created=True)

@@ -14,6 +14,7 @@ from payproof.core.errors import NotFound
 from payproof.domain.permissions import Permission
 from payproof.repositories import package_reads as reads
 from payproof.repositories.models import ExportRecord, InvoicePackage
+from payproof.repositories.models.packages import PACKAGE_NAME
 from payproof.schemas import detail as d
 from payproof.schemas.auth import UserRef
 from payproof.schemas.documents import SignedUrl
@@ -84,6 +85,7 @@ async def export_package(
         created_by=UserRef(id=user.id, full_name=user.full_name, title=user.title, role=role),
         created_at=done.export.created_at,
         files=[d.ExportFile(**f) for f in done.export.files],
+        output=done.export.output,
     )
     if replay is None:
         body_out = {"export_id": str(done.export.id)}
@@ -106,7 +108,7 @@ async def export_download(
     """A fresh link to an existing export's zip — no new export event."""
     row = (
         await session.execute(
-            select(ExportRecord, InvoicePackage.invoice_number)
+            select(ExportRecord, PACKAGE_NAME)
             .join(InvoicePackage, InvoicePackage.id == ExportRecord.package_id)
             .where(ExportRecord.id == export_id, InvoicePackage.deleted_at.is_(None))
         )

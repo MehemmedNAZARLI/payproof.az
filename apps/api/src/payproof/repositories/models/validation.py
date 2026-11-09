@@ -20,8 +20,8 @@ from payproof.domain.enums import CheckOutcome
 from payproof.domain.rules.result import FixHint
 from payproof.repositories.orm import Base, TenantEntity, one_of, same_tenant_fk, tenant_key
 
-# mirrors `RuleId` in openapi.yaml (R-001..R-010)
-RULE_ID_CHECK = "rule_id ~ '^R-0(0[1-9]|10)$'"
+# mirrors `RuleId` in openapi.yaml: R-001…R-010, D-001 and configured ids (U-07) — ADR-0011
+RULE_ID_CHECK = "rule_id ~ '^[A-Z]{1,4}-[0-9]{2,3}$'"
 
 
 def _customer_fk(column: str, target: str) -> ForeignKeyConstraint:
@@ -76,6 +76,7 @@ class CheckResult(TenantEntity, Base):
     cascade: Mapped[bool] = mapped_column(Boolean, server_default=false())
     message: Mapped[str] = mapped_column(Text)
     fix_hint: Mapped[str | None] = mapped_column(Text)  # which fix the UI offers
+    check_type: Mapped[str | None] = mapped_column(Text)  # library family; NULL for R-rules
     data: Mapped[dict[str, Any]] = mapped_column(JSONB, server_default=text("'{}'::jsonb"))
     # shortcut: no FK on array items; B-17 writes only evidence ids of the run's own document
     # versions. Upgrade to a check_result_evidence join table if results are ever written elsewhere.

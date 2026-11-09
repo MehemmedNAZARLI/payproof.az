@@ -24,7 +24,9 @@ interface Txn {
   c: number;
   date: string;
   counterparty: string;
+  currency: string;
 }
+const DIRECTIONS = ["debit", "credit"];
 const at = (t: Txn) => ({ document_id: t.doc.id, index: t.index });
 const citeTxn = (t: Txn) => cite(t.doc, `${t.list}[${t.index}]`) ?? whole(t.doc);
 
@@ -38,9 +40,12 @@ export function transactionMatch(p: GenericPkg, params: MatchParams): Verdict {
   const unreadRows = params.against.flatMap((a) =>
     docsOf(p, a.document_type).flatMap((doc) => {
       const rows = doc.tables[a.list] ?? [];
-      if (doc.unreadable.includes(a.list)) return [whole(doc)];
+      // a statement without a read currency cannot pay anything in a known currency
+      if (doc.unreadable.includes(a.list) || !currencyOf(doc)) return [whole(doc)];
       return rows.flatMap((row, i) =>
-        typeof row.amount !== "string" || typeof row.date !== "string" || !row.direction
+        typeof row.amount !== "string" ||
+        typeof row.date !== "string" ||
+        !DIRECTIONS.includes(String(row.direction))
           ? [cite(doc, `${a.list}[${i}]`) ?? whole(doc)]
           : [],
       );
@@ -58,6 +63,7 @@ export function transactionMatch(p: GenericPkg, params: MatchParams): Verdict {
                 c: cents(row.amount),
                 date: String(row.date),
                 counterparty: String(row.counterparty),
+                currency: currencyOf(doc) ?? "",
               },
             ]
           : [],
@@ -67,7 +73,8 @@ export function transactionMatch(p: GenericPkg, params: MatchParams): Verdict {
   const { source: s } = params;
   const sources = docsOf(p, s.document_type).map((doc) => {
     const r = [s.amount_field, s.date_field, s.counterparty_field].map((f) => read(doc, f));
-    const ok = r.every((x) => x.status === "ok");
+    const currency = currencyOf(doc);
+    const ok = r.every((x) => x.status === "ok") && currency !== null;
     const [amount, date, cp] = r.map((x) => (x.status === "ok" ? String(x.value) : ""));
     return {
       doc,
@@ -75,6 +82,7 @@ export function transactionMatch(p: GenericPkg, params: MatchParams): Verdict {
       c: ok ? cents(amount!) : 0,
       date: date!,
       cp: cp!,
+      currency: currency ?? "",
       evidence: [s.amount_field, s.date_field, s.counterparty_field].map(
         (f) => cite(doc, f.split(".")[0]!) ?? whole(doc),
       ),
@@ -82,7 +90,9 @@ export function transactionMatch(p: GenericPkg, params: MatchParams): Verdict {
   });
   if (!sources.length) return NA("Tutuşdurulacaq sənəd yoxdur.");
   const tol = cents(params.amount_tolerance);
+  // AZN and USD are never compared: a transaction pays a document only in its own currency
   const fits = (src: (typeof sources)[number], t: Txn) =>
+    t.currency === src.currency &&
     Math.abs(t.c - src.c) <= tol &&
     daysBetween(src.date, t.date) >= 0 &&
     daysBetween(src.date, t.date) <= params.date_window_days &&
@@ -127,6 +137,7 @@ export function transactionMatch(p: GenericPkg, params: MatchParams): Verdict {
         .filter(
           (x) =>
             !used.has(x) &&
+            x.currency === src.currency &&
             (params.counterparty === "ignore" || sameCounterparty(src.cp, x.counterparty)),
         )
         .sort(

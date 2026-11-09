@@ -13,6 +13,9 @@ Generasiya: `pnpm fixtures:generate` — `scripts/fixtures/generate.mjs` prototi
 - `config/document-types.json` — sənəd növü reyestri (builtin `invoice/order/delivery` + `bank_statement`, `card_statement`, `contract`, `receipt`).
 - `config/check-library.json` — yoxlama kitabxanası ailələri, parametrləri və R-qaydalarının konseptual xəritəsi.
 - `scenarios/unec.json` — UNEC tələbə qrantı hesabatı: müştəri `c3`, tələb dəsti (fakturalar 1–10, bank çıxarışı 1, kart çıxarışı 1, `U-01…U-08`, akt şablonu, göndərmə ünvanı) və 2 paket. `scenarios/unec.expected.json` — golden nəticə (`packages/mocks/test/checks-unec.test.ts`).
+- `scenarios/unec.mutations.json` → `scenarios/unec.reference.json` — yoxlama kitabxanasının paritet keysləri (29): TS referansının tam çıxışı (`packages/mocks/test/checks-reference.test.ts`, yeniləmə `UPDATE_REFERENCE=1`); backend eyni faylı bayt-bayt verir (`apps/api/tests/golden/test_check_library.py`). Prettier-dən kənardadır.
+- `templates/UNEC_qrant_xerc_akti.docx` — UNEC akt şablonu (`build_unec_template.py` ilə təkrarlanan şəkildə qurulur; sha256 `customers.json`/`unec.json`-dakı ilə eyni olmalıdır — `fixtures:check` yoxlayır).
+- UNEC (`c3`) həm də `customers.json`-dadır (mock müştəri siyahısı və seed): tələb dəsti ssenaridəki ilə eynidir, üstəlik legacy bayraqlar (`false`, tolerans `0.00`).
 - Sxem: `schema/config.json`; yoxlama: `validate-config.mjs` (`fixtures:check`-in hissəsi) — reyestr/kitabxana istinadları, parametrlər, `field` mənbəli placeholder-in `field_present` hədəfi olması, hər çıxarılmış dəyərin mənbəyi.
 - `fixtures:generate` bu fayllara toxunmur. Ssenari müştərisi `customers.json`-a əlavə edilmir: backend seed-i və faktura formalı ekranlar onu hələ istifadə etmir.
 

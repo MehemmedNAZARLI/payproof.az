@@ -19,7 +19,7 @@ async def _counts(db: AsyncSession) -> dict[str, int]:
 async def test_second_run_adds_nothing(db: AsyncSession) -> None:
     assert await seed(db) is True
     first = await _counts(db)
-    assert first["invoice_packages"] == 14 and first["users"] == 7
+    assert first["invoice_packages"] == 16 and first["users"] == 7  # 14 invoice + 2 UNEC
     assert await seed(db) is False  # already seeded: no duplicates
     assert await _counts(db) == first
 

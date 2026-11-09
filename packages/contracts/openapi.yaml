@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: PayProof API
-  version: 0.4.0
+  version: 0.5.0
   description: |
     PayProof P0 API contract — the single source of truth (docs/architecture/api-contract.md).
     Conventions: `snake_case` fields; money is a decimal **string** with its currency, never a float;
@@ -1385,6 +1385,21 @@ paths:
                 reason: { type: string, minLength: 10, maxLength: 500 }
                 expected_version:
                   { type: integer, minimum: 1, description: Current requirement set version }
+                documents:
+                  type: array
+                  minItems: 1
+                  description: |
+                    ADR-0011 configured set — sent together with `checks`. Omitting both (and `output`) keeps the
+                    current version's configuration, or gives a legacy (flags only) set when there is none.
+                    The legacy flags are still required and kept as given.
+                  items: { $ref: "#/components/schemas/DocumentRequirementInput" }
+                checks:
+                  type: array
+                  description: Configured checks in evaluation order, validated against the check library.
+                  items: { $ref: "#/components/schemas/CheckConfig" }
+                output:
+                  description: Output template mapping; the template must be uploaded for this customer first.
+                  oneOf: [{ type: "null" }, { $ref: "#/components/schemas/OutputConfig" }]
             example:
               require_po: true
               require_delivery: true
@@ -1415,6 +1430,120 @@ paths:
         "403": { $ref: "#/components/responses/Forbidden" }
         "404": { $ref: "#/components/responses/NotFound" }
         "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/ValidationError" }
+  /v1/document-types:
+    get:
+      tags: [customers]
+      operationId: listDocumentTypes
+      summary: Document type registry — the current version of every type (ADR-0011)
+      responses:
+        "200":
+          description: Registry entries, built-in types first
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [items]
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/DocumentTypeInfo" } }
+              example:
+                items:
+                  - key: bank_statement
+                    name: Bank çıxarışı
+                    version: 1
+                    builtin: false
+                    accepted_formats: [application/pdf, text/csv]
+                    extraction:
+                      fields:
+                        - { key: account_holder, label: Hesab sahibi, type: party, critical: true }
+                      tables: []
+                      transaction_lists:
+                        - key: transactions
+                          label: Əməliyyatlar
+                          columns:
+                            - { key: date, label: Tarix, type: date, critical: true }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+  /v1/check-library:
+    get:
+      tags: [customers]
+      operationId: getCheckLibrary
+      summary: Check library families and the legacy R-rule map (ADR-0011 §3)
+      responses:
+        "200":
+          description: Families with their parameters
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CheckLibrary" }
+              example:
+                families:
+                  - type: field_present
+                    name: Sahə mövcuddur
+                    description: Hədəf sahələr hər uyğun sənəddə çıxarılıb və mənbə istinadı var.
+                    system: false
+                    parameters:
+                      - {
+                          name: targets,
+                          type: field_refs,
+                          required: true,
+                          description: Yoxlanan sahələr,
+                        }
+                    related_rules: [R-001]
+                legacy_rules:
+                  - { rule_id: R-001, family: field_present, note: require_po bayrağı ilə }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+  /v1/customers/{customer_id}/output-templates:
+    parameters:
+      - {
+          name: customer_id,
+          in: path,
+          required: true,
+          schema: { $ref: "#/components/schemas/Uuid" },
+        }
+    post:
+      tags: [customers]
+      operationId: uploadOutputTemplate
+      summary: Upload a .docx output template (approver only); a requirement set references it by sha256
+      description: |
+        The file must be a .docx (checked by content) with at least one `{{placeholder}}`. The placeholders found
+        are returned; a requirement set's `output.placeholders` must all be among them. Uploading the same
+        content again returns the stored template (201, no new row).
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [file]
+              properties:
+                file: { type: string, contentEncoding: binary, description: ".docx, ≤ 20 MB" }
+      responses:
+        "201":
+          description: Stored template
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OutputTemplate" }
+              example:
+                id: 0193a000-0000-7000-800e-000000000301
+                file_name: UNEC_qrant_xerc_akti.docx
+                sha256: 85bfba98fdb6cfd678d1f6adb7d37c3411a118de5c7ca3b91651b66d182f69bf
+                size: 14211
+                placeholders: ["{{report_reference}}", "{{grantee_name}}", "{{total_spent}}"]
+                uploaded_by:
+                  {
+                    id: 0193a000-0000-7000-8000-000000000002,
+                    full_name: Rəşad Əliyev,
+                    title: Maliyyə direktoru,
+                    role: approver,
+                  }
+                created_at: "2026-11-09T08:00:00Z"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "413": { $ref: "#/components/responses/FileTooLarge" }
+        "415": { $ref: "#/components/responses/UnsupportedFileType" }
         "422": { $ref: "#/components/responses/ValidationError" }
   /v1/notifications:
     get:
@@ -2346,6 +2475,108 @@ components:
           properties:
             channel: { type: string, enum: [email] }
             address: { type: string, format: email }
+    DocumentRequirementInput:
+      type: object
+      additionalProperties: false
+      required: [type, min_count, max_count]
+      properties:
+        type: { $ref: "#/components/schemas/DocumentTypeKey" }
+        min_count: { type: integer, minimum: 0 }
+        max_count: { type: ["integer", "null"], minimum: 1 }
+    RegistryColumn:
+      type: object
+      additionalProperties: false
+      required: [key, label, type, critical]
+      properties:
+        key: { type: string }
+        label: { type: string }
+        type:
+          { type: string, enum: [text, date, money, decimal, integer, boolean, currency, party] }
+        critical: { type: boolean }
+    RegistryList:
+      type: object
+      additionalProperties: false
+      required: [key, label, columns]
+      properties:
+        key: { type: string }
+        label: { type: string }
+        columns: { type: array, items: { $ref: "#/components/schemas/RegistryColumn" } }
+    DocumentTypeInfo:
+      type: object
+      additionalProperties: false
+      required: [key, name, version, builtin, accepted_formats, extraction]
+      description: A document type registry entry (current version). Extraction instructions stay server-side.
+      properties:
+        key: { $ref: "#/components/schemas/DocumentTypeKey" }
+        name: { type: string }
+        version: { type: integer, minimum: 1 }
+        builtin: { type: boolean }
+        accepted_formats: { type: array, items: { type: string } }
+        extraction:
+          type: object
+          additionalProperties: false
+          required: [fields, tables, transaction_lists]
+          properties:
+            fields: { type: array, items: { $ref: "#/components/schemas/RegistryColumn" } }
+            tables: { type: array, items: { $ref: "#/components/schemas/RegistryList" } }
+            transaction_lists: { type: array, items: { $ref: "#/components/schemas/RegistryList" } }
+    CheckLibrary:
+      type: object
+      additionalProperties: false
+      required: [families, legacy_rules]
+      properties:
+        families:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [type, name, description, system, parameters, related_rules]
+            properties:
+              type: { type: string }
+              name: { type: string }
+              description: { type: string }
+              system:
+                {
+                  type: boolean,
+                  description: "Derived by the server (document_count); not configurable",
+                }
+              parameters:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: false
+                  required: [name, type, required, description]
+                  properties:
+                    name: { type: string }
+                    type: { type: string, examples: ["field_refs", "enum:debit,credit"] }
+                    required: { type: boolean }
+                    description: { type: string }
+              related_rules: { type: array, items: { $ref: "#/components/schemas/RuleId" } }
+        legacy_rules:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [rule_id, family, note]
+            properties:
+              rule_id: { $ref: "#/components/schemas/RuleId" }
+              family: { type: ["string", "null"] }
+              note: { type: string }
+    OutputTemplate:
+      type: object
+      additionalProperties: false
+      required: [id, file_name, sha256, size, placeholders, uploaded_by, created_at]
+      properties:
+        id: { $ref: "#/components/schemas/Uuid" }
+        file_name: { type: string, pattern: "\\.docx$" }
+        sha256: { type: string, pattern: "^[0-9a-f]{64}$" }
+        size: { type: integer, minimum: 1 }
+        placeholders:
+          type: array
+          description: Distinct `{{placeholder}}` names found in the document, in order of appearance
+          items: { type: string }
+        uploaded_by: { $ref: "#/components/schemas/UserRef" }
+        created_at: { type: string, format: date-time }
     PlaceholderMapping:
       type: object
       additionalProperties: false
@@ -2580,7 +2811,11 @@ components:
             required: [document_version_id, type, file_name]
             properties:
               document_version_id: { $ref: "#/components/schemas/Uuid" }
-              type: { $ref: "#/components/schemas/DocumentType" }
+              type:
+                {
+                  $ref: "#/components/schemas/DocumentTypeKey",
+                  description: "invoice | order | delivery for invoice packages; any registry type for configured ones",
+                }
               file_name: { type: string }
         output: { $ref: "#/components/schemas/ExportOutput" }
     ExportOutput:
