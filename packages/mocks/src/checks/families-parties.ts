@@ -106,14 +106,29 @@ export function lineItemsMatch(
         ev: cite(d, `${side.table}[${i}]`) ?? whole(d),
       })),
     );
+  const sides = [params.left, params.right].map((s) => docsOf(p, s.document_type));
+  if (sides.some((docs) => !docs.length)) return NA("Müqayisə üçün sənəd yoxdur.");
   const left = rows(params.left);
   const right = rows(params.right);
-  if (!left.length || !docsOf(p, params.right.document_type).length)
-    return NA("Müqayisə üçün sətir yoxdur.");
   const evidence: EvidenceRef[] = [];
   const missing: string[] = [];
+  const unread = (v: unknown) => v === null || v === undefined;
+  // an empty or unread table is not "nothing to compare" — it is unread data
+  const blank = [params.left, params.right].flatMap((s, i) =>
+    sides[i]!.filter((d) => !(d.tables[s.table] ?? []).length || d.unreadable.includes(s.table)),
+  );
+  if (blank.length)
+    return verdict("UNKNOWN", "Sətir cədvəli oxunmayıb.", blank.map(whole), {
+      missing,
+      differences: [],
+    });
   const differences: { key: string; column: string; left: string; right: string }[] = [];
   for (const l of left) {
+    if (unread(l.row[params.key_column])) {
+      missing.push("—");
+      evidence.push(l.ev);
+      continue;
+    }
     const k = String(l.row[params.key_column]);
     const r = right.find((x) => String(x.row[params.key_column]) === k);
     evidence.push(l.ev);
@@ -123,6 +138,10 @@ export function lineItemsMatch(
     }
     evidence.push(r.ev);
     for (const c of params.compare) {
+      if (unread(l.row[c]) || unread(r.row[c])) {
+        missing.push(`${k} ${c}`);
+        continue;
+      }
       const [a, b] = [String(l.row[c]), String(r.row[c])];
       const same = MONEY.test(a) && MONEY.test(b) ? Math.abs(cents(a) - cents(b)) <= tol : a === b;
       if (!same) differences.push({ key: k, column: c, left: a, right: b });
@@ -136,7 +155,7 @@ export function lineItemsMatch(
   if (missing.length)
     return verdict(
       "UNKNOWN",
-      `Qarşı sənəddə olmayan sətir: ${missing.join(", ")}.`,
+      `Tutuşdurulmayan və ya oxunmayan sətir: ${missing.join(", ")}.`,
       evidence,
       data,
     );

@@ -52,5 +52,11 @@ describe("check library: duplicates, party identity, line items", () => {
     expect(f.lineItemsMatch(p, { ...params, tolerance: "0.01" }).outcome).toBe("PASS");
     receipt.tables.lines!.pop();
     expect(f.lineItemsMatch(p, params).outcome).toBe("UNKNOWN");
+    receipt.tables.lines = [];
+    expect(f.lineItemsMatch(p, params).outcome).toBe("UNKNOWN"); // empty table: unread, not NA
+    receipt.tables.lines = structuredClone(inv.tables.lines!);
+    receipt.tables.lines[0]!.qty = null;
+    inv.tables.lines![0]!.qty = null;
+    expect(f.lineItemsMatch(p, params).outcome).toBe("UNKNOWN"); // null = null is not a match
   });
 });
