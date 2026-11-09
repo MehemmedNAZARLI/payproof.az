@@ -105,7 +105,7 @@ async def export(
         )
     chosen = [current[i] for i in version_ids]
     if rs.checks is not None:  # ADR-0011 configured set: its required types, not the invoice
-        require_documents(rs, [t for _, t in chosen])
+        require_documents(rs, version_ids, current)
     elif not any(t == "invoice" for _, t in chosen):
         raise InvoiceRequired
     approval = await session.scalar(

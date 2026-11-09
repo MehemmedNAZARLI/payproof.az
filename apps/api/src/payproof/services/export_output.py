@@ -2,6 +2,7 @@
 filled from validated values only, and its manifest entries. A missing value refuses the export
 (422 `missing_placeholders`) — a partially filled document is never produced."""
 
+import uuid
 from dataclasses import dataclass
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -27,14 +28,18 @@ class FilledOutput:
     submission_address: str
 
 
-def require_documents(rs: RequirementSet, chosen_types: list[str]) -> None:
-    """Every required type (min_count ≥ 1) is in the export; replaces INVOICE_REQUIRED."""
-    missing = [d["type"] for d in rs.documents or []
-               if d["min_count"] >= 1 and d["type"] not in chosen_types]  # fmt: skip
-    if missing:
+def require_documents(
+    rs: RequirementSet, chosen: list[uuid.UUID], current: dict[uuid.UUID, tuple[Any, str]]
+) -> None:
+    """A configured set exports every current version of its document types (replaces
+    INVOICE_REQUIRED): the template's sums and counts are over the package, so the zip must
+    hold exactly the documents they were computed from."""
+    types = {d["type"] for d in rs.documents or []}
+    left_out = [v.file_name for vid, (v, t) in current.items() if t in types and vid not in chosen]
+    if left_out:
         raise InvalidInput(
-            "Tələb olunan sənəd növləri ixraca seçilməyib.",
-            {"fields": {"document_version_ids": f"tələb olunur: {', '.join(missing)}"}},
+            "Konfiqurasiya olunan paket bütün cari sənədləri ilə ixrac olunur.",
+            {"fields": {"document_version_ids": f"seçilməyib: {', '.join(left_out)}"}},
         )
 
 

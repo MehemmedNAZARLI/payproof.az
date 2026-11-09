@@ -82,14 +82,15 @@ async def send_export(
         text="Paket göndərilməyə hazırdır. Bu, ödəniş təsdiqi deyil. Əlavədə paket və manifest.",
         client=client,
     )  # fmt: skip
-    _status(rec, "SENT")
-    how = "Resend" if message_id else f"{settings.env}: göndərilmədi, yalnız log"
+    # without a key (dev/test) nothing left the system: the status stays QUEUED, never SENT
+    _status(rec, "SENT" if message_id or settings.resend_api_key else "QUEUED")
+    how = "Resend" if settings.resend_api_key else f"{settings.env}: göndərilmədi, yalnız log"
     await record(
         s, actor_id=None, action="export.sent", object_type="export", object_id=rec.id,
         package=pkg, message=f"{zip_name} → {sub['address']} ({how})",
         detail={"address": sub["address"], "provider_message_id": message_id},
     )  # fmt: skip
-    return {"export_id": str(rec.id), "status": "SENT"}
+    return {"export_id": str(rec.id), "status": rec.output["submission"]["status"]}  # type: ignore[index]
 
 
 async def send_failed(s: AsyncSession, job: Job) -> None:
