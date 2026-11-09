@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from payproof.domain.enums import CheckOutcome, Currency, DocumentStatus, PackageStatus, TaskStatus
 from payproof.schemas.auth import UserRef
+from payproof.schemas.config import CheckConfig, DocumentRequirement
 from payproof.schemas.packages import Blocker, CustomerRef, Money, PackageRef
 
 
@@ -22,6 +23,10 @@ class RequirementSet(BaseModel):
     approved_by: UserRef
     reason: str
     created_at: dt.datetime
+    # ADR-0011: always present — a legacy set shows its derived profile
+    documents: list[DocumentRequirement] = []
+    checks: list[CheckConfig] = []
+    output: dict[str, Any] | None = None  # OutputConfig as stored (validated on save)
 
 
 class MatchCandidate(BaseModel):

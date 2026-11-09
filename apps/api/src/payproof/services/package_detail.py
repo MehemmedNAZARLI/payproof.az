@@ -22,6 +22,7 @@ from payproof.services import detail_parts as parts
 from payproof.services import matching
 from payproof.services.comparison import comparison_rows
 from payproof.services.package_query import load_states
+from payproof.services.requirement_config import requirement_set_out, type_names
 from payproof.services.snapshot_builder import build_snapshot
 
 _DELETABLE = (PackageStatus.PROCESSING, PackageStatus.NEEDS_FIX, PackageStatus.NEEDS_REVIEW)
@@ -89,17 +90,8 @@ async def package_detail(
         created_at=p.created_at,
         updated_at=p.updated_at,
         total=Money.of(st.total) if st.total else None,
-        requirement_set=d.RequirementSet(
-            id=rule_set.id,
-            version=rule_set.version,
-            require_po=rule_set.require_po,
-            require_delivery=rule_set.require_delivery,
-            require_signature=rule_set.require_signature,
-            tolerance=f"{rule_set.tolerance:.2f}",
-            effective_from=rule_set.effective_from,
-            approved_by=ref(rule_set.approved_by),
-            reason=rule_set.reason,
-            created_at=rule_set.created_at,
+        requirement_set=requirement_set_out(
+            rule_set, ref(rule_set.approved_by), await type_names(session)
         ),
         link=d.OrderLink(
             confirmed=p.order_id is not None,
