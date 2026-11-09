@@ -4,12 +4,17 @@ import asyncio
 import contextlib
 import logging
 import signal
+from typing import Any
+
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from payproof.core.db import get_sessionmaker
 from payproof.core.logging import configure_logging
 from payproof.core.settings import get_settings
 from payproof.extraction.pipeline import adapter_extractor, get_adapter
 from payproof.repositories import models  # noqa: F401 — registers every table and the guard
+from payproof.repositories.models import Job
+from payproof.services.submission import send_export, send_failed
 from payproof.storage.s3 import get_storage
 from payproof.worker.create import create_handler
 from payproof.worker.extract import extract_handler
@@ -21,8 +26,17 @@ IDLE_POLL = 1.0  # seconds between checks when the queue is empty
 
 
 def handlers() -> dict[str, Handler]:
-    extract = adapter_extractor(get_adapter(), get_storage())
-    return {"extract_document": extract_handler(extract), "create_package": create_handler(extract)}
+    storage = get_storage()
+    extract = adapter_extractor(get_adapter(), storage)
+
+    async def send(s: AsyncSession, job: Job) -> dict[str, Any]:
+        return await send_export(s, storage, job)
+
+    return {
+        "extract_document": extract_handler(extract),
+        "create_package": create_handler(extract),
+        "send_export": Handler(send, send_failed),  # ADR-0011 §4 e-mail submission
+    }
 
 
 async def _main() -> None:

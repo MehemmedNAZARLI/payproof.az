@@ -33,6 +33,10 @@ class Settings(BaseSettings):
     ai_max_retries: int = Field(default=2, ge=0, le=5)
     # below this the extracted value counts as unread (a person reads it) — never a guess
     ai_min_confidence: float = Field(default=0.8, gt=0, le=1)
+    # ADR-0011 §4 e-mail submission of exports (Resend); without a key dev/test only log
+    resend_api_key: SecretStr | None = None
+    resend_from: str = "PayProof <hesabat@payproof.az>"
+    resend_base_url: str = "https://api.resend.com"
     # signed links must use an address the browser reaches; in compose the API itself talks to
     # http://minio:9000, the browser to http://localhost:9000. Unset: same as s3_endpoint_url
     s3_public_endpoint_url: str | None = None
