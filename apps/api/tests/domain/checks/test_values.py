@@ -25,6 +25,6 @@ def test_counterparty_names_are_normalized_for_azerbaijani() -> None:
 
 
 def test_missing_reference_is_a_missing_placeholder() -> None:
-    rs = {"output": {"placeholders": [{"placeholder": "{{ref}}",
-                                       "source": {"kind": "package", "value": "reference"}}]}}  # fmt: skip
+    source = {"kind": "package", "value": "reference"}
+    rs = {"output": {"placeholders": [{"placeholder": "{{ref}}", "source": source}]}}
     assert fill_template({"documents": [], "reference": None}, rs, None)["missing"]

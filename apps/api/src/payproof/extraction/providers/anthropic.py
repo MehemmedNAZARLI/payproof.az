@@ -47,6 +47,7 @@ class AnthropicExtractor:
 
     def __init__(self, settings: Settings, client: Any | None = None) -> None:
         self.model = settings.ai_model or DEFAULT_MODEL
+        self.served_model = self.model
         self.min_confidence = settings.ai_min_confidence
         key = settings.ai_api_key.get_secret_value() if settings.ai_api_key else None
         # typed loosely: tests pass a stand-in; the request below is plain JSON-shaped dicts
@@ -80,6 +81,8 @@ class AnthropicExtractor:
         except anthropic.APIConnectionError as e:  # includes timeouts
             log.warning("anthropic extraction failed: %s", type(e).__name__)
             raise ExtractionUnavailable(type(e).__name__) from e
+        # a server-side fallback can answer with another model: the audit names the one that did
+        self.served_model = str(getattr(response, "model", None) or self.model)
         if response.stop_reason in ("refusal", "max_tokens"):
             raise ExtractionUnavailable(f"stop_reason={response.stop_reason}")
         text = next((b.text for b in response.content if b.type == "text"), None)

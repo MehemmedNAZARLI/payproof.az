@@ -73,3 +73,23 @@ def test_keys_outside_the_schema_are_ignored() -> None:
     raw["verdict"] = "approve"
     g = normalize(raw, BANK["extraction"], pages=1, min_confidence=0.8)
     assert "all_checks" not in g.fields and "verdict" not in g.fields
+
+
+def test_partly_read_party_empty_list_and_odd_confidence_are_unread() -> None:
+    holder = {"name": None, "tax_id": None, "id_number": "5ZK8M2P"}
+    raw = answer(account_holder=item(holder),
+                 iban=item("AZ21", conf="high"))  # fmt: skip
+    raw["tables"]["transactions"] = []
+    g = normalize(raw, BANK["extraction"], pages=1, min_confidence=0.8)
+    assert {"account_holder", "iban", "transactions"} <= set(g.unreadable)
+    assert g.fields["account_holder"] is None and "transactions" not in g.tables
+
+
+def test_card_numbers_are_kept_masked_and_direction_is_an_enum() -> None:
+    card = TYPES["card_statement"]
+    g = normalize({"fields": {"card_mask": item("4169 7388 1234 4417")}, "tables": {}},
+                  card["extraction"], pages=1, min_confidence=0.8)  # fmt: skip
+    assert g.fields["card_mask"] == "**** 4417"
+    rows = response_schema(card["extraction"])["properties"]["tables"]["properties"]
+    direction = rows["transactions"]["items"]["properties"]["cells"]["properties"]["direction"]
+    assert direction["anyOf"][0]["enum"] == ["debit", "credit"]

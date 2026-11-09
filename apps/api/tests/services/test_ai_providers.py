@@ -36,8 +36,9 @@ class FakeMessages:
         return self.reply
 
 
-def fake(text: str = "{}", stop: str = "end_turn") -> Any:
-    msg = SimpleNamespace(stop_reason=stop, content=[SimpleNamespace(type="text", text=text)])
+def fake(text: str = "{}", stop: str = "end_turn", model: str = DEFAULT_MODEL) -> Any:
+    block = SimpleNamespace(type="text", text=text)
+    msg = SimpleNamespace(stop_reason=stop, content=[block], model=model)
     return SimpleNamespace(beta=SimpleNamespace(messages=FakeMessages(msg)))
 
 
@@ -124,3 +125,9 @@ async def test_mock_reads_prepared_demo_documents_only() -> None:
     assert unknown.unreadable[:2] == ["bank_name", "account_holder"] and not unknown.evidence
     pdf = await MockLlmExtractor(prepared=False).extract(LlmFile(name, b"", "", 2), bank)
     assert "account_holder" in pdf.unreadable  # `pdf` does not read configured types
+
+
+async def test_the_model_that_answered_is_recorded() -> None:
+    ex = AnthropicExtractor(settings(), fake(answer(), model="claude-opus-5"))  # a fallback
+    await ex.extract(PDF, RECEIPT)
+    assert (ex.model, ex.served_model) == ("claude-opus-5-5", "claude-opus-5")

@@ -6,6 +6,7 @@ then the entry's `instructions`, then a JSON schema in which every field answers
 source makes the value *unread* (a person reads it), never a guess — and validated against the
 registry schema before anything is stored (`validate_generic`)."""
 
+import re
 from dataclasses import dataclass
 from typing import Any, Protocol
 
@@ -57,6 +58,12 @@ def _nullable(schema: dict[str, Any]) -> dict[str, Any]:
     return {"anyOf": [schema, {"type": "null"}]}
 
 
+def _column_schema(column: dict[str, Any]) -> dict[str, Any]:
+    if column["key"] == "direction":  # transaction lists: the check library knows only these two
+        return {"type": "string", "enum": ["debit", "credit"]}
+    return _value_schema(column["type"])
+
+
 def _value_schema(kind: str) -> dict[str, Any]:
     if kind == "party":
         parts = {k: _nullable({"type": "string"}) for k in ("name", "tax_id", "id_number")}
@@ -80,7 +87,7 @@ def response_schema(extraction: dict[str, Any]) -> dict[str, Any]:
     }
     tables = {}
     for t in [*extraction.get("tables", []), *extraction.get("transaction_lists", [])]:
-        cells = {c["key"]: _nullable(_value_schema(c["type"])) for c in t["columns"]}
+        cells = {c["key"]: _nullable(_column_schema(c)) for c in t["columns"]}
         cell_obj = {"type": "object", "properties": cells, "required": list(cells),
                     "additionalProperties": False}  # fmt: skip
         tables[t["key"]] = {"type": "array", "items": _sourced({"cells": cell_obj})}
@@ -96,9 +103,20 @@ def system_prompt(document_type: dict[str, Any]) -> str:
     return f"{SECURITY_PREFIX}\n\n{document_type['name']}: {document_type['instructions']}"
 
 
+def _confident(item: dict[str, Any], min_confidence: float) -> bool:
+    conf = item.get("confidence")
+    return isinstance(conf, int | float) and not isinstance(conf, bool) and conf >= min_confidence
+
+
+def _masked(value: str) -> str:
+    """security.md: a card number is kept masked — only the last four digits survive."""
+    digits = re.sub(r"\D", "", value)
+    return f"**** {digits[-4:]}" if len(digits) > 4 else value
+
+
 def _source(item: dict[str, Any], pages: int, min_confidence: float) -> dict[str, Any] | None:
-    page, quote, conf = item.get("page"), item.get("quote"), item.get("confidence")
-    if not isinstance(conf, int | float) or conf < min_confidence:
+    page, quote = item.get("page"), item.get("quote")
+    if not _confident(item, min_confidence):
         return None
     if not isinstance(page, int) or not 1 <= page <= pages:
         return None
@@ -119,14 +137,16 @@ def normalize(
     for f in extraction["fields"]:
         item = answer.get(f["key"]) or {}
         value = item.get("value")
-        if isinstance(value, dict):  # party: drop empty parts, a party needs a name
+        partial = False
+        if isinstance(value, dict):  # party: drop empty parts; a party without a name is unread
             value = {k: v for k, v in value.items() if v} or None
-            if value is not None and "name" not in value:
-                value = None
+            partial = value is not None and "name" not in value
+        if f["key"] == "card_mask" and isinstance(value, str):
+            value = _masked(value)
         src = _source(item, pages, min_confidence)
-        if value is None and (src is not None or item.get("confidence", 0) >= min_confidence):
+        if value is None and _confident(item, min_confidence):
             fields[f["key"]] = None  # confidently absent from the document
-        elif value is None or src is None:
+        elif value is None or src is None or partial:
             fields[f["key"]] = None  # read without enough confidence or source: a person reads it
             unreadable.append(f["key"])
         else:
@@ -135,9 +155,11 @@ def normalize(
     tables: dict[str, list[dict[str, Any]]] = {}
     for t in [*extraction.get("tables", []), *extraction.get("transaction_lists", [])]:
         rows = (raw.get("tables") or {}).get(t["key"]) or []
-        sources = [_source(r, pages, min_confidence) for r in rows]
-        if any(s is None for s in sources):
-            unreadable.append(t["key"])  # one unsure row makes the list unread, never partial
+        sources = [_source(r, pages, min_confidence) for r in rows if isinstance(r, dict)]
+        if not rows or len(sources) != len(rows) or any(s is None for s in sources):
+            # one unsure row makes the list unread, never partial; an empty list cites nothing,
+            # so "no transactions" is never taken as read (a person confirms it)
+            unreadable.append(t["key"])
             continue
         keys = [c["key"] for c in t["columns"]]
         tables[t["key"]] = [{k: (r.get("cells") or {}).get(k) for k in keys} for r in rows]

@@ -61,13 +61,14 @@ async def _provenance(s: AsyncSession, version: DocumentVersion, ai: LlmExtracto
     """Which provider, model and prompt version read the file (audit metadata; no content)."""
     doc = await s.get_one(Document, version.document_id)
     pkg = await s.get_one(InvoicePackage, doc.package_id)
+    model = str(getattr(ai, "served_model", None) or ai.model)
     log.info("extracted version=%s provider=%s model=%s prompt=%s",
-             version.id, ai.provider, ai.model, PROMPT_VERSION)  # fmt: skip
+             version.id, ai.provider, model, PROMPT_VERSION)  # fmt: skip
     await record(
         s, actor_id=None, action="document.read_by", object_type="document_version",
         object_id=version.id, package=pkg,
-        message=f"{version.file_name}: çıxarış — {ai.provider} ({ai.model})",
-        detail={"provider": ai.provider, "model": ai.model, "prompt_version": PROMPT_VERSION},
+        message=f"{version.file_name}: çıxarış — {ai.provider} ({model})",
+        detail={"provider": ai.provider, "model": model, "prompt_version": PROMPT_VERSION},
     )  # fmt: skip
 
 
