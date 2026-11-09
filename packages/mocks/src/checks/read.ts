@@ -15,7 +15,7 @@ export function cite(d: GenericDoc, key: string): EvidenceRef | null {
 }
 
 /** First-page fallback citation for a document as a whole (unreadable field without its own source). */
-const whole = (d: GenericDoc): EvidenceRef => ({
+export const whole = (d: GenericDoc): EvidenceRef => ({
   document_id: d.id,
   field: "document",
   page: 1,
