@@ -1,3 +1,5 @@
+import { loginText } from "@payproof/api-client/i18n";
+
 // Places that cannot read CSS variables (viewport theme-color, web manifest) need literal colours.
 // Each value mirrors src/styles/tokens.css — brand.test.ts fails if they drift.
 export const brand = {
@@ -7,6 +9,5 @@ export const brand = {
   backgroundDark: "#05060a",
 } as const;
 
-// shortcut: move to @payproof/api-client/i18n once it exists (S-05).
-export const appName = "PayProof";
-export const appDescription = "Faktura paketlərinin hazırlığı və təsdiqi";
+export const appName = loginText.brand;
+export const appDescription = loginText.tagline;

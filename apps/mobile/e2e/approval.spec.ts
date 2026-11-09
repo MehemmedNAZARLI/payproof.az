@@ -1,6 +1,6 @@
 import { expect, type Page, test } from "@playwright/test";
 
-import { AYGUN, horizontalOverflow, signIn, watchErrors } from "./helpers";
+import { AYGUN, horizontalOverflow, signIn, tabLink, watchErrors } from "./helpers";
 
 // M-09 approval on the iPhone 13 profile: review gate, one approval, success, every view updated.
 
@@ -46,13 +46,18 @@ test("reviews every document, approves once and shows it everywhere", async ({ p
 
   await page.getByRole("link", { name: "Ana səhifəyə qayıt" }).click();
   await expect(page.getByRole("link", { name: /Təsdiqinizi gözləyir/ })).toContainText(/1\s*paket/);
-  await page.goto("/packages?status=approved");
-  await expect(page.getByRole("link", { name: /INV-1038/ })).toBeVisible();
-  await page.goto(`/packages/${ID}`);
+  // In the app from here on: the mock DB lives in the page, a reload would start it afresh.
+  await page
+    .getByRole("list", { name: "Statuslar" })
+    .getByRole("link", { name: /Göndərilməyə hazır/ })
+    .click();
+  await expect(page).toHaveURL("/packages?status=approved");
+  await page.getByRole("link", { name: /INV-1038/ }).click();
   await expect(page.getByRole("link", { name: "Veb tətbiqdə ixrac et" })).toBeVisible();
   await expect(page.getByText(/Təsdiqləyən:\s*Rəşad Əliyev/)).toBeVisible();
   // A double tap made one approval: the activity feed has one new approval event.
-  await page.goto("/home");
+  await page.goBack();
+  await tabLink(page, "Əsas").click();
   await expect(page.getByText(/Paket təsdiqləndi · INV-1038/)).toHaveCount(1);
   expect(errors).toEqual([]);
 });

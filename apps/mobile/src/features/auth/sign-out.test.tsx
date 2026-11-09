@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { createQueryClient } from "@/lib/query-client";
 import { getSession, signOutReason, startSession } from "@/lib/session";
+import { mockToken } from "@/test/mock";
 
 import { useSignOut } from "./queries";
 
@@ -17,7 +18,7 @@ describe("useSignOut", () => {
     const client = createQueryClient();
     client.setQueryData(["packages", "list", {}], { items: [] });
     startSession({
-      access_token: "mock.u2",
+      access_token: mockToken("u2"),
       token_type: "bearer",
       expires_in: 60,
       user: {} as never,

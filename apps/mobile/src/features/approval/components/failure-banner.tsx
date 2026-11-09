@@ -3,12 +3,23 @@ import { t } from "@/lib/i18n";
 
 import type { ApprovalFlow } from "../use-approval-flow";
 
-// Why the last attempt did not go through, and what to do now. Announced to screen readers.
+// Why the last attempt did not go through (or cannot), and what to do now. Announced to screen
+// readers.
 export function FailureBanner({ flow }: { flow: ApprovalFlow }) {
-  const f = flow.failure ?? (flow.online ? null : ({ kind: "offline" } as const));
+  const f =
+    flow.failure ??
+    // offline first: it is what blocks the confirm right now
+    (flow.online ? null : ({ kind: "offline" } as const)) ??
+    (flow.changed ? ({ kind: "changed", ...flow.changed } as const) : null);
   if (!f) return null;
   const [tone, title, body] = ((): ["warning" | "danger" | "info", string, string?] => {
     switch (f.kind) {
+      case "changed":
+        return [
+          "warning",
+          f.bySystem ? t.live.changedBySystemTitle(f.version) : t.live.changedTitle(f.version),
+          t.live.changedBody,
+        ];
       case "conflict":
         return ["warning", t.approval.conflictTitle, t.approval.conflictBody(f.version)];
       case "forbidden":

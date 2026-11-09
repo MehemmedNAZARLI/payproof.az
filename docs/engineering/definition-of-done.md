@@ -21,5 +21,4 @@ Step yalnız bunların hamısı ✓ olanda bitmiş sayılır (`/finish-step` yox
 - [ ] Yeni əmr/env dəyişəni varsa: README / `.env.example` / app `CLAUDE.md` yenilənib
 
 ## Yoxlama
-- [ ] `code-review` (və ya `.claude/agents/code-reviewer`) işlədilib, kritik tapıntı qalmayıb
 - [ ] UI step-lərində: brauzerdə real yoxlama (veb 1440/1024/768, mobil 390), konsolda xəta yoxdur

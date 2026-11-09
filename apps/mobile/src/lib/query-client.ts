@@ -1,8 +1,8 @@
+import { ApiError } from "@payproof/api-client";
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 
 import { toast } from "@/components/ui/toast-store";
 
-import { ApiError } from "./api/client";
 import { t } from "./i18n";
 import { endSession, hasStoredSession } from "./session";
 

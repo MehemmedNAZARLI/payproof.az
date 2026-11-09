@@ -2,6 +2,7 @@ import { act, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { endSession, startSession } from "@/lib/session";
+import { mockToken } from "@/test/mock";
 
 import { SessionGate } from "./session-gate";
 
@@ -13,7 +14,7 @@ vi.mock("next/navigation", () => ({
 
 const signIn = () =>
   startSession({
-    access_token: "mock.u2",
+    access_token: mockToken("u2"),
     token_type: "bearer",
     expires_in: 60,
     user: {} as never,

@@ -13,7 +13,7 @@
 | Milestone | Nəticə | Step-lər |
 |---|---|---|
 | **M0 · Foundation** | Monorepo, infra, fixtures, API müqaviləsi, client, mock-lar, tokenlər, CI | S-01 … S-08 |
-| **M1 · Oxuma dikey kəsiyi** | Seed data API-dən gəlir; qayda mühərriki golden test-dən keçir; dashboard, siyahı, detal (mock ilə) veb və mobildə | B-01…B-12 · W-01…W-09 · M-01…M-07 |
+| **M1 · Oxuma dikey kəsiyi** | Seed data API-dən gəlir; qayda mühərriki golden test-dən keçir; dashboard, siyahı, detal (mock ilə) veb və mobildə | S-09 · B-01…B-12b · W-01…W-09 (+W-05b) · M-01…M-07 (+M-04b) |
 | **M2 · Əsas axın** | Yükləmə → çıxarış → əlaqə → yoxlama → tapşırıq → düzəliş → yenidən yoxlama | B-13…B-19 · W-10…W-12 · M-08 |
 | **M3 · Təsdiq, ixrac, audit** | Versiyaya bağlı təsdiq, idempotent ixrac, audit, qaydalar, bildirişlər | B-20…B-24 · W-13…W-16 · M-09…M-10 |
 | **M4 · Keyfiyyət** | E2E, a11y, PWA, real API-yə keçid | W-17, W-18 · M-11, M-12 · B-26 |
@@ -41,7 +41,7 @@ Track daxilində step-lər əsasən ardıcıldır; dəqiq asılılıq hər step-
 |---|---|---|---|
 | 1 | S-01 … S-08 (ardıcıl) | — | Prototipi və sənədləri oxumaq, alətləri qurmaq |
 | 2 | B-01 … B-06 | W-01 … W-05 | M-01 … M-04 |
-| 3 | B-07 … B-12 | W-06 … W-09 | M-05 … M-07 |
+| 3 | S-09, B-07 … B-12b | W-05b, W-06 … W-09 | M-04b, M-05 … M-07 |
 | 4 | B-13 … B-19 | W-10 … W-12 | M-08 |
 | 5 | B-20 … B-24, B-26 | W-13 … W-17 | M-09 … M-11 |
 | 6 | B-25 (stretch) | W-18 | M-12 |

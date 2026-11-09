@@ -1,29 +1,24 @@
+import {
+  checkOutcomeLabel,
+  documentTypeLabel,
+  packageStatusLabel,
+  roleLabel,
+  taskStatusLabel,
+  ui,
+} from "@payproof/api-client/i18n";
+
 import type { checkOutcomeTone, packageStatusTone, taskStatusTone } from "./status-tone";
 
 export type PackageStatus = keyof typeof packageStatusTone;
 export type CheckOutcome = keyof typeof checkOutcomeTone;
 export type TaskStatus = keyof typeof taskStatusTone;
 
-// shortcut: labels mirror the prototype (PST/OUT/TST) until @payproof/api-client/i18n (S-05)
-// exists; then this file re-exports from there and the call sites stay the same.
+// Contract enum labels come from @payproof/api-client/i18n (shared with web); the rest is mobile copy.
 export const t = {
   package: {
-    status: {
-      PROCESSING: "Emal olunur",
-      NEEDS_REVIEW: "Yoxlama tələb edir",
-      NEEDS_FIX: "Düzəliş tələb edir",
-      READY_FOR_APPROVAL: "Təsdiq gözləyir",
-      APPROVED_READY: "Göndərilməyə hazır",
-      EXPORTED: "İxrac edilib",
-    } satisfies Record<PackageStatus, string>,
+    status: packageStatusLabel,
   },
-  role: {
-    operator: "Operator",
-    approver: "Təsdiqçi",
-    readonly: "Yalnız baxış",
-    admin: "Admin",
-    assignee: "Tapşırıq icraçısı",
-  },
+  role: roleLabel,
   packageFilter: {
     label: "Status filtri",
     all: "Hamısı",
@@ -132,7 +127,7 @@ export const t = {
     toPackage: "Paketə bax",
   },
   document: {
-    type: { invoice: "Faktura", order: "Sifariş", delivery: "Təhvil sənədi" },
+    type: documentTypeLabel,
   },
   evidence: {
     source: "Mənbə sübutu",
@@ -183,20 +178,10 @@ export const t = {
     blocking: (n: number) => `${n} bloklayan`,
   },
   check: {
-    outcome: {
-      PASS: "Keçdi",
-      FAIL: "Uyğunsuz",
-      UNKNOWN: "Naməlum",
-      NOT_APPLICABLE: "Tətbiq olunmur",
-    } satisfies Record<CheckOutcome, string>,
+    outcome: checkOutcomeLabel,
   },
   task: {
-    status: {
-      OPEN: "Açıq",
-      IN_PROGRESS: "İcrada",
-      SUBMITTED_FOR_RECHECK: "Yenidən yoxlamada",
-      RESOLVED: "Həll edilib",
-    } satisfies Record<TaskStatus, string>,
+    status: taskStatusLabel,
   },
   auth: {
     demoBadge: "Sintetik məlumatlarla demo",
@@ -234,18 +219,20 @@ export const t = {
     summary: "Statuslar",
   },
   audit: {
+    // Keyed by the API's audit actions; others show the entry's own message.
     action: {
       "package.created": "Paket yaradıldı",
       "document.uploaded": "Sənəd yükləndi",
-      "extraction.completed": "Məlumat çıxarıldı",
-      "order.linked": "Sifariş əlaqələndirildi",
-      "order.candidates_found": "Sifariş namizədləri tapıldı",
-      "package.approved": "Paket təsdiqləndi",
+      "document.extracted": "Məlumat çıxarıldı",
+      "link.confirmed": "Sifariş əlaqələndirildi",
+      "link.exact_match": "Sifariş əlaqələndirildi",
+      "link.candidates_found": "Sifariş namizədləri tapıldı",
+      "approval.created": "Paket təsdiqləndi",
       "approval.invalidated": "Təsdiq etibarsızlaşdı",
-      "package.exported": "Paket ixrac edildi",
+      "export.created": "Paket ixrac edildi",
       "task.created": "Tapşırıq yaradıldı",
       "task.resolved": "Tapşırıq həll edildi",
-      "validation.completed": "Yoxlama aparıldı",
+      "validation.run": "Yoxlama aparıldı",
     } as Record<string, string>,
   },
   permission: {
@@ -290,8 +277,27 @@ export const t = {
     profile: "Profil",
     back: "Geri",
   },
+  live: {
+    // "Aygün Məmmədova INV-1042 paketini yenilədi (v5)"
+    verb: {
+      "package.created": "yaratdı",
+      "package.updated": "yenilədi",
+      "package.approved": "təsdiqlədi",
+      "package.exported": "ixrac etdi",
+      "package.deleted": "sildi",
+    } as Partial<Record<string, string>>,
+    someone: "Başqa istifadəçi",
+    system: ui.system,
+    pkg: (invoice?: string) => (invoice ? `${invoice} paketini` : "paketi"),
+    task: (invoice?: string) => (invoice ? `${invoice} paketinin tapşırığını` : "tapşırığı"),
+    rules: "müştəri qaydasını",
+    updated: "yenilədi",
+    changedTitle: (v: number) => `Başqa istifadəçi paketi yenilədi (v${v})`,
+    changedBySystemTitle: (v: number) => `Paket sistem tərəfindən yeniləndi (v${v})`,
+    changedBody:
+      "Təsdiq yeni versiyaya aiddir: sənədlərə yenidən baxın və təsdiq qeydini təkrar işarələyin.",
+  },
   errors: {
-    network: "İnternet bağlantısı yoxdur. Bağlantını yoxlayıb yenidən cəhd edin.",
     unexpected: "Gözlənilməz xəta baş verdi. Bir az sonra yenidən cəhd edin.",
     refreshFailed: "Məlumat yenilənmədi",
     loadFailed: "Məlumat yüklənmədi",

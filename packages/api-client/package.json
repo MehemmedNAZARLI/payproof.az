@@ -1,0 +1,25 @@
+{
+  "name": "@payproof/api-client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./format": "./src/format/index.ts",
+    "./i18n": "./src/i18n/az.ts"
+  },
+  "scripts": {
+    "generate": "node scripts/generate.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "openapi-typescript": "7.13.0",
+    "typescript": "^5",
+    "vitest": "^5"
+  },
+  "dependencies": {
+    "openapi-fetch": "0.17.0"
+  }
+}

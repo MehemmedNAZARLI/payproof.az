@@ -10,6 +10,9 @@ Referans implementasiya: prototipdəki `runChecks(p)` və `info(p)` funksiyalar�
 - `delivery | None`: `no`, `po_ref`, `customer_id`, `lines[{code, qty}]`, `signed: bool`
 - `signature_reviewed: bool`
 - `rules`: `require_po`, `require_delivery`, `require_signature`, `tolerance: Decimal`
+- `parties: {customer_id: {name, voen}}` — yuxarıda istinad edilən hər müştəri üçün (R-003 mesajı hər iki alıcının adını və VÖEN-i göstərir)
+- `evidence: {field_path: {document_version_id, page, quote, bbox}}` — qaydaların `evidence[]`-i buradan götürülür
+- Oxunmayan dəyər `None`-dur (qayda `UNKNOWN` verir); pul `Money` (valyuta ilə), miqdar `Decimal`
 
 ## Çıxış
 `CheckResult{rule_id, outcome, severity="BLOCKING", message, evidence[], cascade: bool, fix_hint, data}` — `data` hesablanmış dəyərləri saxlayır (məs. `line_difference`).

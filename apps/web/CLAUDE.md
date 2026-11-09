@@ -15,7 +15,10 @@ e2e/                  Playwright
 
 ## Əmrlər
 `pnpm --filter web dev` (:3000) · `build` · `lint` · `typecheck` · `test` · `e2e`
-Mock rejimi: `.env.local` → `NEXT_PUBLIC_API_MOCK=1` (default). Real API: `NEXT_PUBLIC_API_MOCK=0`, `NEXT_PUBLIC_API_URL=http://localhost:8000`.
+Mock rejimi: `.env.development` (commit olunub) → `NEXT_PUBLIC_API_MOCK=1` (default). Real API: `.env.local`-da `NEXT_PUBLIC_API_MOCK=0`, `NEXT_PUBLIC_API_URL=http://localhost:8000`. Demo fayl seçimi (`NEXT_PUBLIC_DEMO_FILES=1`) real API-də də işləyir — backend `AI_PROVIDER=mock` faylları adından tanıyır.
+E2E real stack-də: `pnpm --filter web e2e:real` — Playwright öz API-sini (:8100), worker-i və real rejim build-ini (:3100) qaldırır; **ayrıca baza** lazımdır, çünki hər testdən əvvəl `payproof-seed --reset` işləyir: bir dəfə `docker compose exec postgres createdb -U payproof payproof_e2e`, sonra `E2E_DATABASE_URL` (default `…@localhost:5432/payproof_e2e`) və lazım olsa `S3_ENDPOINT_URL`. Testlər istifadəçini adından, paketi faktura nömrəsindən tapır (`e2e/fixtures.ts`: `signIn(page, USERS.aygun, "/packages/INV-1042")`) — mock və real id-lər fərqlidir.
+`public/mockServiceWorker.js` commit olunmur — `predev` və `prebuild` (Vercel preview mock rejimində build olunur) onu `@payproof/mocks`-un MSW versiyasından yaradır. MSW yalnız client-də yüklənir (`app/mock-gate.tsx`, `ssr: false`): `msw/browser`-in Node build-i yoxdur.
+Dev auth: `/login` (demo istifadəçi) → token memory + sessionStorage (`lib/auth.ts`); `(app)` route-ları `AuthGuard` ilə qorunur; istənilən 401 → çıxış + `/login` (`lib/query-client.ts`).
 
 ## Qaydalar
 - API yalnız `@payproof/api-client`; server state yalnız TanStack Query; query key-lər feature-in `queries.ts`-ində.

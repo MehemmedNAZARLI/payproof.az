@@ -10,6 +10,7 @@ import { packageDetailKeys } from "@/features/package-detail/queries";
 import type { Schemas } from "@/lib/api";
 import { haptic } from "@/lib/haptics";
 import { t } from "@/lib/i18n";
+import { type PackageChange, usePackageChangedSince } from "@/lib/live";
 import { useOnline } from "@/lib/online";
 
 import { type ApprovalFailure, approvalFailure, useApprove } from "./queries";
@@ -38,13 +39,21 @@ export function useApprovalFlow(pkg: Detail, isSeen: (versionId: string) => bool
   // of the same intent reuse it; a new version (or a fresh opening of the sheet) gets a new one.
   const attempt = useRef<{ key: string; version: number; ruleSet: number } | null>(null);
   const sending = useRef(false);
+  // Someone else made a newer version while the sheet is open (live event, ADR-0010). The notice
+  // stays for this opening of the sheet; the newer version loads by itself and must be reviewed.
+  const newer = usePackageChangedSince(pkg.id, pkg.version);
+  const [changed, setChanged] = useState<PackageChange | null>(null);
+  if (newer !== null && (changed === null || newer.version > changed.version)) setChanged(newer);
 
   const docs = reviewList(pkg, isSeen);
   const unseen = docs.filter((d) => !d.seen).length;
   const ack = ackFor === pkg.version;
   // After a 409 the reviewed version is stale until the newer one has loaded.
   const stale =
-    failure?.kind === "conflict" && failure.version !== undefined && pkg.version < failure.version;
+    (failure?.kind === "conflict" &&
+      failure.version !== undefined &&
+      pkg.version < failure.version) ||
+    newer !== null;
   const pending = mutation.isPending;
   const ready = unseen === 0 && ack && online && !pending && !stale;
 
@@ -62,6 +71,7 @@ export function useApprovalFlow(pkg: Detail, isSeen: (versionId: string) => bool
     attempt.current = null;
     setAckFor(null);
     setFailure(null);
+    setChanged(null);
   }, []);
 
   const setAck = (on: boolean) => {
@@ -125,6 +135,7 @@ export function useApprovalFlow(pkg: Detail, isSeen: (versionId: string) => bool
     online,
     pending,
     failure,
+    changed,
     nudge,
     begin,
     submit,

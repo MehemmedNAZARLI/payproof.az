@@ -1,8 +1,8 @@
+import { ApiError } from "@payproof/api-client";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { toast } from "@/components/ui/toast-store";
 
-import { ApiError } from "./api/client";
 import { createQueryClient, errorMessage, shouldRetry } from "./query-client";
 import { getSession, signOutReason, startSession } from "./session";
 

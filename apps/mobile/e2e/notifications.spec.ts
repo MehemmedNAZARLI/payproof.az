@@ -1,11 +1,10 @@
 import { expect, type Page, test } from "@playwright/test";
 
-import { AYGUN, signIn, watchErrors } from "./helpers";
+import { AYGUN, signIn, signOutInApp, tabLink, watchErrors } from "./helpers";
 
 // M-10 notifications on the iPhone 13 profile.
 
-const tab = (page: Page) =>
-  page.getByRole("navigation").getByRole("link", { name: /^Bildirişlər/ });
+const tab = (page: Page) => tabLink(page, "Bildirişlər");
 const ID_1038 = "0193a000-0000-7000-8002-000000001038";
 
 test("badges unread notifications and opens the right package", async ({ page }) => {
@@ -27,12 +26,11 @@ test("badges unread notifications and opens the right package", async ({ page })
   await page.getByRole("button", { name: "Hamısını oxu" }).click();
   await expect(page.getByText("Hamısı oxunub")).toBeVisible();
   await expect(tab(page)).toHaveAccessibleName("Bildirişlər");
-  // The list updates before the (in-page mock) server has answered; let it answer first.
-  const readIds = () =>
-    page.evaluate(() => JSON.parse(sessionStorage.getItem("payproof.mock-db") ?? "{}").read ?? []);
-  await expect.poll(async () => (await readIds()).length).toBe(4); // all four of Rəşad's
-  await page.reload();
+  // Still read after leaving the screen and coming back (the server agreeing is a unit test).
+  await tabLink(page, "Əsas").click();
+  await tab(page).click();
   await expect(page.getByText("Hamısı oxunub")).toBeVisible();
+  await expect(tab(page)).toHaveAccessibleName("Bildirişlər");
   expect(errors).toEqual([]);
 });
 
@@ -40,12 +38,14 @@ test("the package owner is told when the approver approves", async ({ page }) =>
   await signIn(page, AYGUN);
   await expect(tab(page)).toHaveAccessibleName(/\d+ oxunmamış/);
   const before = Number((await tab(page).getAttribute("aria-label"))!.match(/\d+/)![0]);
-  await page.goto("/profile");
-  await page.getByRole("button", { name: "Hesabdan çıx" }).click();
-  await page.getByRole("dialog").getByRole("button", { name: "Hesabdan çıx" }).click();
+  // One tab throughout: the mock DB lives in the page, so the users switch in the app.
+  await signOutInApp(page);
 
   await signIn(page);
-  await page.goto(`/packages/${ID_1038}`);
+  await page
+    .getByRole("list", { name: "Təsdiq gözləyənlər" })
+    .getByRole("link", { name: /INV-1038/ })
+    .click();
   await page.getByRole("button", { name: "Sübutlara baxıb təsdiqlə" }).click();
   const sheet = page.getByRole("dialog");
   for (const name of [/Faktura · v1/, /Sifariş · v1/, /Təhvil sənədi · v1/]) {
@@ -57,14 +57,13 @@ test("the package owner is told when the approver approves", async ({ page }) =>
   await sheet.getByRole("button", { name: /Təsdiqlə/ }).click();
   await expect(page).toHaveURL(/success$/);
 
-  await page.goto("/profile");
-  await page.getByRole("button", { name: "Hesabdan çıx" }).click();
-  await page.getByRole("dialog").getByRole("button", { name: "Hesabdan çıx" }).click();
+  await page.getByRole("link", { name: "Ana səhifəyə qayıt" }).click();
+  await signOutInApp(page);
   await signIn(page, AYGUN);
   await expect(tab(page)).toHaveAccessibleName(`Bildirişlər, ${before + 1} oxunmamış`);
   await tab(page).click();
-  await expect(
-    page.getByRole("link", { name: /INV-1038 Rəşad Əliyev tərəfindən təsdiqləndi/ }),
-  ).toBeVisible();
-  await expect(page.getByRole("heading", { level: 2, name: "Bu gün" })).toBeVisible();
+  // Newest first. Its day heading follows the mock's demo clock, not the device's.
+  await expect(page.getByRole("main").getByRole("link").first()).toHaveAccessibleName(
+    /INV-1038 Rəşad Əliyev tərəfindən təsdiqləndi/,
+  );
 });

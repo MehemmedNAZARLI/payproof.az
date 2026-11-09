@@ -10,6 +10,7 @@ Backend hazır olana qədər `NEXT_PUBLIC_API_MOCK=1` — `@payproof/mocks`.
 
 ### W-01 · Next.js skeleti
 **Branch:** `feat/W-01-web-skeleton` · **Asılılıq:** S-08
+Əvvəl packages/*/README.md fayllarını oxu — @payproof paketlərini qoşmaq üçün transpilePackages və Tailwind @config qeydləri oradadır.
 **Daxildir:** Next.js app (`create-next-app` boş olmayan qovluqda işləmir — müvəqqəti qovluqda yaradıb köçür, `CLAUDE.md` saxlanılsın), TS strict, Tailwind + tokens preset, `tokens.css` import, sistem şrift stack-i, shadcn/ui init (Radix), ESLint + Prettier, Vitest + RTL, Playwright config, `src/{app,features,components/ui,lib}` quruluşu, `lang="az"`.
 **Qəbul:** [ ] `pnpm --filter web dev|build|lint|typecheck|test` işləyir [ ] light/dark tokenlər tətbiq olunur
 **Commit-lər:** 1) next app 2) tailwind + tokens 3) shadcn init 4) eslint/prettier 5) vitest + playwright
@@ -32,7 +33,24 @@ Backend hazır olana qədər `NEXT_PUBLIC_API_MOCK=1` — `@payproof/mocks`.
 ### W-05 · Ümumi UI dəsti
 **Branch:** `feat/W-05-ui-kit` · **Asılılıq:** W-04
 **Daxildir:** `PageHeader`, `Banner` (danger/warning/success/brand/neutral), `EmptyState`, `Skeleton` variantları, `ConfirmDialog` (dağıdıcı əməliyyatlar), `DataTable` (TanStack Table wrapper: sort başlıqları `aria-sort` ilə), `Panel`.
-**Qəbul:** [ ] hər komponentin Vitest testi [ ] a11y: dialog focus trap, Esc
+**Qəbul:** [ ] hər komponentin Vitest testi [ ] a11y: dialog focus trap, Esc [ ] toxunma sahəsi: vebdə düymələr 32–40px qala bilər, `@media (pointer: coarse)` altında min 44px (interaktiv elementlər, o cümlədən shadcn `Button` ölçüləri)
+
+### W-05b · Canlı yeniləmələr
+**Branch:** `feat/W-05b-live-updates` · **Asılılıq:** W-05, S-09 · **Skills:** `superpowers:test-driven-development`
+**Məqsəd:** ADR-0010 — başqa əməkdaşın dəyişikliyi vebdə refresh-siz, ≤ 2 s-də görünsün.
+**Daxildir:**
+- `lib/live.ts`: `useLiveUpdates()` — `(app)` layout-unda bir dəfə qoşulur (`subscribeEvents`, `@payproof/api-client`), çıxışda/401-də dayanır
+- invalidate xəritəsi (`LiveEventType` → query key-lər, mövcud key factory ilə): `package.*` → paket siyahısı, `detail(package_id)`, dashboard, paket auditi; `task.changed` → tapşırıqlar + detal; `notification.created` → bildirişlər; `requirements.changed` → müştərilər + bütün paketlər; bilinməyən tip və (yenidən) qoşulma → bütün keş; testlə örtülmüş təmiz funksiya
+- "kim dəyişdi" toast-u (sonner): "Aygün Məmmədova INV-1042 paketini yenilədi (v5)" — ad `GET /v1/users` keşindən, nömrə keşdən (yoxdursa "paketi"); öz hadisələri üçün toast yox; eyni paket üçün ardıcıl hadisələr bir toast-a birləşir
+- `usePackageChangedSince(packageId, version)` + `StaleBanner` ("Başqa istifadəçi paketi yenilədi (vN). Davam etmək üçün yenidən baxın." + "Yenilə"): açıq dialoqda (təsdiq, ixrac, düzəliş — W-11/W-13 istifadə edir) cari versiyadan böyük hadisə gələndə göstərilir; təsdiq düyməsi bağlanır (server onsuz da 409 verir)
+- ehtiyat polling: axın qırıq ikən aktiv sorğular 30 s-dən bir (`refetchInterval`), bərpa olunanda dayanır
+**Daxil deyil:** backend (B-12b), bağlantı statusu indikatoru, push bildirişləri, dialoqların özü (W-11, W-13).
+**Qəbul meyarları:**
+- [ ] İki tab (mock, eyni brauzer): Rəşad tab-ında təsdiq → Aygün tab-ında siyahı/detal ≤ 2 s-də refresh-siz yenilənir + toast
+- [ ] Açıq dialoq zamanı başqa tab paketi dəyişəndə `StaleBanner` görünür
+- [ ] Axın kəsiləndə 30 s polling işləyir, bərpada dayanır; yenidən qoşulmada tam refetch (Vitest, fake timers)
+- [ ] Öz dəyişikliyi toast göstərmir
+**Commit planı:** 1) invalidate xəritəsi + testlər 2) `useLiveUpdates` + layout qoşulması 3) toast (ad/nömrə, birləşdirmə) 4) `usePackageChangedSince` + `StaleBanner` 5) ehtiyat polling + testlər
 
 ### W-06 · İcmal (dashboard)
 **Branch:** `feat/W-06-dashboard` · **Asılılıq:** W-05

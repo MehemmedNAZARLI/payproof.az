@@ -16,6 +16,7 @@ apps/api (FastAPI) ── auth / tenant / permission (hər sorğuda)
  ├─ repositories/  SQLAlchemy, tenant filtri məcburi
  ├─ extraction/ adapter interfeysi: mock | pdf_text | ocr | llm
  ├─ storage/    S3 client (MinIO lokal)
+ ├─ realtime/   LISTEN/NOTIFY hub → GET /v1/events (SSE)
  └─ worker/     jobs cədvəli + SKIP LOCKED worker
 PostgreSQL · MinIO
 ```
@@ -41,6 +42,9 @@ Server state yalnız TanStack Query ilə. UI mətnləri `@payproof/api-client/i1
 
 ## Fon işləri
 Uzun OCR/AI işi HTTP sorğusunu saxlamır. `jobs` cədvəli + `SELECT … FOR UPDATE SKIP LOCKED` worker (ADR-0005). UI `GET /v1/jobs/{id}` ilə vəziyyəti izləyir. Texniki xəta (`FAILED`) biznes uyğunsuzluğundan (`FAIL`) ayrıdır.
+
+## Canlı yeniləmələr (SSE)
+Bir istifadəçinin dəyişikliyi digərində refresh-siz, ≤ 2 s görünür (ADR-0010). Yazma servisi audit yazısı ilə eyni tranzaksiyada `pg_notify` edir; hər API prosesində bir `LISTEN` bağlantısı hadisəni tenant-a görə `GET /v1/events` (`text/event-stream`) abunəçilərinə paylayır. Hadisə yalnız ID daşıyır — klient TanStack Query keşini invalidate edib məlumatı REST-dən alır. Axın qırılanda 30 s ehtiyat polling. Mock rejimində MSW axını + tab-lar arası `BroadcastChannel`.
 
 ## Ətraf mühitlər
 - Lokal: `docker compose up` (postgres, minio) + `uv run` + `pnpm dev`

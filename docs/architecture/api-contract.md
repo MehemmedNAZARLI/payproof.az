@@ -24,6 +24,7 @@ Həqiqət mənbəyi: `packages/contracts/openapi.yaml` (S-04). Bu sənəd onun q
 | 404 | `NOT_FOUND` (başqa tenant-ın obyekti də 404 qaytarır, 403 yox) |
 | 409 | `VERSION_CONFLICT`, `PACKAGE_NOT_READY`, `PACKAGE_NOT_DELETABLE`, `TASK_ALREADY_OPEN`, `DUPLICATE_FILE`, `DUPLICATE_INVOICE`, `IDEMPOTENCY_IN_PROGRESS` |
 | 413/415 | `FILE_TOO_LARGE`, `UNSUPPORTED_FILE_TYPE` |
+| 429 | `RATE_LIMITED` (yükləmə, paket yaratma, dev-login; `Retry-After` header-i, `details.retry_after` saniyə) |
 
 `message` Azərbaycan dilindədir və UI-də göstərilə bilər.
 
@@ -56,6 +57,7 @@ Həqiqət mənbəyi: `packages/contracts/openapi.yaml` (S-04). Bu sənəd onun q
 | `GET /v1/packages/{id}/audit` · `GET /v1/audit` (`?format=csv`) | Audit | hamı | B-12 |
 | `GET /v1/customers` · `GET/POST /v1/customers/{id}/requirements` | Qayda dəstləri | yazmaq: **approver** | B-22 |
 | `GET /v1/notifications` · `POST /v1/notifications/{id}/read` · `POST /v1/notifications/read-all` | Bildirişlər | hamı | B-23 |
+| `GET /v1/events` | Canlı hadisə axını (`text/event-stream`, ID-only `LiveEvent`, 15 s heartbeat; ADR-0010) | hamı | B-12b |
 | `POST /v1/demo/reset` | Demo məlumatı sıfırlamaq (yalnız `ENV=dev`) | — | I-02 |
 
 ## Paket detalı cavabının forması (qısa)
@@ -75,3 +77,10 @@ Həqiqət mənbəyi: `packages/contracts/openapi.yaml` (S-04). Bu sənəd onun q
 }
 ```
 `permissions` UI üçün ipucudur; server hər sorğuda yenidən yoxlayır.
+
+## Canlı hadisələr — `GET /v1/events` (ADR-0010)
+- `Authorization: Bearer` header-i ilə (fetch əsaslı klient; token query string-də qəbul edilmir). Tenant yalnız JWT-dən.
+- Cavab `text/event-stream`; hər hadisə `id: <event_id>`, `event: <type>`, `data: <LiveEvent JSON>`. Hər 15 s `: ping`.
+- `LiveEvent`: `{event_id, company_id, type, package_id, package_version, actor_id, at}` — biznes məlumatı yoxdur; `package_id`/`package_version` paketə aid olmayan hadisədə, `actor_id` sistem əməliyyatında `null`. `type` siyahısı müqavilədədir (S-09).
+- `Last-Event-ID` qəbul edilir, P0-da replay yoxdur — klient (yenidən) qoşulanda bütün keşi invalidate edir.
+- Hadisə yalnız tranzaksiya commit olunandan sonra çıxır. `401` → klient axını dayandırır və girişə yönləndirir.

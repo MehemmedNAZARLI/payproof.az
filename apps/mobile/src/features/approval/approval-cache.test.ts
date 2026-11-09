@@ -1,29 +1,36 @@
 import { QueryClient } from "@tanstack/react-query";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 
 import { homeKeys } from "@/features/home/queries";
 import { packageDetailKeys } from "@/features/package-detail/queries";
 import { packageKeys } from "@/features/packages/queries";
 import type { Schemas } from "@/lib/api";
-import { dashboard } from "@/lib/api/mock/dashboard";
-import { packageDetail } from "@/lib/api/mock/package-detail";
-import { resetSessionDb } from "@/lib/api/mock/session-db";
-import { packageList } from "@/lib/api/mock/store";
+import { unwrap } from "@/lib/api";
+import { detailOf, mockClient } from "@/test/mock";
 
 import { applyApproval, approvedDashboard, approvedPage } from "./approval-cache";
 
-const item = packageList.find((p) => p.invoice_number === "INV-1038")!;
-const pkg = packageDetail(item.id, "u2")!;
-const approval: Schemas["ApprovalRecord"] = {
-  id: "0193a000-0000-7000-8008-900000000001",
-  package_version: pkg.version,
-  requirement_set_version: pkg.requirement_set.version,
-  approver: pkg.owner,
-  approved_at: "2026-11-08T07:00:00Z",
-  valid: true,
-  invalidated_reason: null,
-  invalidated_at: null,
-};
+let packageList: Schemas["PackageListItem"][];
+let item: Schemas["PackageListItem"];
+let pkg: Schemas["PackageDetail"];
+let dashboard: Schemas["Dashboard"];
+let approval: Schemas["ApprovalRecord"];
+beforeAll(async () => {
+  packageList = (await unwrap(mockClient().GET("/v1/packages"))).items;
+  item = packageList.find((p) => p.invoice_number === "INV-1038")!;
+  pkg = await detailOf(item.id);
+  dashboard = await unwrap(mockClient().GET("/v1/dashboard"));
+  approval = {
+    id: "0193a000-0000-7000-8008-900000000001",
+    package_version: pkg.version,
+    requirement_set_version: pkg.requirement_set.version,
+    approver: pkg.owner,
+    approved_at: "2026-11-08T07:00:00Z",
+    valid: true,
+    invalidated_reason: null,
+    invalidated_at: null,
+  };
+});
 const page = (items: Schemas["PackageListItem"][]) => ({
   items,
   next_cursor: null,
@@ -31,8 +38,6 @@ const page = (items: Schemas["PackageListItem"][]) => ({
 });
 
 describe("approval cache", () => {
-  beforeEach(resetSessionDb);
-
   it("drops the package from a list filtered to other statuses", () => {
     const ready = page(packageList.filter((p) => p.status === "READY_FOR_APPROVAL"));
     const next = approvedPage(ready, { status: ["READY_FOR_APPROVAL"] }, item.id, "x");
@@ -50,7 +55,7 @@ describe("approval cache", () => {
   });
 
   it("moves one package between the dashboard counts and its amount out of 'ready'", () => {
-    const d = dashboard();
+    const d = dashboard;
     const next = approvedDashboard(d, item.total);
     expect(next.status_counts.READY_FOR_APPROVAL).toBe(d.status_counts.READY_FOR_APPROVAL - 1);
     expect(next.status_counts.APPROVED_READY).toBe(d.status_counts.APPROVED_READY + 1);
@@ -63,7 +68,7 @@ describe("approval cache", () => {
     const qc = new QueryClient();
     qc.setQueryData(packageDetailKeys.detail(item.id), pkg);
     qc.setQueryData(packageKeys.list({ status: ["READY_FOR_APPROVAL"], limit: 20 }), page([item]));
-    qc.setQueryData(homeKeys.dashboard(), dashboard());
+    qc.setQueryData(homeKeys.dashboard(), dashboard);
     await applyApproval(qc, pkg, approval);
     expect(
       qc.getQueryData<Schemas["PackageDetail"]>(packageDetailKeys.detail(item.id)),

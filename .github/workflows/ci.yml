@@ -1,0 +1,306 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  # superseded PR runs are cancelled; every commit on main keeps its own full result
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  # Which areas changed (PR diff against the base branch; everything on push to main or when CI changes),
+  # and which apps exist yet — jobs for missing apps are skipped.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      contracts: ${{ steps.filter.outputs.contracts }}
+      packages: ${{ steps.filter.outputs.packages }}
+      api: ${{ steps.filter.outputs.api }}
+      web: ${{ steps.filter.outputs.web }}
+      mobile: ${{ steps.filter.outputs.mobile }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: filter
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          all=""
+          files=""
+          if [ "$EVENT" = "pull_request" ]; then
+            files=$(git diff --name-only "origin/$BASE_REF...HEAD")
+            # repo-wide tooling: run everything
+            grep -qE '^(\.github/|scripts/|package\.json$|pnpm-lock\.yaml$|pnpm-workspace\.yaml$|turbo\.json$|tsconfig\.base\.json$|\.nvmrc$|\.npmrc$|\.prettier(rc\.json|ignore)$)' <<<"$files" && all=1
+          else
+            all=1
+          fi
+          changed() { [ -n "$all" ] || grep -qE "$1" <<<"$files"; }
+          out() { echo "$1=$2" >> "$GITHUB_OUTPUT"; echo "$1=$2"; }
+          shared='^(packages/|fixtures/)'
+          out contracts "$(changed '^packages/(contracts|api-client)/' && echo true || echo false)"
+          out packages "$(changed "$shared" && echo true || echo false)"
+          out api "$( [ -f apps/api/pyproject.toml ] && changed '^(apps/api/|packages/contracts/|fixtures/)' && echo true || echo false)"
+          out web "$( [ -f apps/web/package.json ] && changed "^apps/web/|$shared" && echo true || echo false)"
+          out mobile "$( [ -f apps/mobile/package.json ] && changed "^apps/mobile/|$shared" && echo true || echo false)"
+
+  # Same rules as the local hooks for every commit of the PR (size ≤ 200, Conventional Commits + scope).
+  commits:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # Run the base branch's copies of the rules, so a PR cannot relax the checks applied to it.
+      # (Bootstrap: while a rule file is not on the base branch yet, the PR's own copy is used.)
+      - env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          rules=$(mktemp -d)
+          for f in scripts/check-pr-commits.sh scripts/check-commit-size.sh .githooks/commit-msg; do
+            mkdir -p "$rules/$(dirname "$f")"
+            git show "origin/$BASE_REF:$f" > "$rules/$f" 2>/dev/null || cp "$f" "$rules/$f"
+            chmod +x "$rules/$f"
+          done
+          CHECK_ROOT="$rules" "$rules/scripts/check-pr-commits.sh" "origin/$BASE_REF" HEAD
+
+  # Whole-repo formatting, independent of which area changed.
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm format:check
+
+  contracts:
+    needs: changes
+    if: needs.changes.outputs.contracts == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm contracts:lint
+      - name: Generated client matches the contract
+        run: |
+          pnpm --filter @payproof/api-client generate
+          git diff --exit-code -- packages/api-client/src/generated \
+            || { echo "::error::Run 'pnpm --filter @payproof/api-client generate' and commit the result."; exit 1; }
+
+  packages:
+    needs: changes
+    if: needs.changes.outputs.packages == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm fixtures:check
+      - run: pnpm turbo run lint typecheck test --filter='./packages/*'
+
+  # Backend (B track) — runs once apps/api/pyproject.toml exists (B-01).
+  api:
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: payproof
+          POSTGRES_PASSWORD: payproof
+          POSTGRES_DB: payproof
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -h 127.0.0.1 -U payproof -d payproof"
+          --health-interval 2s --health-timeout 3s --health-retries 30
+    env:
+      ENV: test
+      DATABASE_URL: postgresql+asyncpg://payproof:payproof@localhost:5432/payproof
+      AI_PROVIDER: mock
+      JWT_SECRET: ci-only-not-a-secret
+      S3_ENDPOINT_URL: http://localhost:9000
+      S3_ACCESS_KEY: payproof
+      S3_SECRET_KEY: payproof-secret
+      S3_BUCKET: payproof-docs
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      # --locked: fail if uv.lock is missing or out of date with pyproject.toml
+      - run: uv sync --locked
+      # MinIO as a step, not a `services:` entry: services cannot pass `server /data` (B-13)
+      - name: Start MinIO
+        run: |
+          docker run -d -p 9000:9000 -e MINIO_ROOT_USER="$S3_ACCESS_KEY" \
+            -e MINIO_ROOT_PASSWORD="$S3_SECRET_KEY" cgr.dev/chainguard/minio:latest server /data
+          for i in $(seq 1 30); do curl -sf localhost:9000/minio/health/live && break; sleep 1; done
+          uv run python -c "from payproof.storage.s3 import get_storage as g; s = g(); s._s3.create_bucket(Bucket=s.bucket)"
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy .
+      - run: uv run pytest
+
+  # API/worker image (I-01 prep): both targets build, the app imports and finds its fixtures.
+  api-image:
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose config -q
+      - run: docker build -f apps/api/Dockerfile --target api -t payproof-api .
+      - run: docker build -f apps/api/Dockerfile --target worker -t payproof-worker .
+      - name: Smoke-test the image
+        run: |
+          docker run --rm -e ENV=test -e DATABASE_URL=postgresql+asyncpg://u:p@db/x \
+            -e JWT_SECRET=ci-only-not-a-secret -e S3_ENDPOINT_URL=http://s3 -e S3_ACCESS_KEY=k \
+            -e S3_SECRET_KEY=s -e S3_BUCKET=b payproof-api python -c \
+            "from payproof.main import create_app; from payproof.seed.fixtures import PACKAGES; create_app(); assert PACKAGES"
+          docker run --rm payproof-worker sh -c "command -v payproof-worker"
+
+  # Frontends (W / M tracks) — each runs once its app exists (W-01 / M-01).
+  web:
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run lint typecheck test --filter='web...'
+
+  # W-17: Playwright e2e against a production build in mock mode (no backend needed)
+  web-e2e:
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter web exec playwright install --with-deps chromium
+      - run: pnpm --filter web e2e
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: apps/web/test-results
+          retention-days: 7
+
+  # The same suite against apps/api (W-18): API + worker + seed, the web built with API_MOCK=0
+  web-e2e-real:
+    needs: changes
+    if: needs.changes.outputs.web == 'true' || needs.changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: payproof
+          POSTGRES_PASSWORD: payproof
+          POSTGRES_DB: payproof
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -h 127.0.0.1 -U payproof -d payproof"
+          --health-interval 2s --health-timeout 3s --health-retries 30
+    env:
+      E2E_API: real
+      E2E_DATABASE_URL: postgresql+asyncpg://payproof:payproof@localhost:5432/payproof
+      S3_ENDPOINT_URL: http://localhost:9000
+      S3_ACCESS_KEY: payproof
+      S3_SECRET_KEY: payproof-secret
+      S3_BUCKET: payproof-docs
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+        working-directory: apps/api
+      - name: Start MinIO
+        working-directory: apps/api
+        env:
+          ENV: test
+          DATABASE_URL: ${{ env.E2E_DATABASE_URL }}
+          JWT_SECRET: ci-only-not-a-secret
+        run: |
+          docker run -d -p 9000:9000 -e MINIO_ROOT_USER="$S3_ACCESS_KEY" \
+            -e MINIO_ROOT_PASSWORD="$S3_SECRET_KEY" cgr.dev/chainguard/minio:latest server /data
+          for i in $(seq 1 30); do curl -sf localhost:9000/minio/health/live && break; sleep 1; done
+          uv run python -c "from payproof.storage.s3 import get_storage as g; s = g(); s._s3.create_bucket(Bucket=s.bucket)"
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter web exec playwright install --with-deps chromium
+      - run: pnpm --filter web e2e
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results-real
+          path: apps/web/test-results
+          retention-days: 7
+
+  mobile:
+    needs: changes
+    if: needs.changes.outputs.mobile == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run lint typecheck test --filter='mobile...'
+
+  # The single required check for branch protection: skipped jobs are fine, failed/cancelled are not.
+  ci:
+    if: always()
+    needs: [changes, commits, format, contracts, packages, api, api-image, web, mobile]
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "job results: $RESULTS"
+          case " $RESULTS " in *" failure "*|*" cancelled "*) exit 1 ;; esac

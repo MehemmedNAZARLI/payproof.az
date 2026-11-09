@@ -42,10 +42,20 @@ describe("status → badge tone", () => {
     expect(Object.keys(map).sort()).toEqual([...defs[def].enum].sort());
   });
 
-  it("covers every document version status from the fixtures schema", () => {
-    const docStatus = JSON.parse(read("../../../fixtures/schema/packages.json")).items.properties
-      .documents.items.properties.versions.items.properties.status.enum;
-    expect(Object.keys(documentStatusTone).sort()).toEqual([...docStatus].sort());
+  // The contract has UPLOADED (a version before extraction starts); fixtures and the prototype never show it.
+  it("covers every DocumentVersionStatus from the API contract", () => {
+    const yaml = read("../../contracts/openapi.yaml");
+    const block = yaml.slice(yaml.indexOf("    DocumentVersionStatus:"));
+    const docStatus = /enum: \[([^\]]+)\]/
+      .exec(block)![1]!
+      .split(",")
+      .map((s) => s.trim());
+    expect(docStatus).toContain("UPLOADED");
+    expect(Object.keys(documentStatusTone).sort()).toEqual(docStatus.sort());
+  });
+
+  it("shows UPLOADED as in progress (info), like PROCESSING", () => {
+    expect(documentStatusTone.UPLOADED).toBe("info");
   });
 
   // Parses `const NAME = { KEY: { l: '…', c: 'tone', … }, … };` from the prototype source.
@@ -65,7 +75,8 @@ describe("status → badge tone", () => {
   ])("matches the prototype %s colours", (name, map) => {
     const expected = prototypeTones(name);
     expect(Object.keys(expected).length).toBeGreaterThan(3);
-    expect(map).toEqual(expected);
+    const { UPLOADED: _notInPrototype, ...shown } = map as Record<string, string>;
+    expect(shown).toEqual(expected);
   });
 
   it("aliases the shadcn/ui colour names to tokens", () => {

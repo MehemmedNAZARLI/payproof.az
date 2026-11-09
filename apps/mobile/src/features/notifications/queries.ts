@@ -1,7 +1,7 @@
+import type { paths } from "@payproof/api-client";
 import { type QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { api, unwrap } from "@/lib/api";
-import type { paths } from "@/lib/api/generated/schema";
 import { useSession } from "@/lib/session";
 
 type Page = paths["/v1/notifications"]["get"]["responses"]["200"]["content"]["application/json"];

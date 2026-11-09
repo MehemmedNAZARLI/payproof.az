@@ -1,22 +1,15 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { mockToken } from "@/lib/api/mock/handlers";
-import { meFor } from "@/lib/api/mock/store";
 import { createQueryClient } from "@/lib/query-client";
 import { startSession } from "@/lib/session";
+import { meFor, mockToken } from "@/test/mock";
 
 import { HomeScreen } from "./home-screen";
 
-vi.mock("@/lib/api/mock/mock-fetch", async (load) => {
-  const real = await load<typeof import("@/lib/api/mock/mock-fetch")>();
-  return { createMockFetch: () => real.createMockFetch({ latencyMs: 0 }) };
-});
-
 function renderAs(slug: string) {
   const user = meFor(slug);
-  if (!user) throw new Error(`no demo user ${slug}`);
   startSession({ access_token: mockToken(slug), token_type: "bearer", expires_in: 60, user });
   render(
     <QueryClientProvider client={createQueryClient()}>

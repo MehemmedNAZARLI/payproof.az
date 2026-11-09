@@ -3,22 +3,15 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Schemas } from "@/lib/api";
-import { mockToken } from "@/lib/api/mock/handlers";
-import { packageDetail } from "@/lib/api/mock/package-detail";
-import { meFor } from "@/lib/api/mock/store";
 import { createQueryClient } from "@/lib/query-client";
 import { startSession } from "@/lib/session";
+import { detailOf, meFor, mockToken } from "@/test/mock";
 
 import { clearSeen } from "../seen-store";
 import { PackageDetailScreen, PackageDetailView } from "./package-detail-screen";
 
 const push = vi.fn();
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
-
-vi.mock("@/lib/api/mock/mock-fetch", async (load) => {
-  const real = await load<typeof import("@/lib/api/mock/mock-fetch")>();
-  return { createMockFetch: () => real.createMockFetch({ latencyMs: 0 }) };
-});
 
 // jsdom lays nothing out; give the document pane a phone's width so pages render.
 const width = Object.getOwnPropertyDescriptor(Element.prototype, "clientWidth")!;
@@ -36,7 +29,7 @@ function open(pkg: number) {
     access_token: mockToken("u2"),
     token_type: "bearer",
     expires_in: 60,
-    user: meFor("u2")!,
+    user: meFor("u2"),
   });
   render(
     <QueryClientProvider client={createQueryClient()}>
@@ -91,7 +84,7 @@ describe("evidence sheets", () => {
   });
 
   it("opens the cited older version, which does not count as seeing the current one", async () => {
-    const pkg = packageDetail("0193a000-0000-7000-8002-000000001036", "u2")!;
+    const pkg = await detailOf("0193a000-0000-7000-8002-000000001036");
     const delivery = pkg.documents.find((d) => d.type === "delivery")!;
     const old = delivery.history.at(-1)!; // v1, the unsigned scan
     const r008 = pkg.checks.find((c) => c.rule_id === "R-008")!;
@@ -111,7 +104,7 @@ describe("evidence sheets", () => {
   });
 
   it("forgets seen documents when the package moves to a new version", async () => {
-    const pkg = packageDetail("0193a000-0000-7000-8002-000000001038", "u2")!;
+    const pkg = await detailOf("0193a000-0000-7000-8002-000000001038");
     const { rerender } = view(pkg);
     fireEvent.click(docRow(/Faktura · v1/));
     await screen.findByRole("article", { name: "HESAB-FAKTURA INV-1038" });
@@ -138,7 +131,7 @@ function view(pkg: Schemas["PackageDetail"]) {
     access_token: mockToken("u2"),
     token_type: "bearer",
     expires_in: 60,
-    user: meFor("u2")!,
+    user: meFor("u2"),
   });
   return render(ui(pkg));
 }

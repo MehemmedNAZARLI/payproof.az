@@ -1,6 +1,5 @@
+import type { Schemas } from "@payproof/api-client";
 import { useSyncExternalStore } from "react";
-
-import type { Schemas } from "./api/client";
 
 // The signed-in demo session (dev-login JWT). Kept in localStorage so an installed PWA stays
 // signed in between launches; the server still checks every request (security.md).

@@ -6,12 +6,11 @@ import { PackageDetailScreen } from "@/features/package-detail/components/packag
 import { packageDetailKeys } from "@/features/package-detail/queries";
 import { clearSeen, markSeen } from "@/features/package-detail/seen-store";
 import type { Schemas } from "@/lib/api";
-import { mockToken } from "@/lib/api/mock/handlers";
-import { packageDetail } from "@/lib/api/mock/package-detail";
-import { resetSessionDb, sessionApprovals } from "@/lib/api/mock/session-db";
-import { meFor } from "@/lib/api/mock/store";
+import { unwrap } from "@/lib/api";
+import { useLiveUpdates } from "@/lib/live";
 import { createQueryClient } from "@/lib/query-client";
 import { startSession } from "@/lib/session";
+import { detailOf, meFor, mockClient, mockToken, recordedApprovals } from "@/test/mock";
 
 const push = vi.fn();
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
@@ -22,8 +21,9 @@ const wire = vi.hoisted(() => ({
 }));
 vi.mock("@/lib/api/mock/mock-fetch", async (load) => {
   const real = await load<typeof import("@/lib/api/mock/mock-fetch")>();
-  const fetch = real.createMockFetch({ latencyMs: 0 });
+  const fetch = real.createMockFetch();
   return {
+    ...real,
     createMockFetch: () => async (request: Request) => {
       if (request.method === "POST" && request.url.endsWith("/approve")) {
         wire.keys.push(request.headers.get("Idempotency-Key"));
@@ -50,11 +50,16 @@ beforeAll(() =>
 afterAll(() => Object.defineProperty(Element.prototype, "clientWidth", width));
 beforeEach(() => {
   clearSeen();
-  resetSessionDb();
   push.mockReset();
   wire.keys.length = 0;
   wire.fail.length = 0;
 });
+
+// The app's one live stream (providers.tsx), over the in-page mock.
+function LiveBridge() {
+  useLiveUpdates();
+  return null;
+}
 
 let client = createQueryClient();
 async function openSheet() {
@@ -63,20 +68,21 @@ async function openSheet() {
     access_token: mockToken("u2"),
     token_type: "bearer",
     expires_in: 60,
-    user: meFor("u2")!,
+    user: meFor("u2"),
   });
   render(
     <QueryClientProvider client={client}>
       <PackageDetailScreen id={ID} />
+      <LiveBridge />
     </QueryClientProvider>,
   );
   fireEvent.click(await screen.findByRole("button", { name: "Sübutlara baxıb təsdiqlə" }));
   return screen.findByRole("dialog", { name: "INV-1038 paketini təsdiqləyin" });
 }
 
-const seeAll = () => {
-  const pkg = packageDetail(ID, "u2")!;
-  for (const d of pkg.documents) markSeen(meFor("u2")!.id, pkg, d.current.id);
+const seeAll = async () => {
+  const pkg = await detailOf(ID);
+  for (const d of pkg.documents) markSeen(meFor("u2").id, pkg, d.current.id);
 };
 const confirm = (sheet: HTMLElement) => within(sheet).getByRole("button", { name: /Təsdiqlə/ });
 
@@ -89,7 +95,7 @@ describe("approval sheet", () => {
     expect(confirm(sheet)).toHaveAttribute("aria-disabled", "true");
     fireEvent.click(confirm(sheet));
     expect(push).not.toHaveBeenCalled();
-    expect(sessionApprovals()).toEqual([]);
+    expect(recordedApprovals()).toEqual([]);
     expect(within(sheet).getByText(/bank ödənişinə səlahiyyət vermir/)).toBeVisible();
   });
 
@@ -105,21 +111,21 @@ describe("approval sheet", () => {
   });
 
   it("approves once, however often the confirm is tapped, and goes to the success screen", async () => {
-    seeAll();
+    await seeAll();
     const sheet = await openSheet();
     fireEvent.click(within(sheet).getByRole("checkbox"));
     expect(confirm(sheet)).not.toHaveAttribute("aria-disabled");
     fireEvent.click(confirm(sheet));
     fireEvent.click(confirm(sheet));
     await waitFor(() => expect(push).toHaveBeenCalledWith(`/packages/${ID}/success`));
-    expect(sessionApprovals()).toHaveLength(1);
+    expect(recordedApprovals()).toHaveLength(1);
     expect(push).toHaveBeenCalledTimes(1);
     // The client itself sent one request, not just the server deduplicating two.
     expect(wire.keys).toHaveLength(1);
   });
 
   it("retries a lost request with the same key", async () => {
-    seeAll();
+    await seeAll();
     wire.fail.push(networkDown);
     const sheet = await openSheet();
     fireEvent.click(within(sheet).getByRole("checkbox"));
@@ -132,7 +138,7 @@ describe("approval sheet", () => {
   });
 
   it("on 409 asks for a new review and sends the next attempt with a new key", async () => {
-    seeAll();
+    await seeAll();
     wire.fail.push(error(409, "VERSION_CONFLICT"));
     const sheet = await openSheet();
     fireEvent.click(within(sheet).getByRole("checkbox"));
@@ -148,7 +154,7 @@ describe("approval sheet", () => {
   });
 
   it("holds the confirm until the newer version the server named has loaded", async () => {
-    seeAll();
+    await seeAll();
     wire.fail.push(error(409, "VERSION_CONFLICT", { current_version: 2 }));
     const sheet = await openSheet();
     fireEvent.click(within(sheet).getByRole("checkbox"));
@@ -159,7 +165,7 @@ describe("approval sheet", () => {
   });
 
   it("explains a 403 in place", async () => {
-    seeAll();
+    await seeAll();
     wire.fail.push(error(403, "FORBIDDEN"));
     const sheet = await openSheet();
     fireEvent.click(within(sheet).getByRole("checkbox"));
@@ -171,7 +177,7 @@ describe("approval sheet", () => {
   });
 
   it("drops the acknowledgement and the seen documents when the version changes", async () => {
-    seeAll();
+    await seeAll();
     const sheet = await openSheet();
     fireEvent.click(within(sheet).getByRole("checkbox"));
     expect(within(sheet).getByRole("checkbox")).toBeChecked();
@@ -180,6 +186,31 @@ describe("approval sheet", () => {
     await waitFor(() => expect(within(sheet).getByText(/Cari v2/)).toBeVisible());
     expect(within(sheet).getByRole("checkbox")).not.toBeChecked();
     expect(within(sheet).getByText("0/3 baxılıb")).toBeVisible();
+  });
+
+  it("says at once when someone else makes a newer version, and holds the confirm", async () => {
+    await seeAll();
+    const sheet = await openSheet();
+    fireEvent.click(within(sheet).getByRole("checkbox"));
+    expect(confirm(sheet)).not.toHaveAttribute("aria-disabled");
+    // Aygün (operator) confirms the PO field on the web: the package moves to v2.
+    const field = (await detailOf(ID, "u1")).fields[0]!;
+    await unwrap(
+      mockClient("u1").PATCH("/v1/fields/{field_id}", {
+        params: { path: { field_id: field.id } },
+        body: { value: field.value!, reason: "Sifariş nömrəsi yoxlanıldı", expected_version: 1 },
+      }),
+    );
+    expect(await within(sheet).findByRole("alert")).toHaveTextContent(
+      "Başqa istifadəçi paketi yenilədi (v2)",
+    );
+    expect(confirm(sheet)).toHaveAttribute("aria-disabled", "true");
+    fireEvent.click(confirm(sheet));
+    expect(recordedApprovals()).toHaveLength(0);
+    // v2 loads by itself; it has to be reviewed again, and the notice stays to say why.
+    await waitFor(() => expect(within(sheet).getByText(/Cari v2/)).toBeVisible());
+    expect(within(sheet).getByText("0/3 baxılıb")).toBeVisible();
+    expect(within(sheet).getByRole("alert")).toHaveTextContent("(v2)");
   });
 
   it("tells a screen reader why a locked confirm did nothing", async () => {
@@ -191,7 +222,7 @@ describe("approval sheet", () => {
   });
 
   it("says plainly that approval needs a connection", async () => {
-    seeAll();
+    await seeAll();
     const sheet = await openSheet();
     const online = vi.spyOn(navigator, "onLine", "get").mockReturnValue(false);
     act(() => void window.dispatchEvent(new Event("offline")));
