@@ -7,6 +7,7 @@ import { adminHandlers } from "./admin";
 import { approvalHandlers } from "./approval";
 import { auditHandlers } from "./audit";
 import { authHandlers } from "./auth";
+import { configHandlers } from "./config";
 import { documentHandlers } from "./documents";
 import { eventHandlers } from "./events";
 import { jobHandlers } from "./jobs";
@@ -56,6 +57,7 @@ export function createMockApi(options: MockApiOptions = {}) {
     ...reportHandlers(ctx),
     ...adminHandlers(ctx),
     ...settingsHandlers(ctx),
+    ...configHandlers(ctx),
     ...eventHandlers(ctx, options.heartbeatMs ?? 15_000),
   ];
   return {

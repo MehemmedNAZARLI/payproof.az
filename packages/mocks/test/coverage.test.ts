@@ -20,7 +20,7 @@ describe("contract coverage", () => {
         return `${info.method} ${norm(String(info.path).replace(/^\*/, ""))}`;
       }),
     );
-    expect(contract.length).toBe(36);
+    expect(contract.length).toBe(39);
     expect(contract.filter((op) => !handled.has(op))).toEqual([]);
   });
 });
