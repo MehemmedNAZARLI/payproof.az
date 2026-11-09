@@ -10,6 +10,8 @@ import { type ReactNode, useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { clearSeen } from "@/features/package-detail/seen-store";
 import { UpdatePrompt } from "@/features/pwa/update-prompt";
+import { useLiveUpdates } from "@/lib/live";
+import { useLiveToasts } from "@/lib/live-toasts";
 import { createQueryClient } from "@/lib/query-client";
 import { clearPersistedQueries, persistQueries, restoreQueries } from "@/lib/query-persist";
 import { clearRuntimeCaches } from "@/lib/runtime-caches";
@@ -40,6 +42,14 @@ function useOfflineCache(queryClient: QueryClient) {
   }, [queryClient]);
 }
 
+// One live event stream for the whole signed-in app (ADR-0010): mounted here, not per layout, so
+// moving between tabs and package screens keeps the connection.
+function LiveUpdates() {
+  useLiveUpdates();
+  useLiveToasts();
+  return null;
+}
+
 export function Providers({ children }: { children: ReactNode }) {
   useUnregisterInDev();
   const [queryClient] = useState(createQueryClient);
@@ -65,7 +75,10 @@ export function Providers({ children }: { children: ReactNode }) {
       reloadOnOnline={false}
       cacheOnNavigation={false}
     >
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        {children}
+        <LiveUpdates />
+      </QueryClientProvider>
       <Toaster />
       <UpdatePrompt />
     </SerwistProvider>
