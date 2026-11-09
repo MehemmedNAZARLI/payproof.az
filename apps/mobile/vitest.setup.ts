@@ -28,3 +28,9 @@ Object.defineProperty(window, "matchMedia", {
 // jsdom does not scroll elements; the document viewer scrolls its pane to the cited region.
 Element.prototype.scrollBy ??= () => {};
 Element.prototype.scrollTo ??= () => {};
+
+// Every test starts from the fixtures demo company (@payproof/mocks, in-page).
+afterEach(async () => {
+  const { mockApi } = await import("@/lib/api/mock/mock-fetch");
+  mockApi().reset();
+});

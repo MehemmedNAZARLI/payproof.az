@@ -1,7 +1,10 @@
-// The mock's file links ("signed URLs") name a document version instead of a file; the
-// viewer draws that version as paper. Kept outside the mock chunk so the app can test for it.
-export const MOCK_FILE_SCHEME = "mock:paper/";
+// The mock's file links ("signed URLs", @payproof/mocks) point at `<origin>/mock-files/<version id>`
+// instead of a file; the viewer draws that version as paper. Kept outside the mock chunk so the app
+// can test for it.
+import { env } from "@/lib/env";
 
-/** The document version behind a mock file link, or null for a real URL. */
+const MOCK_FILE = /\/mock-files\/([0-9a-f-]+)$/;
+
+/** The document version behind a mock file link, or null for a real URL (or outside mock mode). */
 export const mockFileVersion = (url: string) =>
-  url.startsWith(MOCK_FILE_SCHEME) ? url.slice(MOCK_FILE_SCHEME.length) : null;
+  env.apiMock ? (MOCK_FILE.exec(url)?.[1] ?? null) : null;
