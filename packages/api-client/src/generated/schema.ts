@@ -3453,6 +3453,15 @@ export interface operations {
                     reason: string;
                     /** @description Current requirement set version */
                     expected_version: number;
+                    /**
+                     * @description ADR-0011 configured set — sent together with `checks`; omit both for a legacy (flags only)
+                     *     set. The legacy flags are still required and kept as given.
+                     */
+                    documents?: components["schemas"]["DocumentRequirementInput"][];
+                    /** @description Configured checks in evaluation order, validated against the check library. */
+                    checks?: components["schemas"]["CheckConfig"][];
+                    /** @description Output template mapping; the template must be uploaded for this customer first. */
+                    output?: null | components["schemas"]["OutputConfig"];
                 };
             };
         };

@@ -1385,6 +1385,20 @@ paths:
                 reason: { type: string, minLength: 10, maxLength: 500 }
                 expected_version:
                   { type: integer, minimum: 1, description: Current requirement set version }
+                documents:
+                  type: array
+                  minItems: 1
+                  description: |
+                    ADR-0011 configured set — sent together with `checks`; omit both for a legacy (flags only)
+                    set. The legacy flags are still required and kept as given.
+                  items: { $ref: "#/components/schemas/DocumentRequirementInput" }
+                checks:
+                  type: array
+                  description: Configured checks in evaluation order, validated against the check library.
+                  items: { $ref: "#/components/schemas/CheckConfig" }
+                output:
+                  description: Output template mapping; the template must be uploaded for this customer first.
+                  oneOf: [{ type: "null" }, { $ref: "#/components/schemas/OutputConfig" }]
             example:
               require_po: true
               require_delivery: true
