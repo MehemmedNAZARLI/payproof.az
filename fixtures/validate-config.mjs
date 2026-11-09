@@ -118,9 +118,30 @@ export function validateConfig({ ajv, dir, fail, customers, users }) {
         if (ref.list && !listDef(ref.document_type, ref.list))
           fail(`${label} ${c.id}: unknown list ${ref.document_type}.${ref.list}`);
       });
+      const P = c.parameters;
+      const hasColumn = (type, list, col) =>
+        listDef(type, list)?.columns.some((x) => x.key === col);
+      const columns = (type, list, cols) => {
+        for (const col of cols)
+          if (!hasColumn(type, list, col))
+            fail(`${label} ${c.id}: unknown column ${type}.${list}.${col}`);
+      };
+      if (c.type === "totals_sum") columns(P.document_type, P.table, [P.amount_column]);
+      if (c.type === "line_items_match")
+        for (const side of [P.left, P.right])
+          columns(side.document_type, side.table, [P.key_column, ...P.compare]);
+      if (c.type === "transaction_match")
+        for (const a of P.against)
+          columns(a.document_type, a.list, ["date", "amount", "direction", "counterparty"]);
+      if (c.type === "date_within_period")
+        for (const b of [P.period.from, P.period.to])
+          if (typeof b === "object" && docTypes.get(b.document_type)?.max_count !== 1)
+            fail(`${label} ${c.id}: a period bound needs a document type with max_count 1`);
       if (c.type === "field_present")
         for (const t of c.parameters.targets) present.add(`${t.document_type}.${t.field}`);
     }
+    const names = (rs.output?.placeholders ?? []).map((x) => x.placeholder);
+    if (new Set(names).size !== names.length) fail(`${label}: a placeholder is mapped twice`);
     for (const { placeholder, source } of rs.output?.placeholders ?? []) {
       if (source.kind === "field") {
         if (docTypes.get(source.document_type)?.max_count !== 1)
