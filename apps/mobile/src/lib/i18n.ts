@@ -218,18 +218,20 @@ export const t = {
     summary: "Statuslar",
   },
   audit: {
+    // Keyed by the API's audit actions; others show the entry's own message.
     action: {
       "package.created": "Paket yaradıldı",
       "document.uploaded": "Sənəd yükləndi",
-      "extraction.completed": "Məlumat çıxarıldı",
-      "order.linked": "Sifariş əlaqələndirildi",
-      "order.candidates_found": "Sifariş namizədləri tapıldı",
-      "package.approved": "Paket təsdiqləndi",
+      "document.extracted": "Məlumat çıxarıldı",
+      "link.confirmed": "Sifariş əlaqələndirildi",
+      "link.exact_match": "Sifariş əlaqələndirildi",
+      "link.candidates_found": "Sifariş namizədləri tapıldı",
+      "approval.created": "Paket təsdiqləndi",
       "approval.invalidated": "Təsdiq etibarsızlaşdı",
-      "package.exported": "Paket ixrac edildi",
+      "export.created": "Paket ixrac edildi",
       "task.created": "Tapşırıq yaradıldı",
       "task.resolved": "Tapşırıq həll edildi",
-      "validation.completed": "Yoxlama aparıldı",
+      "validation.run": "Yoxlama aparıldı",
     } as Record<string, string>,
   },
   permission: {
