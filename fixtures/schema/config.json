@@ -1,0 +1,365 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "config.json",
+  "description": "Configurable document sets (ADR-0011): document type registry, check library, generic requirement sets and scenario packages.",
+  "$defs": {
+    "key": { "type": "string", "pattern": "^[a-z][a-z0-9_]{1,39}$" },
+    "field_path": { "type": "string", "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)?$" },
+    "check_id": { "type": "string", "pattern": "^[A-Z]{1,4}-[0-9]{2,3}$" },
+    "mime": {
+      "enum": [
+        "application/pdf",
+        "image/png",
+        "image/jpeg",
+        "text/csv",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      ]
+    },
+    "field_def": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "label", "type", "critical"],
+      "properties": {
+        "key": { "$ref": "#/$defs/key" },
+        "label": { "type": "string", "minLength": 1 },
+        "type": {
+          "enum": ["text", "date", "money", "decimal", "integer", "boolean", "currency", "party"]
+        },
+        "critical": { "type": "boolean" }
+      }
+    },
+    "table_def": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "label", "columns"],
+      "properties": {
+        "key": { "$ref": "#/$defs/key" },
+        "label": { "type": "string", "minLength": 1 },
+        "columns": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/field_def" } }
+      }
+    },
+    "document_types": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "key",
+          "name",
+          "version",
+          "builtin",
+          "accepted_formats",
+          "extraction",
+          "instructions"
+        ],
+        "properties": {
+          "key": { "$ref": "#/$defs/key" },
+          "name": { "type": "string", "minLength": 1 },
+          "version": { "type": "integer", "minimum": 1 },
+          "builtin": { "type": "boolean" },
+          "accepted_formats": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "$ref": "#/$defs/mime" }
+          },
+          "extraction": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["fields", "tables", "transaction_lists"],
+            "properties": {
+              "fields": {
+                "type": "array",
+                "minItems": 1,
+                "items": { "$ref": "#/$defs/field_def" }
+              },
+              "tables": { "type": "array", "items": { "$ref": "#/$defs/table_def" } },
+              "transaction_lists": { "type": "array", "items": { "$ref": "#/$defs/table_def" } }
+            }
+          },
+          "instructions": { "type": "string", "minLength": 20, "maxLength": 2000 }
+        }
+      }
+    },
+    "check_library": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["families", "legacy_rules"],
+      "properties": {
+        "families": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["type", "name", "description", "system", "parameters", "related_rules"],
+            "properties": {
+              "type": { "$ref": "#/$defs/key" },
+              "name": { "type": "string" },
+              "description": { "type": "string" },
+              "system": { "type": "boolean" },
+              "parameters": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["name", "type", "required", "description"],
+                  "properties": {
+                    "name": { "$ref": "#/$defs/key" },
+                    "type": { "type": "string" },
+                    "required": { "type": "boolean" },
+                    "description": { "type": "string" }
+                  }
+                }
+              },
+              "related_rules": { "type": "array", "items": { "$ref": "defs.json#/$defs/rule_id" } }
+            }
+          }
+        },
+        "legacy_rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["rule_id", "family", "note"],
+            "properties": {
+              "rule_id": { "$ref": "defs.json#/$defs/rule_id" },
+              "family": { "anyOf": [{ "$ref": "#/$defs/key" }, { "type": "null" }] },
+              "note": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "placeholder_source": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "document_type", "field"],
+          "properties": {
+            "kind": { "const": "field" },
+            "document_type": { "$ref": "#/$defs/key" },
+            "field": { "$ref": "#/$defs/field_path" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "op", "document_type"],
+          "properties": {
+            "kind": { "const": "aggregate" },
+            "op": { "enum": ["sum", "count"] },
+            "document_type": { "$ref": "#/$defs/key" },
+            "field": { "$ref": "#/$defs/field_path" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "value"],
+          "properties": {
+            "kind": { "const": "approval" },
+            "value": { "enum": ["approver_name", "approved_on"] }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "value"],
+          "properties": { "kind": { "const": "package" }, "value": { "enum": ["reference"] } }
+        }
+      ]
+    },
+    "requirement_set": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "effective_from",
+        "approved_by",
+        "reason",
+        "documents",
+        "checks",
+        "output"
+      ],
+      "properties": {
+        "version": { "type": "integer", "minimum": 1 },
+        "effective_from": { "$ref": "defs.json#/$defs/date" },
+        "approved_by": { "$ref": "defs.json#/$defs/user_id" },
+        "reason": { "type": "string", "minLength": 10 },
+        "documents": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["type", "min_count", "max_count"],
+            "properties": {
+              "type": { "$ref": "#/$defs/key" },
+              "min_count": { "type": "integer", "minimum": 0 },
+              "max_count": { "type": ["integer", "null"], "minimum": 1 }
+            }
+          }
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "type", "title", "parameters"],
+            "properties": {
+              "id": { "$ref": "#/$defs/check_id" },
+              "type": { "$ref": "#/$defs/key" },
+              "title": { "type": "string", "minLength": 1 },
+              "parameters": { "type": "object" }
+            }
+          }
+        },
+        "output": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["template", "placeholders", "submission"],
+              "properties": {
+                "template": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["file_name", "sha256"],
+                  "properties": {
+                    "file_name": { "type": "string", "pattern": "\\.docx$" },
+                    "sha256": { "$ref": "defs.json#/$defs/sha256" }
+                  }
+                },
+                "placeholders": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["placeholder", "source"],
+                    "properties": {
+                      "placeholder": {
+                        "type": "string",
+                        "pattern": "^\\{\\{[a-z][a-z0-9_]*\\}\\}$"
+                      },
+                      "source": { "$ref": "#/$defs/placeholder_source" }
+                    }
+                  }
+                },
+                "submission": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["channel", "address"],
+                  "properties": {
+                    "channel": { "const": "email" },
+                    "address": { "type": "string", "format": "email" }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["page", "quote"],
+      "properties": {
+        "page": { "type": "integer", "minimum": 1 },
+        "quote": { "type": "string", "minLength": 1 }
+      }
+    },
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["customer", "packages"],
+      "properties": {
+        "customer": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "name", "external_id", "voen", "requirement_sets"],
+          "properties": {
+            "id": { "$ref": "defs.json#/$defs/customer_id" },
+            "name": { "type": "string" },
+            "external_id": { "type": "string" },
+            "voen": { "type": "string", "pattern": "^[0-9]{10}$" },
+            "requirement_sets": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "$ref": "#/$defs/requirement_set" }
+            }
+          }
+        },
+        "packages": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "reference",
+              "customer_id",
+              "owner_id",
+              "currency",
+              "created_at",
+              "documents"
+            ],
+            "properties": {
+              "id": { "$ref": "#/$defs/key" },
+              "reference": { "type": "string", "minLength": 1 },
+              "customer_id": { "$ref": "defs.json#/$defs/customer_id" },
+              "owner_id": { "$ref": "defs.json#/$defs/user_id" },
+              "currency": { "$ref": "defs.json#/$defs/currency" },
+              "created_at": { "$ref": "defs.json#/$defs/datetime" },
+              "documents": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "type",
+                    "file_name",
+                    "sha256",
+                    "pages",
+                    "uploaded_by",
+                    "uploaded_at",
+                    "fields",
+                    "unreadable",
+                    "tables",
+                    "evidence"
+                  ],
+                  "properties": {
+                    "id": { "$ref": "#/$defs/key" },
+                    "type": { "$ref": "#/$defs/key" },
+                    "file_name": { "type": "string" },
+                    "sha256": { "$ref": "defs.json#/$defs/sha256" },
+                    "pages": { "type": "integer", "minimum": 1 },
+                    "uploaded_by": { "$ref": "defs.json#/$defs/user_id" },
+                    "uploaded_at": { "$ref": "defs.json#/$defs/datetime" },
+                    "fields": { "type": "object" },
+                    "unreadable": { "type": "array", "items": { "$ref": "#/$defs/key" } },
+                    "tables": {
+                      "type": "object",
+                      "additionalProperties": { "type": "array", "items": { "type": "object" } }
+                    },
+                    "evidence": {
+                      "type": "object",
+                      "additionalProperties": { "$ref": "#/$defs/evidence" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -6,6 +6,7 @@ import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
+import { validateConfig } from "./validate-config.mjs";
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
 const read = (p) => JSON.parse(fs.readFileSync(path.join(dir, p), "utf8"));
@@ -310,10 +311,13 @@ for (const [, inv, cust, amount, cur, status, blockersCol] of rows) {
     );
 }
 
+// Configurable document sets (ADR-0011)
+const config = validateConfig({ ajv, dir, fail, customers, users });
+
 if (errors.length) {
   console.error(`✗ fixtures:check — ${errors.length} problem(s):\n  ${errors.join("\n  ")}`);
   process.exit(1);
 }
 console.log(
-  `✓ fixtures:check — ${FILES.length} files valid, ${packages.length} packages match expected.json and demo-dataset.md`,
+  `✓ fixtures:check — ${FILES.length} files valid, ${packages.length} packages match expected.json and demo-dataset.md; ${config.types} document types, ${config.scenarios} scenario(s)`,
 );
