@@ -1,29 +1,23 @@
+import {
+  checkOutcomeLabel,
+  documentTypeLabel,
+  packageStatusLabel,
+  roleLabel,
+  taskStatusLabel,
+} from "@payproof/api-client/i18n";
+
 import type { checkOutcomeTone, packageStatusTone, taskStatusTone } from "./status-tone";
 
 export type PackageStatus = keyof typeof packageStatusTone;
 export type CheckOutcome = keyof typeof checkOutcomeTone;
 export type TaskStatus = keyof typeof taskStatusTone;
 
-// shortcut: labels mirror the prototype (PST/OUT/TST) until @payproof/api-client/i18n (S-05)
-// exists; then this file re-exports from there and the call sites stay the same.
+// Contract enum labels come from @payproof/api-client/i18n (shared with web); the rest is mobile copy.
 export const t = {
   package: {
-    status: {
-      PROCESSING: "Emal olunur",
-      NEEDS_REVIEW: "Yoxlama tələb edir",
-      NEEDS_FIX: "Düzəliş tələb edir",
-      READY_FOR_APPROVAL: "Təsdiq gözləyir",
-      APPROVED_READY: "Göndərilməyə hazır",
-      EXPORTED: "İxrac edilib",
-    } satisfies Record<PackageStatus, string>,
+    status: packageStatusLabel,
   },
-  role: {
-    operator: "Operator",
-    approver: "Təsdiqçi",
-    readonly: "Yalnız baxış",
-    admin: "Admin",
-    assignee: "Tapşırıq icraçısı",
-  },
+  role: roleLabel,
   packageFilter: {
     label: "Status filtri",
     all: "Hamısı",
@@ -132,7 +126,7 @@ export const t = {
     toPackage: "Paketə bax",
   },
   document: {
-    type: { invoice: "Faktura", order: "Sifariş", delivery: "Təhvil sənədi" },
+    type: documentTypeLabel,
   },
   evidence: {
     source: "Mənbə sübutu",
@@ -183,20 +177,10 @@ export const t = {
     blocking: (n: number) => `${n} bloklayan`,
   },
   check: {
-    outcome: {
-      PASS: "Keçdi",
-      FAIL: "Uyğunsuz",
-      UNKNOWN: "Naməlum",
-      NOT_APPLICABLE: "Tətbiq olunmur",
-    } satisfies Record<CheckOutcome, string>,
+    outcome: checkOutcomeLabel,
   },
   task: {
-    status: {
-      OPEN: "Açıq",
-      IN_PROGRESS: "İcrada",
-      SUBMITTED_FOR_RECHECK: "Yenidən yoxlamada",
-      RESOLVED: "Həll edilib",
-    } satisfies Record<TaskStatus, string>,
+    status: taskStatusLabel,
   },
   auth: {
     demoBadge: "Sintetik məlumatlarla demo",
@@ -291,7 +275,6 @@ export const t = {
     back: "Geri",
   },
   errors: {
-    network: "İnternet bağlantısı yoxdur. Bağlantını yoxlayıb yenidən cəhd edin.",
     unexpected: "Gözlənilməz xəta baş verdi. Bir az sonra yenidən cəhd edin.",
     refreshFailed: "Məlumat yenilənmədi",
     loadFailed: "Məlumat yüklənmədi",
