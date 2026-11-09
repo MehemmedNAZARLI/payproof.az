@@ -14,14 +14,20 @@ export function PackageRow({ item: p, href }: { item: Schemas["PackageListItem"]
     <ListItem
       href={href ?? `/packages/${p.id}`}
       title={p.invoice_number ?? t.packageItem.processing}
-      subtitle={<>
-        <span className="block">{p.customer.name} · v{p.version}</span>
-        <span className="text-text-3 mt-1 block text-caption">
-          {p.status === "PROCESSING" ? "AI reading documents…" : detail
-            ? `${detail.checks.length} checks · ${detail.summary.fail + detail.summary.unknown} issues · AI-read`
-            : `${p.blocking.length} issues · Loading checks…`}
-        </span>
-      </>}
+      subtitle={
+        <>
+          <span className="block">
+            {p.customer.name} · v{p.version}
+          </span>
+          <span className="text-text-3 mt-1 block text-caption">
+            {p.status === "PROCESSING"
+              ? "AI reading documents…"
+              : detail
+                ? `${detail.checks.length} checks · ${detail.summary.fail + detail.summary.unknown} issues · AI-read`
+                : `${p.blocking.length} issues · Loading checks…`}
+          </span>
+        </>
+      }
       trailing={
         p.total && (
           <span className="text-callout font-semibold tabular-nums">

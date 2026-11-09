@@ -66,10 +66,21 @@ export function PackageDetailView({ pkg }: { pkg: Schemas["PackageDetail"] }) {
       <main className="px-safe mx-auto max-w-app pt-2 pb-[calc(var(--safe-bottom)+10rem)]">
         <SummaryCard pkg={pkg} />
         <AiSummary pkg={pkg} />
-        <ExtractedFields pkg={pkg} onSource={(evidence) => {
-          const doc = pkg.documents.find((d) => [d.current, ...d.history].some((v) => v.id === evidence.document_version_id));
-          if (doc) sheet.open({ kind: "document", documentId: doc.id, versionId: evidence.document_version_id, evidence });
-        }} />
+        <ExtractedFields
+          pkg={pkg}
+          onSource={(evidence) => {
+            const doc = pkg.documents.find((d) =>
+              [d.current, ...d.history].some((v) => v.id === evidence.document_version_id),
+            );
+            if (doc)
+              sheet.open({
+                kind: "document",
+                documentId: doc.id,
+                versionId: evidence.document_version_id,
+                evidence,
+              });
+          }}
+        />
         {!pkg.link.confirmed && !pkg.processing && (
           <Banner
             tone="warning"

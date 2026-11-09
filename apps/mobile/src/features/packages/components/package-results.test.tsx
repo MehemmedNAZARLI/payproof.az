@@ -13,7 +13,12 @@ vi.mock("next/navigation", () => ({}));
 type List = Parameters<typeof PackageResults>[0]["list"];
 const query = (state: Partial<List>) =>
   ({ refetch: vi.fn(), isPlaceholderData: false, fetchStatus: "idle", ...state }) as List;
-const show = (list: List) => render(<QueryClientProvider client={createQueryClient()}><PackageResults list={list} onClear={() => {}} /></QueryClientProvider>);
+const show = (list: List) =>
+  render(
+    <QueryClientProvider client={createQueryClient()}>
+      <PackageResults list={list} onClear={() => {}} />
+    </QueryClientProvider>,
+  );
 
 describe("PackageResults", () => {
   let page: Schemas["PackagePage"];

@@ -138,7 +138,11 @@ export function EvidenceSheet({ pkg, stack, onViewed, approval }: EvidenceSheetP
       direction={stack.direction}
       size={doc ? "large" : "auto"}
       title={
-        check ? checkTitle(check) : reviewing ? t.approval.title(pkg.invoice_number ?? "") : docTitle
+        check
+          ? checkTitle(check)
+          : reviewing
+            ? t.approval.title(pkg.invoice_number ?? "")
+            : docTitle
       }
       description={
         check

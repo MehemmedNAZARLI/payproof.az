@@ -15,7 +15,11 @@ export function HowItWorks() {
       <ol className="text-text-2 flex items-center justify-between text-footnote font-medium">
         {["Read", "Check", "Approve", "Send"].map((step, index) => (
           <li key={step} className="flex items-center gap-2">
-            {index > 0 && <span aria-hidden="true" className="text-text-3">→</span>}
+            {index > 0 && (
+              <span aria-hidden="true" className="text-text-3">
+                →
+              </span>
+            )}
             {step}
           </li>
         ))}
@@ -29,16 +33,36 @@ export function AiWork() {
   const details = useQueries({
     queries: (packages.data?.items ?? []).map(({ id }) => ({
       queryKey: packageDetailKeys.detail(id),
-      queryFn: ({ signal }: { signal: AbortSignal }) => unwrap(api.GET("/v1/packages/{package_id}", {
-        params: { path: { package_id: id } }, signal,
-      })),
+      queryFn: ({ signal }: { signal: AbortSignal }) =>
+        unwrap(
+          api.GET("/v1/packages/{package_id}", {
+            params: { path: { package_id: id } },
+            signal,
+          }),
+        ),
     })),
   });
-  const loaded = details.flatMap((q) => q.data ? [q.data] : []);
+  const loaded = details.flatMap((q) => (q.data ? [q.data] : []));
   const complete = packages.data && loaded.length === packages.data.items.length;
   const stats = [
-    ["Documents read", loaded.reduce((n, p) => n + p.documents.filter((d) => ["EXTRACTED", "REVIEW_REQUIRED"].includes(d.current.status)).length, 0)],
-    ["Fields extracted", loaded.reduce((n, p) => n + p.fields.filter((f) => f.review_status === "EXTRACTED" && f.value !== null).length, 0)],
+    [
+      "Documents read",
+      loaded.reduce(
+        (n, p) =>
+          n +
+          p.documents.filter((d) => ["EXTRACTED", "REVIEW_REQUIRED"].includes(d.current.status))
+            .length,
+        0,
+      ),
+    ],
+    [
+      "Fields extracted",
+      loaded.reduce(
+        (n, p) =>
+          n + p.fields.filter((f) => f.review_status === "EXTRACTED" && f.value !== null).length,
+        0,
+      ),
+    ],
     ["Checks passed", loaded.reduce((n, p) => n + p.summary.pass, 0)],
     ["Checks failed", loaded.reduce((n, p) => n + p.summary.fail, 0)],
   ] as const;
@@ -49,7 +73,9 @@ export function AiWork() {
           <Icon name="shield" size={18} /> AI work, ready for your review
         </div>
         <h2 className="mt-3 text-title2 font-bold">Every document. Every detail.</h2>
-        <p className="text-hero-text2 mt-2 text-footnote">AI reads and cites. Rules decide. You stay in control.</p>
+        <p className="text-hero-text2 mt-2 text-footnote">
+          AI reads and cites. Rules decide. You stay in control.
+        </p>
         <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-5">
           {stats.map(([label, value]) => (
             <div key={label}>
@@ -66,7 +92,9 @@ export function AiWork() {
         <p className="text-hero-text2 mt-1 text-caption">
           {packages.isError || details.some((q) => q.isError)
             ? "Some work could not be loaded. Refresh to try again."
-            : complete ? `Across ${loaded.length} loaded packages. Unknown results block approval.` : "Counts appear when all package details are available."}
+            : complete
+              ? `Across ${loaded.length} loaded packages. Unknown results block approval.`
+              : "Counts appear when all package details are available."}
         </p>
       </Card>
       <HowItWorks />

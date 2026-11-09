@@ -30,7 +30,9 @@ const tab = () => screen.getByRole("link", { name: /^Notifications/ });
 describe("NotificationsScreen", () => {
   it("groups by day, marks unread ones, and badges the tab", async () => {
     open();
-    expect(await screen.findByText("INV-1038 is awaiting your approval · 4.860,00 AZN")).toBeVisible();
+    expect(
+      await screen.findByText("INV-1038 is awaiting your approval · 4.860,00 AZN"),
+    ).toBeVisible();
     expect(screen.getAllByRole("heading", { level: 2 }).length).toBeGreaterThan(1);
     expect(screen.getAllByText("Unread:")).toHaveLength(2);
     expect(screen.getByText("2 unread")).toBeVisible();

@@ -51,7 +51,9 @@ describe("evidence sheets", () => {
     fireEvent.click(within(check).getByRole("button", { name: /Invoice · v1 · p\. 1/ }));
     const doc = await screen.findByRole("dialog", { name: "Invoice · v1" });
     await waitFor(() => expect(doc.querySelector("[data-highlight]")).toHaveTextContent("KY-10"));
-    expect(within(doc).getByText("The yellow highlight marks the source of the check.")).toBeVisible();
+    expect(
+      within(doc).getByText("The yellow highlight marks the source of the check."),
+    ).toBeVisible();
 
     fireEvent.click(within(doc).getAllByRole("button", { name: "Back" }).at(-1)!);
     expect(await screen.findByRole("dialog", { name: "Unit price match" })).toBeVisible();

@@ -38,9 +38,7 @@ describe("PackageDetailScreen", () => {
     expect(await screen.findByRole("heading", { level: 1, name: "INV-1042" })).toBeVisible();
     expect(screen.getByText("12.000,00 AZN")).toBeVisible();
     expect(screen.getByText("Order selection pending")).toBeVisible();
-    const checks = within(screen.getByRole("list", { name: "Checks" })).getAllByRole(
-      "listitem",
-    );
+    const checks = within(screen.getByRole("list", { name: "Checks" })).getAllByRole("listitem");
     expect(checks).toHaveLength(9);
     expect(checks[0]).toHaveTextContent("R-001 · Failed");
     const docs = within(screen.getByRole("list", { name: "Documents" }));
@@ -52,7 +50,9 @@ describe("PackageDetailScreen", () => {
 
   it("offers approval to the approver of a ready package and makes the operator wait", async () => {
     open(1038);
-    expect(await screen.findByRole("button", { name: "Review evidence and approve" })).toBeVisible();
+    expect(
+      await screen.findByRole("button", { name: "Review evidence and approve" }),
+    ).toBeVisible();
     open(1038, "u1");
     expect(await screen.findByText("Awaiting approver")).toBeVisible();
   });
@@ -93,6 +93,8 @@ describe("PackageDetailScreen", () => {
 
   it("says when a package does not exist", async () => {
     open(9999);
-    expect(await screen.findByRole("heading", { level: 1, name: "Package not found" })).toBeVisible();
+    expect(
+      await screen.findByRole("heading", { level: 1, name: "Package not found" }),
+    ).toBeVisible();
   });
 });
