@@ -11,7 +11,7 @@ import { t } from "./i18n";
 import { type LiveEvent, onLiveEvent } from "./live";
 import { useSession } from "./session";
 
-/** "Aygün Məmmədova INV-1042 paketini yenilədi (v5)"; null when the event gets no toast. */
+/** "Aygün Məmmədova INV-1042 package updated (v5)"; null when the event gets no toast. */
 export function liveToastText(
   event: LiveEvent,
   { actor, invoice }: { actor: string | null; invoice?: string },

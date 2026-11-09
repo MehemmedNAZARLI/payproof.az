@@ -14,9 +14,9 @@ test("loads /v1/me and /v1/packages from the in-page mock, beside the app's serv
   page.on("request", (r) => r.url().includes("/v1/") && apiRequests.push(r.url()));
   await page.goto("/kit");
 
-  await expect(page.getByText("Rəşad Əliyev · Təsdiqçi · A Distribusiya MMC")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Hamısı 14" })).toBeVisible();
-  await expect(page.getByRole("list", { name: "Paketlər" }).getByRole("listitem")).toHaveCount(4);
+  await expect(page.getByText("Rəşad Əliyev · Approver · A Distribusiya MMC")).toBeVisible();
+  await expect(page.getByRole("button", { name: "All 14" })).toBeVisible();
+  await expect(page.getByRole("list", { name: "Packages" }).getByRole("listitem")).toHaveCount(4);
 
   const scope = await page.evaluate(async () => (await navigator.serviceWorker.ready).scope);
   expect(new URL(scope).pathname).toBe("/");
@@ -25,18 +25,18 @@ test("loads /v1/me and /v1/packages from the in-page mock, beside the app's serv
 
 test("filters through the API", async ({ page }) => {
   await page.goto("/kit");
-  await page.getByRole("button", { name: /^Təsdiq gözləyir/ }).click();
-  const rows = page.getByRole("list", { name: "Paketlər" }).getByRole("listitem");
+  await page.getByRole("button", { name: /^Awaiting approval/ }).click();
+  const rows = page.getByRole("list", { name: "Packages" }).getByRole("listitem");
   await expect(rows).toHaveCount(2);
-  for (const row of await rows.all()) await expect(row).toContainText("Təsdiq gözləyir");
+  for (const row of await rows.all()) await expect(row).toContainText("Awaiting approval");
 });
 
 test("keeps showing loaded data while offline", async ({ page, context }) => {
   await page.goto("/kit");
-  const rows = page.getByRole("list", { name: "Paketlər" }).getByRole("listitem");
+  const rows = page.getByRole("list", { name: "Packages" }).getByRole("listitem");
   await expect(rows).toHaveCount(4);
   await context.setOffline(true);
-  await page.getByRole("button", { name: "Yenilə" }).click();
+  await page.getByRole("button", { name: "Refresh" }).click();
   await expect(rows).toHaveCount(4);
   await context.setOffline(false);
   await expect(rows).toHaveCount(4);

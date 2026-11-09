@@ -74,7 +74,7 @@ export function bakuDay(date: Date): string {
   return `${p.year}-${p.month}-${p.day}`;
 }
 
-/** A day heading relative to `now`: "Bu gün", "Dünən", "6 noyabr, cümə" (year if not this one). */
+/** A day heading relative to `now`: "Today", "Yesterday", "6 noyabr, cümə" (year if not this one). */
 export function formatDayHeading(day: string, now: Date): string {
   const today = bakuDay(now);
   const yesterday = bakuDay(new Date(Date.parse(`${today}T12:00:00+04:00`) - 86_400_000));

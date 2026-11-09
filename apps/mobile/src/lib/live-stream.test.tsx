@@ -67,7 +67,7 @@ describe("live updates over the mock's event stream", () => {
     expect(w.invalidate).toHaveBeenCalledWith({ queryKey: packageKeys.lists() });
     expect(w.invalidate).toHaveBeenCalledWith({ queryKey: packageDetailKeys.detail(id) });
     await waitFor(() =>
-      expect(info).toHaveBeenCalledWith("Rəşad Əliyev INV-1038 paketini təsdiqlədi (v1)"),
+      expect(info).toHaveBeenCalledWith("Rəşad Əliyev INV-1038 package approved (v1)"),
     );
     w.done();
   });

@@ -6,8 +6,8 @@ import { toast } from "@/components/ui/toast-store";
 import { createQueryClient, errorMessage, shouldRetry } from "./query-client";
 import { getSession, signOutReason, startSession } from "./session";
 
-const forbidden = new ApiError("FORBIDDEN", "İcazə yoxdur.", 403);
-const offline = new ApiError("NETWORK_ERROR", "İnternet bağlantısı yoxdur.", 0);
+const forbidden = new ApiError("FORBIDDEN", "You do not have permission for this action.", 403);
+const offline = new ApiError("NETWORK_ERROR", "No internet connection.", 0);
 
 describe("shouldRetry", () => {
   it("does not retry client errors", () => {
@@ -23,8 +23,8 @@ describe("shouldRetry", () => {
 
 describe("errorMessage", () => {
   it("shows the server's Azerbaijani message, never a raw exception", () => {
-    expect(errorMessage(forbidden)).toBe("İcazə yoxdur.");
-    expect(errorMessage(new TypeError("x is undefined"))).toMatch(/^Gözlənilməz xəta/);
+    expect(errorMessage(forbidden)).toBe("You do not have permission for this action.");
+    expect(errorMessage(new TypeError("x is undefined"))).toMatch(/^Something went wrong/);
   });
 });
 
@@ -45,7 +45,7 @@ describe("createQueryClient error toasts", () => {
     const client = createQueryClient();
     client.setQueryData(["x"], { ok: true });
     await client.fetchQuery({ queryKey: ["x"], queryFn: fail, staleTime: 0 }).catch(() => {});
-    expect(spy).toHaveBeenCalledWith("Məlumat yenilənmədi", "İcazə yoxdur.");
+    expect(spy).toHaveBeenCalledWith("Could not refresh data", "You do not have permission for this action.");
     expect(client.getQueryData(["x"])).toEqual({ ok: true });
   });
 
@@ -61,7 +61,7 @@ describe("createQueryClient error toasts", () => {
     await run(true);
     expect(spy).not.toHaveBeenCalled();
     await run(false);
-    expect(spy).toHaveBeenCalledWith("İcazə yoxdur.");
+    expect(spy).toHaveBeenCalledWith("You do not have permission for this action.");
   });
 });
 

@@ -32,16 +32,16 @@ for (const scheme of ["light"] as const)
       await axe(page, path);
     }
 
-    await page.getByRole("button", { name: "Sübutlara baxıb təsdiqlə" }).click();
+    await page.getByRole("button", { name: "Review evidence and approve" }).click();
     await expect(page.getByRole("dialog")).toBeVisible();
     await axe(page, "approval sheet");
 
     await page.goto(`/packages/${BLOCKED}`);
-    await page.getByRole("button", { name: /Vahid qiymət uyğunluğu/ }).click();
+    await page.getByRole("button", { name: /Unit price match/ }).click();
     const sheet = page.getByRole("dialog");
-    await expect(sheet).toHaveAccessibleName("Vahid qiymət uyğunluğu");
+    await expect(sheet).toHaveAccessibleName("Unit price match");
     await axe(page, "evidence sheet");
-    await sheet.getByRole("button", { name: /Faktura · v1 · səh\. 1/ }).click();
+    await sheet.getByRole("button", { name: /Invoice · v1 · səh\. 1/ }).click();
     await expect(sheet.locator("[data-highlight]")).toBeVisible();
     await axe(page, "document sheet");
   });
