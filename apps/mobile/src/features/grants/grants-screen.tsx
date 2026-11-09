@@ -165,6 +165,7 @@ export function GrantsScreen() {
         })}
         {matching.unmatched.map((issue) => {
           const invoice = pkg.documents.find((d) => d.id === issue.document_id)!;
+          const statement = pkg.documents.find((d) => d.id === issue.nearest.document_id);
           return (
             <Card key={issue.document_id} className="mb-3 p-4">
               <Badge tone="danger">No matching transaction</Badge>
@@ -180,6 +181,7 @@ export function GrantsScreen() {
                 Approval is blocked.
               </p>
               <Quote source={invoice.evidence.total} />
+              <Quote source={statement?.evidence[`transactions[${issue.nearest.index}]`]} />
             </Card>
           );
         })}

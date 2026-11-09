@@ -25,6 +25,8 @@ type Expected = {
         document_id: string;
         amount: { amount: string; currency: string };
         nearest: {
+          document_id: string;
+          index: number;
           amount: { amount: string; currency: string };
           difference: { amount: string; currency: string };
         };
