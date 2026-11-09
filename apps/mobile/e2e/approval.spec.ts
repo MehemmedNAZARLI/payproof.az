@@ -34,7 +34,7 @@ test("reviews every document, approves once and shows it everywhere", async ({ p
 
   await review(page);
   await sheetOf(page)
-    .getByText(/I reviewed the documents and check results for v1 versiyasının/)
+    .getByText(/I reviewed the documents and check results for v1/)
     .click();
   await expect(confirm(page)).not.toHaveAttribute("aria-disabled");
   await confirm(page).dblclick();
@@ -89,7 +89,7 @@ test("ticking the acknowledgement on a phone on its side keeps the sheet in plac
   await page.getByRole("button", { name: "Review evidence and approve" }).click();
   await review(page);
   await sheetOf(page)
-    .getByText(/I reviewed the documents and check results for v1 versiyasının/)
+    .getByText(/I reviewed the documents and check results for v1/)
     .click();
   // Focus on the visually hidden checkbox must not scroll the panel itself off screen.
   expect(await sheetOf(page).evaluate((d) => d.scrollTop)).toBe(0);

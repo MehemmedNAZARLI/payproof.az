@@ -53,7 +53,7 @@ test("the package owner is told when the approver approves", async ({ page }) =>
     await expect(sheet.getByRole("region")).toBeVisible();
     await sheet.getByRole("button", { name: "Back" }).last().click();
   }
-  await sheet.getByText(/I reviewed the documents and check results for v1 versiyasının/).click();
+  await sheet.getByText(/I reviewed the documents and check results for v1/).click();
   await sheet.getByRole("button", { name: /Approve/ }).click();
   await expect(page).toHaveURL(/success$/);
 
@@ -64,6 +64,6 @@ test("the package owner is told when the approver approves", async ({ page }) =>
   await tab(page).click();
   // Newest first. Its day heading follows the mock's demo clock, not the device's.
   await expect(page.getByRole("main").getByRole("link").first()).toHaveAccessibleName(
-    /INV-1038 Rəşad Əliyev tərəfindən təsdiqləndi/,
+    /INV-1038 Rəşad Əliyev approved the package/,
   );
 });

@@ -29,10 +29,20 @@ function DocumentFields({ doc }: { doc: GrantDocument }) {
               {value === null || doc.unreadable.includes(key) ? "Unknown" : "AI"}
             </Badge>
           </div>
-          <p className="mt-1 break-words text-footnote font-medium">{doc.unreadable.includes(key) ? "Unknown" : displayValue(value)}</p>
+          <p className="mt-1 break-words text-footnote font-medium">{doc.unreadable.includes(key) ? "Unknown" : typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) ? formatDate(value) : displayValue(value)}</p>
           <Quote source={doc.evidence[key]} />
         </div>
       ))}
+      {Object.entries(doc.tables).flatMap(([table, rows]) => (rows ?? []).map((row, index) => (
+        <div key={`${table}-${index}`} className="border-separator border-t py-3">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-text-3 text-caption">{table === "transactions" ? "Transaction" : "Invoice line"} {index + 1}</span>
+            <Badge tone="accent">AI</Badge>
+          </div>
+          <p className="mt-1 break-words text-footnote">{displayValue(row)}</p>
+          <Quote source={doc.evidence[`${table}[${index}]`]} />
+        </div>
+      )))}
     </details>
   );
 }
@@ -99,6 +109,12 @@ export function GrantsScreen() {
         <SectionHeader title="Customer’s output form" />
         <Card className="mb-6 p-5">
           <h2 className="text-subhead font-semibold">Grant expense act</h2>
+          {pkg.expected.template_values && <dl className="my-3 space-y-2">
+            {Object.entries(pkg.expected.template_values).map(([key, value]) => <div key={key}>
+              <dt className="text-text-3 text-caption capitalize">{key.replaceAll(/[{}]/g, "").replaceAll("_", " ")}</dt>
+              <dd className="text-footnote font-medium">{value}</dd>
+            </div>)}
+          </dl>}
           <p className="text-text-2 mt-2 text-footnote">After human approval, PayProof fills the customer’s act and prepares submission to {grantCustomer.requirements.output.submission.address}.</p>
           <p className="text-text-3 mt-3 text-caption">Synthetic scenario preview. Approval and submission for configured document sets are not connected in this mobile demo.</p>
         </Card>

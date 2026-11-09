@@ -30,7 +30,7 @@ test("all 14 packages open from the list, each with the right call to action", a
     await rows.nth(i).click();
     await expect(page).toHaveURL(/\/packages\/[0-9a-f-]{36}$/);
     const title = page.getByRole("heading", { level: 1 });
-    await expect(title).not.toHaveText(/Yüklənir/);
+    await expect(title).not.toHaveText(/Loading/);
     const invoice = (await title.textContent()) ?? "";
     if (invoice in CTA) await expect(page.getByText(CTA[invoice]!).first()).toBeVisible();
     else await expect(page.getByRole("heading", { name: "Processing" })).toBeVisible();

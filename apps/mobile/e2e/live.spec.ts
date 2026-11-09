@@ -17,7 +17,7 @@ async function approve(page: Page) {
     await expect(sheet.getByRole("region")).toBeVisible();
     await sheet.getByRole("button", { name: "Back" }).last().click();
   }
-  await sheet.getByText(/I reviewed the documents and check results for v1 versiyasının/).click();
+  await sheet.getByText(/I reviewed the documents and check results for v1/).click();
   await sheet.getByRole("button", { name: /Approve/ }).click();
   await expect(page).toHaveURL(/success$/);
 }

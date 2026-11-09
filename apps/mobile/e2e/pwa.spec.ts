@@ -80,7 +80,7 @@ test("shows iPhone users how to add the app, and remembers a dismissal", async (
   await expect(card).toBeVisible();
   await page.getByRole("button", { name: "Add" }).click();
   const sheet = page.getByRole("dialog", { name: "Add to Home Screen in Safari" });
-  await expect(sheet.getByText(/Paylaş \(Share\)/)).toBeVisible();
+  await expect(sheet.getByText(/Tap Share/)).toBeVisible();
   await sheet.getByRole("button", { name: "Got it" }).click();
   await page.getByRole("button", { name: "Dismiss tip" }).click();
   await expect(card).toHaveCount(0);
