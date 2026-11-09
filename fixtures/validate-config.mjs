@@ -61,14 +61,15 @@ export function validateConfig({ ajv, dir, fail, customers, users }) {
       fail(`check-library: ${r.rule_id} → unknown family ${r.family}`);
 
   // --- Scenarios
-  const customerIds = new Set(customers.map((c) => c.id));
   const userIds = new Set(users.map((u) => u.id));
   for (const name of SCENARIOS) {
     const label = `scenarios/${name}.json`;
     const s = read(`scenarios/${name}.json`);
     check("scenario", s, label);
-    if (customerIds.has(s.customer.id))
-      fail(`${label}: customer ${s.customer.id} collides with customers.json`);
+    // the scenario customer is also in customers.json (seed, mock list): same set, plus legacy flags
+    const listed = customers.find((c) => c.id === s.customer.id);
+    if (listed && JSON.stringify(withoutFlags(listed)) !== JSON.stringify(s.customer))
+      fail(`${label}: customer ${s.customer.id} differs from customers.json`);
     for (const rs of s.customer.requirement_sets)
       checkRequirementSet(rs, `${label} v${rs.version}`);
     for (const p of s.packages) checkPackage(p, s, label);
@@ -86,6 +87,14 @@ export function validateConfig({ ajv, dir, fail, customers, users }) {
     for (const [ref, e] of Object.entries(expected.packages))
       if (Object.keys(e.results).join() !== checkIds)
         fail(`${name}.expected.json ${ref}: results must be ${checkIds}`);
+  }
+
+  function withoutFlags(c) {
+    const flags = ["require_po", "require_delivery", "require_signature", "tolerance"];
+    const sets = c.requirement_sets.map((rs) =>
+      Object.fromEntries(Object.entries(rs).filter(([k]) => !flags.includes(k))),
+    );
+    return { ...c, requirement_sets: sets };
   }
 
   function checkRequirementSet(rs, label) {

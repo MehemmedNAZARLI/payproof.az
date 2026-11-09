@@ -44,5 +44,303 @@
         "reason": "Müştərinin satınalma şöbəsi ilə razılaşdırılmış tələblər."
       }
     ]
+  },
+  {
+    "id": "c3",
+    "name": "UNEC — Azərbaycan Dövlət İqtisad Universiteti",
+    "external_id": "UNEC-QRANT",
+    "voen": "1700354821",
+    "requirement_sets": [
+      {
+        "version": 1,
+        "require_po": false,
+        "require_delivery": false,
+        "require_signature": false,
+        "tolerance": "0.00",
+        "effective_from": "2026-09-01",
+        "approved_by": "u2",
+        "reason": "UNEC tələbə qrantı üzrə xərc hesabatı qaydası (2026/27 tədris ili, payız semestri).",
+        "documents": [
+          {
+            "type": "invoice",
+            "min_count": 1,
+            "max_count": 10
+          },
+          {
+            "type": "bank_statement",
+            "min_count": 1,
+            "max_count": 1
+          },
+          {
+            "type": "card_statement",
+            "min_count": 1,
+            "max_count": 1
+          }
+        ],
+        "checks": [
+          {
+            "id": "U-01",
+            "type": "field_present",
+            "title": "Məcburi sahələr çıxarılıb",
+            "parameters": {
+              "targets": [
+                {
+                  "document_type": "invoice",
+                  "field": "invoice_number"
+                },
+                {
+                  "document_type": "invoice",
+                  "field": "invoice_date"
+                },
+                {
+                  "document_type": "invoice",
+                  "field": "seller.name"
+                },
+                {
+                  "document_type": "invoice",
+                  "field": "seller.tax_id"
+                },
+                {
+                  "document_type": "invoice",
+                  "field": "total"
+                },
+                {
+                  "document_type": "bank_statement",
+                  "field": "account_holder.name"
+                },
+                {
+                  "document_type": "bank_statement",
+                  "field": "account_holder.id_number"
+                },
+                {
+                  "document_type": "bank_statement",
+                  "field": "period_start"
+                },
+                {
+                  "document_type": "bank_statement",
+                  "field": "period_end"
+                },
+                {
+                  "document_type": "card_statement",
+                  "field": "card_holder.id_number"
+                }
+              ]
+            }
+          },
+          {
+            "id": "U-02",
+            "type": "party_identity_match",
+            "title": "Bank və kart çıxarışı eyni tələbəyə aiddir",
+            "parameters": {
+              "parties": [
+                {
+                  "document_type": "bank_statement",
+                  "field": "account_holder"
+                },
+                {
+                  "document_type": "card_statement",
+                  "field": "card_holder"
+                }
+              ],
+              "match_on": ["id_number", "name"]
+            }
+          },
+          {
+            "id": "U-03",
+            "type": "values_equal",
+            "title": "Bütün sənədlər eyni valyutadadır",
+            "parameters": {
+              "fields": [
+                {
+                  "document_type": "invoice",
+                  "field": "currency"
+                },
+                {
+                  "document_type": "bank_statement",
+                  "field": "currency"
+                },
+                {
+                  "document_type": "card_statement",
+                  "field": "currency"
+                }
+              ],
+              "normalize": "exact"
+            }
+          },
+          {
+            "id": "U-04",
+            "type": "totals_sum",
+            "title": "Faktura sətirlərinin cəmi yekuna bərabərdir",
+            "parameters": {
+              "document_type": "invoice",
+              "table": "lines",
+              "amount_column": "amount",
+              "total_field": "total",
+              "tolerance": "0.01"
+            }
+          },
+          {
+            "id": "U-05",
+            "type": "date_within_period",
+            "title": "Faktura qrant dövrü daxilindədir",
+            "parameters": {
+              "target": {
+                "document_type": "invoice",
+                "field": "invoice_date"
+              },
+              "period": {
+                "from": {
+                  "document_type": "bank_statement",
+                  "field": "period_start"
+                },
+                "to": {
+                  "document_type": "bank_statement",
+                  "field": "period_end"
+                }
+              }
+            }
+          },
+          {
+            "id": "U-06",
+            "type": "amount_within_limit",
+            "title": "Xərclər qrant limitini aşmır",
+            "parameters": {
+              "target": {
+                "document_type": "invoice",
+                "field": "total"
+              },
+              "aggregate": "sum",
+              "limit": {
+                "amount": "1500.00",
+                "currency": "AZN"
+              }
+            }
+          },
+          {
+            "id": "U-07",
+            "type": "transaction_match",
+            "title": "Hər faktura ödəniş əməliyyatı ilə təsdiqlənir",
+            "parameters": {
+              "source": {
+                "document_type": "invoice",
+                "amount_field": "total",
+                "date_field": "invoice_date",
+                "counterparty_field": "seller.name"
+              },
+              "against": [
+                {
+                  "document_type": "bank_statement",
+                  "list": "transactions"
+                },
+                {
+                  "document_type": "card_statement",
+                  "list": "transactions"
+                }
+              ],
+              "amount_tolerance": "0.00",
+              "date_window_days": 3,
+              "counterparty": "normalized",
+              "direction": "debit"
+            }
+          },
+          {
+            "id": "U-08",
+            "type": "no_duplicate_use",
+            "title": "Faktura başqa hesabatda istifadə olunmayıb",
+            "parameters": {
+              "subjects": [
+                {
+                  "document_type": "invoice",
+                  "key_fields": ["seller.tax_id", "invoice_number"]
+                }
+              ],
+              "scope": "customer"
+            }
+          }
+        ],
+        "output": {
+          "template": {
+            "file_name": "UNEC_qrant_xerc_akti.docx",
+            "sha256": "f6902e35f88d6a0ff723d4c24dffabe0770ff0266c7def6ecebca8e67e025813"
+          },
+          "placeholders": [
+            {
+              "placeholder": "{{report_reference}}",
+              "source": {
+                "kind": "package",
+                "value": "reference"
+              }
+            },
+            {
+              "placeholder": "{{grantee_name}}",
+              "source": {
+                "kind": "field",
+                "document_type": "bank_statement",
+                "field": "account_holder.name"
+              }
+            },
+            {
+              "placeholder": "{{grantee_fin}}",
+              "source": {
+                "kind": "field",
+                "document_type": "bank_statement",
+                "field": "account_holder.id_number"
+              }
+            },
+            {
+              "placeholder": "{{period_start}}",
+              "source": {
+                "kind": "field",
+                "document_type": "bank_statement",
+                "field": "period_start"
+              }
+            },
+            {
+              "placeholder": "{{period_end}}",
+              "source": {
+                "kind": "field",
+                "document_type": "bank_statement",
+                "field": "period_end"
+              }
+            },
+            {
+              "placeholder": "{{invoice_count}}",
+              "source": {
+                "kind": "aggregate",
+                "op": "count",
+                "document_type": "invoice"
+              }
+            },
+            {
+              "placeholder": "{{total_spent}}",
+              "source": {
+                "kind": "aggregate",
+                "op": "sum",
+                "document_type": "invoice",
+                "field": "total"
+              }
+            },
+            {
+              "placeholder": "{{approved_by}}",
+              "source": {
+                "kind": "approval",
+                "value": "approver_name"
+              }
+            },
+            {
+              "placeholder": "{{approved_on}}",
+              "source": {
+                "kind": "approval",
+                "value": "approved_on"
+              }
+            }
+          ],
+          "submission": {
+            "channel": "email",
+            "address": "qrant-hesabat@unec.test"
+          }
+        }
+      }
+    ]
   }
 ]

@@ -1,7 +1,7 @@
 // Contract serializers for users, customers and records. Return types are the generated contract types.
 import type { Schemas } from "@payproof/api-client";
 import company from "../../../../fixtures/company.json";
-import { legacyProfile } from "../domain/legacy-profile";
+import { documentTypeName, legacyProfile } from "../domain/legacy-profile";
 import { id } from "../ids";
 import { sumLines, decimal } from "../money";
 import { ROLE_PERMISSIONS } from "../permissions";
@@ -53,8 +53,18 @@ export const requirementSet = (
   approved_by: userRef(db, r.approved_by),
   reason: r.reason,
   created_at: `${r.effective_from}T00:00:00Z`,
-  ...legacyProfile(r),
+  ...configOf(r),
 });
+
+/** ADR-0011: a configured set as stored, a legacy set as its derived profile. */
+const configOf = (r: T.RequirementSet) =>
+  r.documents && r.checks
+    ? {
+        documents: r.documents.map((d) => ({ ...d, name: documentTypeName(d.type) })),
+        checks: r.checks,
+        output: r.output ?? null,
+      }
+    : legacyProfile(r);
 
 export const customer = (db: MockDb, c: T.Customer): Schemas["Customer"] => ({
   id: id.customer(c.id),
