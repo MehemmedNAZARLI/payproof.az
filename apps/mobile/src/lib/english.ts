@@ -1,3 +1,5 @@
+import demoUsers from "@fixtures/users.json";
+
 import type { Schemas } from "./api";
 
 // Presentation only. Outcomes, values and verbatim source evidence are never rewritten.
@@ -94,9 +96,12 @@ export function notificationText(text: string): string {
   let translated = text;
   for (const [source, english] of Object.entries(notificationPhrases))
     translated = translated.replaceAll(source, english);
-  if (translated !== text) return translated;
   // A new server notification must not leak untranslated application copy into the UI.
-  return /[əƏıİşŞçÇğĞüÜöÖ]/.test(translated.replace(/^[^:]*:/, ""))
+  const applicationCopy = demoUsers.reduce(
+    (copy, user) => copy.replaceAll(user.full_name, ""),
+    translated,
+  );
+  return /[əƏıİşŞçÇğĞüÜöÖ]/.test(applicationCopy)
     ? "Package activity updated. Open the package to review its current status."
     : translated;
 }
