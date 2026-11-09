@@ -19,10 +19,16 @@ describe("approvalFailure", () => {
     ],
     [err("IDEMPOTENCY_KEY_REUSED", 422), { kind: "conflict" }],
     [err("FORBIDDEN", 403), { kind: "forbidden" }],
-    [err("PACKAGE_NOT_READY", 409), { kind: "not-ready", message: "This package is not ready for this action." }],
+    [
+      err("PACKAGE_NOT_READY", 409),
+      { kind: "not-ready", message: "This package is not ready for this action." },
+    ],
     [err("IDEMPOTENCY_IN_PROGRESS", 409), { kind: "in-progress" }],
     [err("NETWORK_ERROR", 0), { kind: "offline" }],
-    [err("INTERNAL_ERROR", 500), { kind: "other", message: "Something went wrong. Try again shortly." }],
+    [
+      err("INTERNAL_ERROR", 500),
+      { kind: "other", message: "Something went wrong. Try again shortly." },
+    ],
     [new Error("boom"), { kind: "other", message: "" }],
   ])("maps %s", (error, kind) => {
     expect(approvalFailure(error)).toEqual(kind);
