@@ -1,6 +1,7 @@
 import datetime as dt
 import uuid
 from decimal import Decimal
+from typing import Any
 
 from sqlalchemy import (
     Boolean,
@@ -12,6 +13,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from payproof.repositories.models.identity import VOEN_CHECK
@@ -50,6 +52,9 @@ class RequirementSet(TenantEntity, Base):
         CheckConstraint("version >= 1", name="version_positive"),
         CheckConstraint("tolerance BETWEEN 0 AND 1", name="tolerance_range"),
         CheckConstraint("length(reason) > 0", name="reason_present"),
+        # ADR-0011: a configured set has both lists; a legacy set has neither (flags only)
+        CheckConstraint("(documents IS NULL) = (checks IS NULL)", name="config_complete"),
+        CheckConstraint("output IS NULL OR checks IS NOT NULL", name="output_needs_checks"),
     )
 
     customer_id: Mapped[uuid.UUID] = mapped_column()
@@ -61,3 +66,7 @@ class RequirementSet(TenantEntity, Base):
     effective_from: Mapped[dt.date] = mapped_column(Date)
     approved_by: Mapped[uuid.UUID] = mapped_column()
     reason: Mapped[str] = mapped_column(Text)
+    # ADR-0011 configuration; NULL = legacy profile derived from the flags above
+    documents: Mapped[list[dict[str, Any]] | None] = mapped_column(JSONB(none_as_null=True))
+    checks: Mapped[list[dict[str, Any]] | None] = mapped_column(JSONB(none_as_null=True))
+    output: Mapped[dict[str, Any] | None] = mapped_column(JSONB(none_as_null=True))
