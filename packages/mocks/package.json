@@ -1,0 +1,27 @@
+{
+  "name": "@payproof/mocks",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./browser": "./src/browser.ts",
+    "./node": "./src/node.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@payproof/api-client": "workspace:^",
+    "msw": "^3"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "ajv": "^8",
+    "ajv-formats": "^3",
+    "typescript": "^5",
+    "vitest": "^5",
+    "yaml": "^2"
+  }
+}

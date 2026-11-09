@@ -25,6 +25,7 @@ export const taskStatusTone = {
 } as const satisfies Record<string, Tone>;
 
 export const documentStatusTone = {
+  UPLOADED: "info", // not in the prototype: a stored version waiting for extraction reads as in progress
   EXTRACTED: "success",
   REVIEW_REQUIRED: "warning",
   PROCESSING: "info",
