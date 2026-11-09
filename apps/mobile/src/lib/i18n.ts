@@ -4,6 +4,7 @@ import {
   packageStatusLabel,
   roleLabel,
   taskStatusLabel,
+  ui,
 } from "@payproof/api-client/i18n";
 
 import type { checkOutcomeTone, packageStatusTone, taskStatusTone } from "./status-tone";
@@ -275,6 +276,25 @@ export const t = {
     notifications: "Bildirişlər",
     profile: "Profil",
     back: "Geri",
+  },
+  live: {
+    // "Aygün Məmmədova INV-1042 paketini yenilədi (v5)"
+    verb: {
+      "package.created": "yaratdı",
+      "package.updated": "yenilədi",
+      "package.approved": "təsdiqlədi",
+      "package.exported": "ixrac etdi",
+      "package.deleted": "sildi",
+    } as Partial<Record<string, string>>,
+    someone: "Başqa istifadəçi",
+    system: ui.system,
+    pkg: (invoice?: string) => (invoice ? `${invoice} paketini` : "paketi"),
+    task: (invoice?: string) => (invoice ? `${invoice} paketinin tapşırığını` : "tapşırığı"),
+    rules: "müştəri qaydasını",
+    updated: "yenilədi",
+    changedTitle: (v: number) => `Başqa istifadəçi paketi yenilədi (v${v})`,
+    changedBody:
+      "Təsdiq yeni versiyaya aiddir: sənədlərə yenidən baxın və təsdiq qeydini təkrar işarələyin.",
   },
   errors: {
     unexpected: "Gözlənilməz xəta baş verdi. Bir az sonra yenidən cəhd edin.",
