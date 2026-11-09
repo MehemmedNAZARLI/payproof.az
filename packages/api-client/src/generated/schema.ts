@@ -481,6 +481,64 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/document-types": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Document type registry — the current version of every type (ADR-0011) */
+        get: operations["listDocumentTypes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/check-library": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Check library families and the legacy R-rule map (ADR-0011 §3) */
+        get: operations["getCheckLibrary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/customers/{customer_id}/output-templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Upload a .docx output template (approver only); a requirement set references it by sha256
+         * @description The file must be a .docx (checked by content) with at least one `{{placeholder}}`. The placeholders found
+         *     are returned; a requirement set's `output.placeholders` must all be among them. Uploading the same
+         *     content again returns the stored template (201, no new row).
+         */
+        post: operations["uploadOutputTemplate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/notifications": {
         parameters: {
             query?: never;
@@ -3432,6 +3490,177 @@ export interface operations {
             403: components["responses"]["Forbidden"];
             404: components["responses"]["NotFound"];
             409: components["responses"]["Conflict"];
+            422: components["responses"]["ValidationError"];
+        };
+    };
+    listDocumentTypes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Registry entries, built-in types first */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "items": [
+                     *         {
+                     *           "key": "bank_statement",
+                     *           "name": "Bank çıxarışı",
+                     *           "version": 1,
+                     *           "builtin": false,
+                     *           "accepted_formats": [
+                     *             "application/pdf",
+                     *             "text/csv"
+                     *           ],
+                     *           "extraction": {
+                     *             "fields": [
+                     *               {
+                     *                 "key": "account_holder",
+                     *                 "label": "Hesab sahibi",
+                     *                 "type": "party",
+                     *                 "critical": true
+                     *               }
+                     *             ],
+                     *             "tables": [],
+                     *             "transaction_lists": [
+                     *               {
+                     *                 "key": "transactions",
+                     *                 "label": "Əməliyyatlar",
+                     *                 "columns": [
+                     *                   {
+                     *                     "key": "date",
+                     *                     "label": "Tarix",
+                     *                     "type": "date",
+                     *                     "critical": true
+                     *                   }
+                     *                 ]
+                     *               }
+                     *             ]
+                     *           }
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": {
+                        items: components["schemas"]["DocumentTypeInfo"][];
+                    };
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+        };
+    };
+    getCheckLibrary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Families with their parameters */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "families": [
+                     *         {
+                     *           "type": "field_present",
+                     *           "name": "Sahə mövcuddur",
+                     *           "description": "Hədəf sahələr hər uyğun sənəddə çıxarılıb və mənbə istinadı var.",
+                     *           "system": false,
+                     *           "parameters": [
+                     *             {
+                     *               "name": "targets",
+                     *               "type": "field_refs",
+                     *               "required": true,
+                     *               "description": "Yoxlanan sahələr"
+                     *             }
+                     *           ],
+                     *           "related_rules": [
+                     *             "R-001"
+                     *           ]
+                     *         }
+                     *       ],
+                     *       "legacy_rules": [
+                     *         {
+                     *           "rule_id": "R-001",
+                     *           "family": "field_present",
+                     *           "note": "require_po bayrağı ilə"
+                     *         }
+                     *       ]
+                     *     }
+                     */
+                    "application/json": components["schemas"]["CheckLibrary"];
+                };
+            };
+            401: components["responses"]["Unauthenticated"];
+        };
+    };
+    uploadOutputTemplate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: components["schemas"]["Uuid"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** @description .docx, ≤ 20 MB */
+                    file: Blob;
+                };
+            };
+        };
+        responses: {
+            /** @description Stored template */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "0193a000-0000-7000-800e-000000000301",
+                     *       "file_name": "UNEC_qrant_xerc_akti.docx",
+                     *       "sha256": "f6902e35f88d6a0ff723d4c24dffabe0770ff0266c7def6ecebca8e67e025813",
+                     *       "size": 14211,
+                     *       "placeholders": [
+                     *         "{{report_reference}}",
+                     *         "{{grantee_name}}",
+                     *         "{{total_spent}}"
+                     *       ],
+                     *       "uploaded_by": {
+                     *         "id": "0193a000-0000-7000-8000-000000000002",
+                     *         "full_name": "Rəşad Əliyev",
+                     *         "title": "Maliyyə direktoru",
+                     *         "role": "approver"
+                     *       },
+                     *       "created_at": "2026-11-09T08:00:00Z"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["OutputTemplate"];
+                };
+            };
+            400: components["responses"]["BadRequest"];
+            401: components["responses"]["Unauthenticated"];
+            403: components["responses"]["Forbidden"];
+            404: components["responses"]["NotFound"];
+            413: components["responses"]["FileTooLarge"];
+            415: components["responses"]["UnsupportedFileType"];
             422: components["responses"]["ValidationError"];
         };
     };

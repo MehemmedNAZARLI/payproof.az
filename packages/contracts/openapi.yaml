@@ -1416,6 +1416,120 @@ paths:
         "404": { $ref: "#/components/responses/NotFound" }
         "409": { $ref: "#/components/responses/Conflict" }
         "422": { $ref: "#/components/responses/ValidationError" }
+  /v1/document-types:
+    get:
+      tags: [customers]
+      operationId: listDocumentTypes
+      summary: Document type registry — the current version of every type (ADR-0011)
+      responses:
+        "200":
+          description: Registry entries, built-in types first
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [items]
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/DocumentTypeInfo" } }
+              example:
+                items:
+                  - key: bank_statement
+                    name: Bank çıxarışı
+                    version: 1
+                    builtin: false
+                    accepted_formats: [application/pdf, text/csv]
+                    extraction:
+                      fields:
+                        - { key: account_holder, label: Hesab sahibi, type: party, critical: true }
+                      tables: []
+                      transaction_lists:
+                        - key: transactions
+                          label: Əməliyyatlar
+                          columns:
+                            - { key: date, label: Tarix, type: date, critical: true }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+  /v1/check-library:
+    get:
+      tags: [customers]
+      operationId: getCheckLibrary
+      summary: Check library families and the legacy R-rule map (ADR-0011 §3)
+      responses:
+        "200":
+          description: Families with their parameters
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CheckLibrary" }
+              example:
+                families:
+                  - type: field_present
+                    name: Sahə mövcuddur
+                    description: Hədəf sahələr hər uyğun sənəddə çıxarılıb və mənbə istinadı var.
+                    system: false
+                    parameters:
+                      - {
+                          name: targets,
+                          type: field_refs,
+                          required: true,
+                          description: Yoxlanan sahələr,
+                        }
+                    related_rules: [R-001]
+                legacy_rules:
+                  - { rule_id: R-001, family: field_present, note: require_po bayrağı ilə }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+  /v1/customers/{customer_id}/output-templates:
+    parameters:
+      - {
+          name: customer_id,
+          in: path,
+          required: true,
+          schema: { $ref: "#/components/schemas/Uuid" },
+        }
+    post:
+      tags: [customers]
+      operationId: uploadOutputTemplate
+      summary: Upload a .docx output template (approver only); a requirement set references it by sha256
+      description: |
+        The file must be a .docx (checked by content) with at least one `{{placeholder}}`. The placeholders found
+        are returned; a requirement set's `output.placeholders` must all be among them. Uploading the same
+        content again returns the stored template (201, no new row).
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [file]
+              properties:
+                file: { type: string, contentEncoding: binary, description: ".docx, ≤ 20 MB" }
+      responses:
+        "201":
+          description: Stored template
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OutputTemplate" }
+              example:
+                id: 0193a000-0000-7000-800e-000000000301
+                file_name: UNEC_qrant_xerc_akti.docx
+                sha256: f6902e35f88d6a0ff723d4c24dffabe0770ff0266c7def6ecebca8e67e025813
+                size: 14211
+                placeholders: ["{{report_reference}}", "{{grantee_name}}", "{{total_spent}}"]
+                uploaded_by:
+                  {
+                    id: 0193a000-0000-7000-8000-000000000002,
+                    full_name: Rəşad Əliyev,
+                    title: Maliyyə direktoru,
+                    role: approver,
+                  }
+                created_at: "2026-11-09T08:00:00Z"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "413": { $ref: "#/components/responses/FileTooLarge" }
+        "415": { $ref: "#/components/responses/UnsupportedFileType" }
+        "422": { $ref: "#/components/responses/ValidationError" }
   /v1/notifications:
     get:
       tags: [notifications]
