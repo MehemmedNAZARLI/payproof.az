@@ -8,13 +8,18 @@ import type { ApprovalFlow } from "../use-approval-flow";
 export function FailureBanner({ flow }: { flow: ApprovalFlow }) {
   const f =
     flow.failure ??
-    (flow.changed !== null ? ({ kind: "changed", version: flow.changed } as const) : null) ??
-    (flow.online ? null : ({ kind: "offline" } as const));
+    // offline first: it is what blocks the confirm right now
+    (flow.online ? null : ({ kind: "offline" } as const)) ??
+    (flow.changed ? ({ kind: "changed", ...flow.changed } as const) : null);
   if (!f) return null;
   const [tone, title, body] = ((): ["warning" | "danger" | "info", string, string?] => {
     switch (f.kind) {
       case "changed":
-        return ["warning", t.live.changedTitle(f.version), t.live.changedBody];
+        return [
+          "warning",
+          f.bySystem ? t.live.changedBySystemTitle(f.version) : t.live.changedTitle(f.version),
+          t.live.changedBody,
+        ];
       case "conflict":
         return ["warning", t.approval.conflictTitle, t.approval.conflictBody(f.version)];
       case "forbidden":

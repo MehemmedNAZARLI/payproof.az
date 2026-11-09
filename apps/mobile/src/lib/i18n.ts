@@ -293,6 +293,7 @@ export const t = {
     rules: "müştəri qaydasını",
     updated: "yenilədi",
     changedTitle: (v: number) => `Başqa istifadəçi paketi yenilədi (v${v})`,
+    changedBySystemTitle: (v: number) => `Paket sistem tərəfindən yeniləndi (v${v})`,
     changedBody:
       "Təsdiq yeni versiyaya aiddir: sənədlərə yenidən baxın və təsdiq qeydini təkrar işarələyin.",
   },
