@@ -2,6 +2,7 @@ import { render } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { endSession, startSession } from "@/lib/session";
+import { mockToken } from "@/test/mock";
 
 import StartPage from "./page";
 
@@ -13,7 +14,7 @@ beforeEach(() => replace.mockClear());
 describe("StartPage", () => {
   it("opens home with a session", () => {
     startSession({
-      access_token: "mock.u2",
+      access_token: mockToken("u2"),
       token_type: "bearer",
       expires_in: 60,
       user: {} as never,

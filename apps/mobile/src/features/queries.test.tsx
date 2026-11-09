@@ -4,18 +4,13 @@ import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import { createQueryClient } from "@/lib/query-client";
+import { mockToken } from "@/test/mock";
 
 import { useMe } from "./auth/queries";
 import { packageKeys, usePackages } from "./packages/queries";
 
-// The real in-page mock, without its artificial latency.
-vi.mock("@/lib/api/mock/mock-fetch", async (load) => {
-  const real = await load<typeof import("@/lib/api/mock/mock-fetch")>();
-  return { createMockFetch: () => real.createMockFetch({ latencyMs: 0 }) };
-});
-
 // Signed in as Rəşad, the demo approver.
-vi.mock("@/lib/session", () => ({ getToken: () => "mock.u2" }));
+vi.mock("@/lib/session", () => ({ getToken: () => mockToken("u2") }));
 
 function wrapper({ children }: { children: ReactNode }) {
   return <QueryClientProvider client={createQueryClient()}>{children}</QueryClientProvider>;

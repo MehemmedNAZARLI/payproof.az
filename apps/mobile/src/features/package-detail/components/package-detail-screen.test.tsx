@@ -2,19 +2,14 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { act, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { mockToken } from "@/lib/api/mock/handlers";
 import { createQueryClient } from "@/lib/query-client";
 import { startSession } from "@/lib/session";
+import { mockToken } from "@/test/mock";
 
 import { PackageDetailScreen } from "./package-detail-screen";
 
 const push = vi.fn();
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
-
-vi.mock("@/lib/api/mock/mock-fetch", async (load) => {
-  const real = await load<typeof import("@/lib/api/mock/mock-fetch")>();
-  return { createMockFetch: () => real.createMockFetch({ latencyMs: 0 }) };
-});
 
 const id = (n: number) => `0193a000-0000-7000-8002-00000000${n}`;
 

@@ -1,20 +1,25 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 
-import { ApiError } from "@/lib/api";
-import { packageList } from "@/lib/api/mock/store";
+import { ApiError, type Schemas, unwrap } from "@/lib/api";
+import { mockClient } from "@/test/mock";
 
 import { PackageResults } from "./package-results";
 
 vi.mock("next/navigation", () => ({}));
 
 type List = Parameters<typeof PackageResults>[0]["list"];
-const page = { items: packageList.slice(0, 3), next_cursor: null, total_count: 3 };
 const query = (state: Partial<List>) =>
   ({ refetch: vi.fn(), isPlaceholderData: false, fetchStatus: "idle", ...state }) as List;
 const show = (list: List) => render(<PackageResults list={list} onClear={() => {}} />);
 
 describe("PackageResults", () => {
+  let page: Schemas["PackagePage"];
+  beforeAll(async () => {
+    const all = await unwrap(mockClient().GET("/v1/packages"));
+    page = { items: all.items.slice(0, 3), next_cursor: null, total_count: 3 };
+  });
+
   it("keeps showing rows when a background refresh fails (the toast says so)", () => {
     show(query({ data: page, isError: true, error: new ApiError("INTERNAL_ERROR", "x", 500) }));
     expect(screen.getAllByRole("listitem")).toHaveLength(3);

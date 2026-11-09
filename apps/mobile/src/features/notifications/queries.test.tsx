@@ -1,14 +1,11 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { mockToken } from "@/lib/api/mock/handlers";
-import { notificationPage } from "@/lib/api/mock/notifications";
-import { resetSessionDb } from "@/lib/api/mock/session-db";
-import { meFor } from "@/lib/api/mock/store";
 import { createQueryClient } from "@/lib/query-client";
 import { startSession } from "@/lib/session";
+import { meFor, mockToken, notificationsOf } from "@/test/mock";
 
 import {
   notificationKeys,
@@ -20,19 +17,14 @@ import {
   useUnreadCount,
 } from "./queries";
 
-vi.mock("@/lib/api/mock/mock-fetch", async (load) => {
-  const real = await load<typeof import("@/lib/api/mock/mock-fetch")>();
-  return { createMockFetch: () => real.createMockFetch({ latencyMs: 0 }) };
-});
-
-const page = () => notificationPage("u2", false, 100);
+const page = () => notificationsOf("u2");
 
 function setup() {
   startSession({
     access_token: mockToken("u2"),
     token_type: "bearer",
     expires_in: 60,
-    user: meFor("u2")!,
+    user: meFor("u2"),
   });
   const qc = createQueryClient();
   const wrapper = ({ children }: { children: ReactNode }) => (
@@ -42,10 +34,8 @@ function setup() {
 }
 
 describe("notification read state", () => {
-  beforeEach(resetSessionDb);
-
-  it("reads one unread notification and leaves read ones alone", () => {
-    const p = page();
+  it("reads one unread notification and leaves read ones alone", async () => {
+    const p = await page();
     const unread = p.items.find((n) => n.read_at === null)!;
     const next = readOneIn(p, unread.id);
     expect(next.unread_count).toBe(p.unread_count - 1);
@@ -54,8 +44,8 @@ describe("notification read state", () => {
     expect(readAllIn(p)).toMatchObject({ unread_count: 0 });
   });
 
-  it("undoes only its own read, so an overlapping read that succeeded stays read", () => {
-    const p = page();
+  it("undoes only its own read, so an overlapping read that succeeded stays read", async () => {
+    const p = await page();
     const [a, b] = p.items.filter((n) => n.read_at === null);
     const both = readOneIn(readOneIn(p, a!.id), b!.id);
     const undone = unreadAgainIn(both, [a!.id]);
@@ -72,11 +62,11 @@ describe("notification read state", () => {
       wrapper,
     });
     await waitFor(() => expect(result.current.count).toBe(2));
-    const unread = page().items.find((n) => n.read_at === null)!;
+    const unread = (await page()).items.find((n) => n.read_at === null)!;
     act(() => result.current.read.mutate(unread.id));
     await waitFor(() => expect(result.current.count).toBe(1));
     await waitFor(() => expect(result.current.read.isSuccess).toBe(true));
-    expect(page().unread_count).toBe(1);
+    expect((await page()).unread_count).toBe(1);
     expect(qc.getQueryData(notificationKeys.list())).toMatchObject({ unread_count: 1 });
   });
 
@@ -88,6 +78,6 @@ describe("notification read state", () => {
     await waitFor(() => expect(result.current.count).toBe(2));
     act(() => result.current.all.mutate(undefined));
     await waitFor(() => expect(result.current.count).toBe(0));
-    await waitFor(() => expect(page().unread_count).toBe(0));
+    await waitFor(async () => expect((await page()).unread_count).toBe(0));
   });
 });

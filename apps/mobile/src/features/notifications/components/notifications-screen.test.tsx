@@ -1,29 +1,22 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import { mockToken } from "@/lib/api/mock/handlers";
-import { notificationPage } from "@/lib/api/mock/notifications";
-import { resetSessionDb } from "@/lib/api/mock/session-db";
-import { meFor } from "@/lib/api/mock/store";
 import { createQueryClient } from "@/lib/query-client";
 import { startSession } from "@/lib/session";
+import { meFor, mockToken, notificationsOf } from "@/test/mock";
 
 import { NotificationTabBar } from "./notification-tab-bar";
 import { NotificationsScreen } from "./notifications-screen";
 
 vi.mock("next/navigation", () => ({ usePathname: () => "/notifications" }));
-vi.mock("@/lib/api/mock/mock-fetch", async (load) => {
-  const real = await load<typeof import("@/lib/api/mock/mock-fetch")>();
-  return { createMockFetch: () => real.createMockFetch({ latencyMs: 0 }) };
-});
 
 function open(user = "u2") {
   startSession({
     access_token: mockToken(user),
     token_type: "bearer",
     expires_in: 60,
-    user: meFor(user)!,
+    user: meFor(user),
   });
   render(
     <QueryClientProvider client={createQueryClient()}>
@@ -35,8 +28,6 @@ function open(user = "u2") {
 const tab = () => screen.getByRole("link", { name: /^Bildirişlər/ });
 
 describe("NotificationsScreen", () => {
-  beforeEach(resetSessionDb);
-
   it("groups by day, marks unread ones, and badges the tab", async () => {
     open();
     expect(await screen.findByText("INV-1038 təsdiqinizi gözləyir · 4.860,00 AZN")).toBeVisible();
@@ -53,7 +44,7 @@ describe("NotificationsScreen", () => {
     expect(row).toHaveAttribute("href", "/packages/0193a000-0000-7000-8002-000000001038");
     fireEvent.click(row);
     await waitFor(() => expect(screen.getByText("1 oxunmamış")).toBeVisible());
-    await waitFor(() => expect(notificationPage("u2", false, 50).unread_count).toBe(1));
+    await waitFor(async () => expect((await notificationsOf("u2")).unread_count).toBe(1));
   });
 
   it("reads everything and clears every badge", async () => {
