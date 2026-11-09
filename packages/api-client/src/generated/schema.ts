@@ -1213,7 +1213,8 @@ export interface components {
             created_at: string;
             files: {
                 document_version_id: components["schemas"]["Uuid"];
-                type: components["schemas"]["DocumentType"];
+                /** @description invoice | order | delivery for invoice packages; any registry type for configured ones */
+                type: components["schemas"]["DocumentTypeKey"];
                 file_name: string;
             }[];
             output?: components["schemas"]["ExportOutput"];

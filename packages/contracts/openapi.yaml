@@ -2810,7 +2810,11 @@ components:
             required: [document_version_id, type, file_name]
             properties:
               document_version_id: { $ref: "#/components/schemas/Uuid" }
-              type: { $ref: "#/components/schemas/DocumentType" }
+              type:
+                {
+                  $ref: "#/components/schemas/DocumentTypeKey",
+                  description: "invoice | order | delivery for invoice packages; any registry type for configured ones",
+                }
               file_name: { type: string }
         output: { $ref: "#/components/schemas/ExportOutput" }
     ExportOutput:
