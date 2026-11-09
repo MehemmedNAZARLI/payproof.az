@@ -1,6 +1,6 @@
 // Check library families (ADR-0011) — line totals, date periods and spending limits. Integer cents, no AI.
 import { cents } from "../money";
-import { cite, docsOf, read, readAll, whole } from "./read";
+import { cite, currencyOf, docsOf, read, readAll, whole } from "./read";
 import type { EvidenceRef, FieldRef, GenericPkg, Verdict } from "./types";
 import { fmt, money, NA, verdict } from "./verdict";
 
@@ -18,14 +18,18 @@ export function totalsSum(
   const documents: Record<string, unknown>[] = [];
   let unknown = false;
   const bad: string[] = [];
-  for (const d of docsOf(p, params.document_type)) {
-    const cur = String(d.fields.currency ?? p.currency);
+  const docs = docsOf(p, params.document_type);
+  if (!docs.length) return NA("Yoxlanacaq sənəd yoxdur.");
+  for (const d of docs) {
+    const cur = currencyOf(d);
     const total = read(d, params.total_field);
     const rows = d.tables[params.table] ?? [];
     rows.forEach((_, i) => evidence.push(cite(d, `${params.table}[${i}]`) ?? whole(d)));
     const amounts = rows.map((r) => r[params.amount_column]);
-    if (total.status !== "ok" || !rows.length || amounts.some((a) => typeof a !== "string")) {
+    const unread = total.status !== "ok" || !rows.length || !cur;
+    if (unread || amounts.some((a) => typeof a !== "string")) {
       unknown = true;
+      evidence.push(total.status === "ok" ? total.evidence : whole(d));
       continue;
     }
     evidence.push(total.evidence);
@@ -39,7 +43,6 @@ export function totalsSum(
     });
     if (Math.abs(diff) > cents(params.tolerance)) bad.push(`${d.file_name}: ${fmt(diff, cur)}`);
   }
-  if (!evidence.length) return NA("Yoxlanacaq sənəd yoxdur.");
   if (bad.length)
     return verdict("FAIL", `Sətir cəmi yekundan fərqlidir — ${bad.join("; ")}.`, evidence, {
       documents,
@@ -62,8 +65,9 @@ export function dateWithinPeriod(
   const evidence: EvidenceRef[] = [];
   const bound = (b: Bound): string | null => {
     if (typeof b === "string") return b;
-    const d = docsOf(p, b.document_type)[0];
-    const r = d ? read(d, b.field) : null;
+    // a bound must be unambiguous: one document of its type, or the result would depend on order
+    const docs = docsOf(p, b.document_type);
+    const r = docs.length === 1 ? read(docs[0]!, b.field) : null;
     if (r?.status !== "ok") return null;
     evidence.push(r.evidence);
     return String(r.value);
@@ -106,7 +110,7 @@ export function amountWithinLimit(
   );
   if (values.some(({ r }) => r.status !== "ok"))
     return verdict("UNKNOWN", "Məbləğ oxunmayıb.", evidence, {});
-  if (values.some(({ doc }) => (doc.fields.currency ?? p.currency) !== currency))
+  if (values.some(({ doc }) => currencyOf(doc) !== currency))
     return verdict(
       "UNKNOWN",
       `Limit ${currency}-dədir; fərqli valyutalı məbləğ çevrilmir.`,

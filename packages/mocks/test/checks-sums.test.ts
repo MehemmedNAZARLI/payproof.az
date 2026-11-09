@@ -20,6 +20,19 @@ describe("check library: line totals and date periods", () => {
     expect(v.message).toContain("-1.00 AZN");
   });
 
+  it("totals_sum: an unread total, an empty table or an unread currency is UNKNOWN, never NA", () => {
+    const params = rs.checks.find((c) => c.id === "U-04")!.parameters as never;
+    const p = pkg();
+    invoice(p).unreadable = ["total"];
+    invoice(p).fields.total = null;
+    invoice(p).tables.lines = [];
+    expect(f.totalsSum(p, params)).toMatchObject({ outcome: "UNKNOWN" });
+    expect(f.totalsSum(p, params).evidence.length).toBeGreaterThan(0);
+    const q = pkg();
+    invoice(q).fields.currency = null;
+    expect(f.totalsSum(q, params).outcome).toBe("UNKNOWN");
+  });
+
   it("date_within_period: bounds from the bank statement; outside dates fail", () => {
     const params = rs.checks.find((c) => c.id === "U-05")!.parameters as never;
     expect(f.dateWithinPeriod(pkg(), params).outcome).toBe("PASS");
@@ -30,6 +43,9 @@ describe("check library: line totals and date periods", () => {
     const q = pkg();
     q.documents.find((d) => d.type === "bank_statement")!.unreadable = ["period_end"];
     expect(f.dateWithinPeriod(q, params).outcome).toBe("UNKNOWN");
+    const two = pkg();
+    two.documents.push({ ...two.documents.find((d) => d.type === "bank_statement")!, id: "b2" });
+    expect(f.dateWithinPeriod(two, params).outcome).toBe("UNKNOWN"); // ambiguous bound
   });
 });
 
@@ -53,5 +69,8 @@ describe("check library: spending limit", () => {
     const p = pkg();
     invoice(p).fields.currency = "USD";
     expect(f.amountWithinLimit(p, params).outcome).toBe("UNKNOWN");
+    const q = pkg();
+    invoice(q).fields.currency = null; // not read — not assumed to be the package currency
+    expect(f.amountWithinLimit(q, params).outcome).toBe("UNKNOWN");
   });
 });
