@@ -15,11 +15,11 @@ function Harness() {
       <BottomSheet
         open={open}
         onClose={() => setOpen(false)}
-        title="Vahid qiymət uyğunluğu"
-        description="R-005 · Uyğunsuz"
-        footer={<button onClick={() => setOpen(false)}>Hazırdır</button>}
+        title="Unit price match"
+        description="R-005 · Failed"
+        footer={<button onClick={() => setOpen(false)}>Readydır</button>}
       >
-        <a href="#evidence">Mənbə sübutu</a>
+        <a href="#evidence">Source evidence</a>
       </BottomSheet>
     </>
   );
@@ -30,7 +30,7 @@ const openSheet = () => {
   const trigger = screen.getByRole("button", { name: "R-005-ə bax" });
   trigger.focus();
   fireEvent.click(trigger);
-  return { trigger, dialog: screen.getByRole("dialog", { name: "Vahid qiymət uyğunluğu" }) };
+  return { trigger, dialog: screen.getByRole("dialog", { name: "Unit price match" }) };
 };
 
 const closed = () => waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
@@ -44,7 +44,7 @@ describe("BottomSheet", () => {
   it("opens as a labelled modal dialog and takes focus", () => {
     const { dialog } = openSheet();
     expect(dialog).toHaveAttribute("aria-modal", "true");
-    expect(dialog).toHaveAccessibleDescription("R-005 · Uyğunsuz");
+    expect(dialog).toHaveAccessibleDescription("R-005 · Failed");
     expect(dialog).toHaveFocus();
   });
 
@@ -79,7 +79,7 @@ describe("BottomSheet", () => {
 
   it("closes from the labelled close button", async () => {
     openSheet();
-    fireEvent.click(screen.getByRole("button", { name: "Bağla" }));
+    fireEvent.click(screen.getByRole("button", { name: "Close" }));
     await closed();
   });
 
@@ -91,8 +91,8 @@ describe("BottomSheet", () => {
 
   it("keeps Tab focus inside the sheet", () => {
     const { dialog } = openSheet();
-    const close = screen.getByRole("button", { name: "Bağla" });
-    const last = screen.getByRole("button", { name: "Hazırdır" });
+    const close = screen.getByRole("button", { name: "Close" });
+    const last = screen.getByRole("button", { name: "Readydır" });
     last.focus();
     fireEvent.keyDown(dialog, { key: "Tab" });
     expect(close).toHaveFocus();
@@ -131,7 +131,7 @@ describe("BottomSheet swipe-down", () => {
 
   it("treats a tap on the close button as a tap, not a drag", async () => {
     openSheet();
-    const close = screen.getByRole("button", { name: "Bağla" });
+    const close = screen.getByRole("button", { name: "Close" });
     fireEvent.pointerDown(close, { pointerId: 1, isPrimary: true, button: 0, clientY: 50 });
     fireEvent.pointerUp(close, { pointerId: 1, isPrimary: true, clientY: 51 });
     fireEvent.click(close);
@@ -140,7 +140,7 @@ describe("BottomSheet swipe-down", () => {
 
   it("ignores a grab while the sheet is already closing", async () => {
     const { dialog } = openSheet();
-    fireEvent.click(screen.getByRole("button", { name: "Bağla" }));
+    fireEvent.click(screen.getByRole("button", { name: "Close" }));
     swipe(handleOf(dialog), -80);
     await closed();
     expect(document.documentElement.style.overflow).toBe("");
@@ -165,11 +165,11 @@ describe("BottomSheet pages", () => {
       <BottomSheet
         open
         onClose={() => {}}
-        title={page === "check" ? "R-005" : "Faktura · v1"}
+        title={page === "check" ? "R-005" : "Invoice · v1"}
         page={page}
         direction={page === "doc" ? "push" : "pop"}
         size={page === "doc" ? "large" : "auto"}
-        leading={page === "doc" && <button onClick={() => setPage("check")}>Geri</button>}
+        leading={page === "doc" && <button onClick={() => setPage("check")}>Back</button>}
       >
         {page === "check" ? (
           <button onClick={() => setPage("doc")}>Mənbəyə bax</button>
@@ -186,11 +186,11 @@ describe("BottomSheet pages", () => {
     const first = pageOf(screen.getByRole("button", { name: "Mənbəyə bax" }));
     first.scrollTop = 120;
     fireEvent.click(screen.getByRole("button", { name: "Mənbəyə bax" }));
-    expect(screen.getByRole("dialog", { name: "Faktura · v1" })).toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: "Invoice · v1" })).toBeInTheDocument();
     const doc = pageOf(screen.getByText("Sənəd"));
     expect(doc).not.toBe(first);
     expect(doc.style.animation).toMatch(/sheet-push$/);
-    fireEvent.click(screen.getByRole("button", { name: "Geri" }));
+    fireEvent.click(screen.getByRole("button", { name: "Back" }));
     const back = pageOf(screen.getByRole("button", { name: "Mənbəyə bax" }));
     expect(back.style.animation).toMatch(/sheet-pop$/);
     expect(back.scrollTop).toBe(0);

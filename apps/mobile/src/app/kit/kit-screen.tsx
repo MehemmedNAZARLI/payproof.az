@@ -26,7 +26,7 @@ export function KitScreen() {
     <>
       <AppHeader
         large
-        title="UI dəsti"
+        title="UI kit"
         subtitle={
           me ? `${me.full_name} · ${t.role[me.role]} · ${me.company.name}` : t.common.loading
         }
@@ -45,21 +45,21 @@ export function KitScreen() {
       <BottomSheet
         open={sheetOpen}
         onClose={close}
-        title="Vahid qiymət uyğunluğu"
+        title="Unit price match"
         description="R-005 · INV-1044"
         footer={
           <Button block size="lg" variant="secondary" onClick={close}>
-            Bağla
+            Close
           </Button>
         }
       >
         <CheckOutcomeBadge outcome="FAIL" />
         <p className="text-text-2 mt-3 text-footnote leading-relaxed">
-          Fakturada GY-1L üçün vahid qiymət 9,50 AZN, təsdiqlənmiş sifarişdə isə 9,00 AZN-dir. Fərq
+          Invoiceda GY-1L üçün vahid qiymət 9,50 AZN, təsdiqlənmiş sifarişdə isə 9,00 AZN-dir. Fərq
           tolerantlıqdan (0,01 AZN) böyükdür.
         </p>
         <p className="text-text-3 mt-4 text-caption">
-          Vərəqi aşağı sürüşdürərək, kənara toxunaraq və ya Esc ilə bağlayın.
+          Swipe down, tap outside, or press Escape to close.
         </p>
       </BottomSheet>
       <TabBar notificationCount={UNREAD} />

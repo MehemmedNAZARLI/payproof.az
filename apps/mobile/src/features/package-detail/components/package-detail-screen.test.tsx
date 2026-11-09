@@ -37,62 +37,62 @@ describe("PackageDetailScreen", () => {
     open(1042);
     expect(await screen.findByRole("heading", { level: 1, name: "INV-1042" })).toBeVisible();
     expect(screen.getByText("12.000,00 AZN")).toBeVisible();
-    expect(screen.getByText("Sifariş seçimi gözlənilir")).toBeVisible();
-    const checks = within(screen.getByRole("list", { name: "Yoxlamalar" })).getAllByRole(
+    expect(screen.getByText("Order selection pending")).toBeVisible();
+    const checks = within(screen.getByRole("list", { name: "Checks" })).getAllByRole(
       "listitem",
     );
     expect(checks).toHaveLength(9);
-    expect(checks[0]).toHaveTextContent("R-001 · Uyğunsuz");
-    const docs = within(screen.getByRole("list", { name: "Sənədlər" }));
-    expect(docs.getByText("Faktura · v1")).toBeVisible();
-    expect(docs.getByText("Təhvil sənədi yoxdur")).toBeVisible();
-    expect(screen.getByText("Təsdiq mümkün deyil")).toBeVisible();
-    expect(screen.getByText(/3 bloklayan problem/)).toHaveTextContent("R-001, R-002, R-007");
+    expect(checks[0]).toHaveTextContent("R-001 · Failed");
+    const docs = within(screen.getByRole("list", { name: "Documents" }));
+    expect(docs.getByText("Invoice · v1")).toBeVisible();
+    expect(docs.getByText("Delivery document missing")).toBeVisible();
+    expect(screen.getByText("Approval unavailable")).toBeVisible();
+    expect(screen.getByText(/3 issues problem/)).toHaveTextContent("R-001, R-002, R-007");
   });
 
   it("offers approval to the approver of a ready package and makes the operator wait", async () => {
     open(1038);
-    expect(await screen.findByRole("button", { name: "Sübutlara baxıb təsdiqlə" })).toBeVisible();
+    expect(await screen.findByRole("button", { name: "Review evidence and approve" })).toBeVisible();
     open(1038, "u1");
-    expect(await screen.findByText("Təsdiqçi gözlənilir")).toBeVisible();
+    expect(await screen.findByText("Awaiting approver")).toBeVisible();
   });
 
   it("locks approval plainly while offline", async () => {
     open(1038);
-    await screen.findByRole("button", { name: "Sübutlara baxıb təsdiqlə" });
+    await screen.findByRole("button", { name: "Review evidence and approve" });
     vi.spyOn(navigator, "onLine", "get").mockReturnValue(false);
     act(() => void window.dispatchEvent(new Event("offline")));
-    const button = await screen.findByRole("button", { name: "Sübutlara baxıb təsdiqlə" });
+    const button = await screen.findByRole("button", { name: "Review evidence and approve" });
     expect(button).toBeDisabled();
     expect(button).toHaveAccessibleDescription(
-      "İnternet bağlantısı yoxdur — təsdiq oflayn mümkün deyil.",
+      "No internet connection. Approval requires you to be online.",
     );
   });
 
   it("lists only open tasks, read-only", async () => {
     open(1044);
-    const tasks = within(await screen.findByRole("list", { name: "Açıq tapşırıqlar" }));
-    expect(tasks.getByText("T-118 · Qiymət fərqi")).toBeVisible();
+    const tasks = within(await screen.findByRole("list", { name: "Open tasks" }));
+    expect(tasks.getByText("T-118 · Price mismatch")).toBeVisible();
     expect(tasks.queryByRole("button")).toBeNull();
   });
 
   it("names the current approver and sends export to the web", async () => {
     open(1035);
-    expect(await screen.findByText("Veb tətbiqdə ixrac et")).toHaveAttribute(
+    expect(await screen.findByText("Export on web")).toHaveAttribute(
       "href",
       expect.stringMatching(/\/packages\/0193a000-0000-7000-8002-000000001035$/),
     );
-    expect(screen.getByText(/Təsdiqləyən:/)).toBeVisible();
+    expect(screen.getByText(/Approved by:/)).toBeVisible();
   });
 
   it("hides checks while the invoice is being read", async () => {
     open(1050);
-    expect(await screen.findByText("Emal olunur", { selector: "h3" })).toBeVisible();
-    expect(screen.queryByRole("list", { name: "Yoxlamalar" })).toBeNull();
+    expect(await screen.findByText("Processing", { selector: "h3" })).toBeVisible();
+    expect(screen.queryByRole("list", { name: "Checks" })).toBeNull();
   });
 
   it("says when a package does not exist", async () => {
     open(9999);
-    expect(await screen.findByRole("heading", { level: 1, name: "Paket tapılmadı" })).toBeVisible();
+    expect(await screen.findByRole("heading", { level: 1, name: "Package not found" })).toBeVisible();
   });
 });

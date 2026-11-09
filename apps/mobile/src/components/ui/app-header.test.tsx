@@ -22,16 +22,16 @@ describe("collapseProgress", () => {
 
 describe("AppHeader", () => {
   it("exposes the large title as the only page heading", () => {
-    render(<AppHeader large title="Paketlər" subtitle="14 paket" />);
+    render(<AppHeader large title="Packages" subtitle="14 packages" />);
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-    expect(screen.getByRole("heading", { level: 1, name: "Paketlər" })).toBeVisible();
-    expect(screen.getByText("14 paket")).toBeVisible();
+    expect(screen.getByRole("heading", { level: 1, name: "Packages" })).toBeVisible();
+    expect(screen.getByText("14 packages")).toBeVisible();
   });
 
   it("puts the title in the bar and offers a labelled back link on detail screens", () => {
     render(<AppHeader title="INV-1038" back={{ href: "/packages" }} />);
     expect(screen.getByRole("heading", { level: 1, name: "INV-1038" })).toBeVisible();
-    expect(screen.getByRole("link", { name: "Geri" })).toHaveAttribute("href", "/packages");
+    expect(screen.getByRole("link", { name: "Back" })).toHaveAttribute("href", "/packages");
   });
 
   it("shows a detail subtitle under the compact title", () => {
@@ -41,17 +41,17 @@ describe("AppHeader", () => {
   });
 
   it("starts with a transparent bar", () => {
-    render(<AppHeader large title="Əsas" />);
+    render(<AppHeader large title="Home" />);
     expect(screen.getByRole("banner").style.getPropertyValue("--p")).toBe("0");
   });
 
   it("says when it is showing saved data because the device is offline", () => {
-    render(<AppHeader title="Paketlər" />);
+    render(<AppHeader title="Packages" />);
     const status = screen.getByRole("status");
     expect(status).toBeEmptyDOMElement();
     const online = vi.spyOn(navigator, "onLine", "get").mockReturnValue(false);
     act(() => void window.dispatchEvent(new Event("offline")));
-    expect(status).toHaveTextContent("Oflayn — son yüklənən məlumat göstərilir");
+    expect(status).toHaveTextContent("Offline · showing last loaded data");
     online.mockReturnValue(true);
     act(() => void window.dispatchEvent(new Event("online")));
     expect(status).toBeEmptyDOMElement();

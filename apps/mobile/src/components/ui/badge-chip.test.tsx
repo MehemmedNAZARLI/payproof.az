@@ -7,14 +7,14 @@ import { Chip } from "./chip";
 describe("status badges", () => {
   it("label package statuses in Azerbaijani with the status tone", () => {
     render(<PackageStatusBadge status="READY_FOR_APPROVAL" />);
-    const badge = screen.getByText("Təsdiq gözləyir");
+    const badge = screen.getByText("Awaiting approval");
     expect(badge).toHaveClass("bg-accent-soft");
     expect(badge.querySelector("svg")).not.toBeNull();
   });
 
   it("never shows UNKNOWN as passed", () => {
     render(<CheckOutcomeBadge outcome="UNKNOWN" />);
-    expect(screen.getByText("Naməlum")).toHaveClass("bg-warning-soft");
+    expect(screen.getByText("Unknown")).toHaveClass("bg-warning-soft");
   });
 
   it("label task statuses", () => {
@@ -28,16 +28,16 @@ describe("Chip", () => {
     const onClick = vi.fn();
     render(
       <Chip pressed={false} count={4} onClick={onClick}>
-        Problemli
+        Needs attention
       </Chip>,
     );
-    const chip = screen.getByRole("button", { name: "Problemli 4", pressed: false });
+    const chip = screen.getByRole("button", { name: "Needs attention 4", pressed: false });
     fireEvent.click(chip);
     expect(onClick).toHaveBeenCalledOnce();
   });
 
   it("marks the selected filter as pressed", () => {
-    render(<Chip pressed>Hamısı</Chip>);
-    expect(screen.getByRole("button", { name: "Hamısı" })).toHaveAttribute("aria-pressed", "true");
+    render(<Chip pressed>All</Chip>);
+    expect(screen.getByRole("button", { name: "All" })).toHaveAttribute("aria-pressed", "true");
   });
 });
