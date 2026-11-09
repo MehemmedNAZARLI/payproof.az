@@ -5,8 +5,6 @@ import { loginText } from "@payproof/api-client/i18n";
 export const brand = {
   /** --bg (light) */
   backgroundLight: "#f5f6fa",
-  /** --bg (dark) */
-  backgroundDark: "#05060a",
 } as const;
 
 export const appName = loginText.brand;

@@ -17,8 +17,7 @@ function tokenIn(selector: string, name: string): string | undefined {
 }
 
 describe("brand colours mirror design tokens", () => {
-  it("backgrounds are --bg in light and dark", () => {
+  it("background is --bg", () => {
     expect(brand.backgroundLight).toBe(tokenIn(":root", "bg"));
-    expect(brand.backgroundDark).toBe(tokenIn(':root:not([data-theme="light"])', "bg"));
   });
 });

@@ -18,7 +18,7 @@ async function axe(page: Page, label: string) {
   expect(summary).toEqual([]);
 }
 
-for (const scheme of ["light", "dark"] as const)
+for (const scheme of ["light"] as const)
   test(`no axe violations on any screen (${scheme})`, async ({ page }) => {
     await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });
     await page.goto("/login");

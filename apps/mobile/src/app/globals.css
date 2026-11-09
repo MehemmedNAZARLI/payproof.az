@@ -51,12 +51,6 @@
   --skel-base: var(--surface-2);
   --skel-band: color-mix(in srgb, var(--surface-2), var(--surface) 80%);
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --material: color-mix(in srgb, var(--bg) 72%, transparent);
-    --skel-band: color-mix(in srgb, var(--surface-2), var(--text) 8%);
-  }
-}
 
 /* Custom properties are not validated, so the fallback for Safari < 17.2 needs its own block. */
 @supports not (transition-timing-function: linear(0, 1)) {
@@ -206,11 +200,6 @@
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      color-scheme: dark;
-    }
   }
   html,
   body {

@@ -36,11 +36,3 @@ test("is installable: manifest, service worker, no Chrome installability errors"
   expect(installabilityErrors).toEqual([]);
 });
 
-test("follows the OS light/dark preference", async ({ page }) => {
-  const bodyBg = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-  await page.emulateMedia({ colorScheme: "light" });
-  await page.goto("/");
-  const light = await bodyBg();
-  await page.emulateMedia({ colorScheme: "dark" });
-  expect(await bodyBg()).not.toBe(light);
-});
