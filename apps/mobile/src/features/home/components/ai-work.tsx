@@ -86,7 +86,7 @@ export function AiWork() {
         </dl>
         <p className="text-hero-text2 mt-5 border-t border-white/15 pt-3 text-footnote">
           {complete
-            ? `${loaded.filter((p) => p.status === "APPROVED_READY").length} packages ready to send · ${loaded.reduce((n, p) => n + p.summary.unknown, 0)} checks unknown`
+            ? `${loaded.filter((p) => p.status === "APPROVED_READY").length} ready to send · ${loaded.reduce((n, p) => n + p.summary.unknown, 0)} checks unknown`
             : "Loading document work…"}
         </p>
         <p className="text-hero-text2 mt-1 text-caption">

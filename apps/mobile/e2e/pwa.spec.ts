@@ -30,15 +30,15 @@ test("reopens offline with the last loaded list and detail, read-only", async ({
   await context.setOffline(true);
   await page.reload();
   await expect(page.getByRole("heading", { level: 1, name: "INV-1038" })).toBeVisible();
-  await expect(page.getByRole("status").filter({ hasText: "Oflayn" })).toBeVisible();
+  await expect(page.getByRole("status").filter({ hasText: "Offline" })).toBeVisible();
   const approve = page.getByRole("button", { name: "Review evidence and approve" });
   await expect(approve).toBeDisabled();
-  await expect(page.getByText("Approval requires you to be online")).toBeVisible();
+  await expect(page.getByText(/Approval requires you to be online/)).toBeVisible();
 
   await page.goto("/packages");
   await expect(rows(page)).toHaveCount(14);
   await context.setOffline(false);
-  await expect(page.getByRole("status").filter({ hasText: "Oflayn" })).toHaveCount(0);
+  await expect(page.getByRole("status").filter({ hasText: "Offline" })).toHaveCount(0);
   expect(errors.filter((e) => !/ERR_INTERNET_DISCONNECTED|Failed to fetch/.test(e))).toEqual([]);
 });
 

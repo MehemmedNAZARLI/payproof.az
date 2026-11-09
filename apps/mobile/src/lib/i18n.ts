@@ -90,7 +90,7 @@ export const t = {
       awaitingTitle: "Awaiting approver",
       awaitingBody: "Only an approver can approve a ready package.",
       blockedTitle: "Approval unavailable",
-      blockedBody: (n: number) => `${n} blocking issues:`,
+      blockedBody: (n: number) => `${n} blocking ${n === 1 ? "issue" : "issues"}:`,
       exportOnWeb: "Export on web",
       readyTitle: "Package ready to send",
       readyBody: "Fill and export the form in the web app.",

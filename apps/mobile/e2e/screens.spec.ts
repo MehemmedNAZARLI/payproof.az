@@ -19,6 +19,8 @@ test("keeps search and filter in the URL across a reload", async ({ page }) => {
   await expect(page).toHaveURL("/packages?status=problem&q=restoran");
   const rows = page.getByRole("list", { name: "Packages" }).getByRole("listitem");
   await expect(rows.first()).toContainText("C Restoran Qrupu");
+  // keepPreviousData may still show the old page while the URL has already changed.
+  await expect(rows.filter({ hasNotText: "C Restoran Qrupu" })).toHaveCount(0);
   const count = await rows.count();
   await page.reload();
   await expect(rows).toHaveCount(count);

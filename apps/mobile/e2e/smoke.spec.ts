@@ -33,5 +33,6 @@ test("is installable: manifest, service worker, no Chrome installability errors"
 
   const cdp = await context.newCDPSession(page);
   const { installabilityErrors } = await cdp.send("Page.getInstallabilityErrors");
-  expect(installabilityErrors).toEqual([]);
+  // Playwright's isolated context is incognito. Assert every application-related requirement.
+  expect(installabilityErrors.filter((error) => error.errorId !== "in-incognito")).toEqual([]);
 });
