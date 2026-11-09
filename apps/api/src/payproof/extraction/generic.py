@@ -12,9 +12,9 @@ from typing import Any
 from payproof.domain.enums import Currency
 from payproof.extraction.base import InvalidExtraction
 
-MONEY = re.compile(r"^(0|[1-9][0-9]{0,15})\.[0-9]{2}$")  # NUMERIC(18,2), unsigned
-INTEGER = re.compile(r"^-?[0-9]{1,18}$")
-DECIMAL = re.compile(r"^-?[0-9]{1,15}(\.[0-9]{1,3})?$")
+MONEY = re.compile(r"^(0|[1-9][0-9]{0,15})\.[0-9]{2}\Z")  # NUMERIC(18,2), unsigned
+INTEGER = re.compile(r"^-?[0-9]{1,18}\Z")
+DECIMAL = re.compile(r"^-?[0-9]{1,15}(\.[0-9]{1,3})?\Z")
 PARTY_PARTS = {"name", "tax_id", "id_number"}
 MAX_QUOTE = 500
 

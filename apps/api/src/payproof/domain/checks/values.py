@@ -9,7 +9,7 @@ from decimal import Decimal
 from typing import Any
 
 Json = dict[str, Any]
-MONEY = re.compile(r"^-?(0|[1-9][0-9]*)\.[0-9]{2}$")
+MONEY = re.compile(r"^-?(0|[1-9][0-9]*)\.[0-9]{2}\Z")
 
 
 def amount(value: str) -> Decimal:

@@ -4,9 +4,9 @@ import re
 from collections.abc import Callable, Iterator
 from typing import Any
 
-MONEY = re.compile(r"^-?(0|[1-9][0-9]*)\.[0-9]{2}$")
-DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
-CHECK_ID = re.compile(r"^[A-Z]{1,4}-[0-9]{2,3}$")
+MONEY = re.compile(r"^-?(0|[1-9][0-9]*)\.[0-9]{2}\Z")
+DATE = re.compile(r"^\d{4}-\d{2}-\d{2}\Z")
+CHECK_ID = re.compile(r"^[A-Z]{1,4}-[0-9]{2,3}\Z")
 PARTY_PARTS = {"name", "tax_id", "id_number"}
 CURRENCIES = {"AZN", "USD"}
 TXN_COLUMNS = ("date", "amount", "direction", "counterparty")

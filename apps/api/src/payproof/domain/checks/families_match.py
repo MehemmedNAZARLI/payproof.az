@@ -30,6 +30,10 @@ class Txn:
     c: Decimal
     date: str
     counterparty: str
+    currency: str
+
+
+DIRECTIONS = ("debit", "credit")
 
 
 @dataclass(frozen=True, eq=False)
@@ -39,6 +43,7 @@ class Src:
     c: Decimal
     date: str
     cp: str
+    currency: str
     evidence: list[Json]
 
 
@@ -55,12 +60,16 @@ def _unread_rows(p: Json, against: list[Json]) -> list[Json]:
     out: list[Json] = []
     for a in against:
         for doc in docs_of(p, a["document_type"]):
-            if a["list"] in doc["unreadable"]:
+            # a statement without a read currency cannot pay anything in a known currency
+            if a["list"] in doc["unreadable"] or not currency_of(doc):
                 out.append(whole(doc))
                 continue
             for i, row in enumerate(doc["tables"].get(a["list"]) or []):
-                if (not isinstance(row.get("amount"), str) or not isinstance(row.get("date"), str)
-                        or not row.get("direction")):  # fmt: skip
+                direction = js_str(row.get("direction", "undefined"))
+                unread = not isinstance(row.get("amount"), str) or not isinstance(
+                    row.get("date"), str
+                )
+                if unread or direction not in DIRECTIONS:
                     out.append(cite(doc, f"{a['list']}[{i}]") or whole(doc))
     return out
 
@@ -74,6 +83,7 @@ def _txns(p: Json, params: Json) -> list[Txn]:
             amount(row["amount"]),
             js_str(row.get("date", "undefined")),
             js_str(row.get("counterparty", "undefined")),
+            currency_of(doc) or "",
         )
         for a in params["against"]
         for doc in docs_of(p, a["document_type"])
@@ -89,10 +99,12 @@ def _sources(p: Json, s: Json) -> list[Src]:
     out = []
     for doc in docs_of(p, s["document_type"]):
         reads = [read(doc, f) for f in fields]
-        ok = all(r.status == "ok" for r in reads)
+        currency = currency_of(doc)
+        ok = all(r.status == "ok" for r in reads) and currency is not None
         amt, date, cp = (js_str(r.value) if r.status == "ok" else "" for r in reads)
         evidence = [cite(doc, f.split(".")[0]) or whole(doc) for f in fields]
-        out.append(Src(doc, ok, amount(amt) if ok else Decimal("0.00"), date, cp, evidence))
+        c = amount(amt) if ok else Decimal("0.00")
+        out.append(Src(doc, ok, c, date, cp, currency or "", evidence))
     return out
 
 
@@ -131,8 +143,10 @@ def transaction_match(p: Json, params: Json, _: Any = None) -> Json:
     ignore = params["counterparty"] == "ignore"
 
     def fits(src: Src, t: Txn) -> bool:
+        # AZN and USD are never compared: a transaction pays a document only in its own currency
         days = days_between(src.date, t.date)
-        return (abs(t.c - src.c) <= tol and days is not None and 0 <= days <= window
+        return (t.currency == src.currency and abs(t.c - src.c) <= tol
+                and days is not None and 0 <= days <= window
                 and (ignore or same_counterparty(src.cp, t.counterparty)))  # fmt: skip
 
     paired, used = _pair(sources, txns, fits)
@@ -154,7 +168,7 @@ def transaction_match(p: Json, params: Json, _: Any = None) -> Json:
         elif any(id(x) not in used and fits(src, x) for x in txns):
             ambiguous.append(src.doc["id"])
         else:
-            candidates = [x for x in txns if id(x) not in used
+            candidates = [x for x in txns if id(x) not in used and x.currency == src.currency
                           and (ignore or same_counterparty(src.cp, x.counterparty))]  # fmt: skip
             near = min(candidates, key=lambda x: (abs(x.c - src.c), x.date), default=None)
             nearest = None

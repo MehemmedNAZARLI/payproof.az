@@ -18,7 +18,8 @@ from payproof.domain.checks.values import (
 def _value(p: Json, s: Json, approval: Json | None) -> str | None:
     kind = s["kind"]
     if kind == "package":
-        return str(p["reference"])
+        ref = p.get("reference")
+        return None if ref is None else js_str(ref)
     if kind == "approval":
         return None if approval is None else approval.get(s["value"])
     docs = docs_of(p, s["document_type"])
