@@ -112,7 +112,8 @@ async def create_task(
         object_type="task", object_id=task.id, package=pkg,
     )  # fmt: skip
     if new.assignee_id != actor_id:
-        text = f"Yeni tapşırıq {task.number}: {pkg.invoice_number} — {TITLES[task.rule_id]}"
+        name, title = pkg.invoice_number or pkg.reference, TITLES.get(task.rule_id, task.rule_id)
+        text = f"Yeni tapşırıq {task.number}: {name} — {title}"
         await notify(session, pkg, new.assignee_id, role, text)
     await session.commit()
     return task

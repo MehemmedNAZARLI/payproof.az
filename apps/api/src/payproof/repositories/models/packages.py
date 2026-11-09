@@ -12,6 +12,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     false,
+    func,
     text,
 )
 from sqlalchemy.orm import Mapped, mapped_column
@@ -89,3 +90,7 @@ class InvoicePackage(TenantEntity, Base):
     processing: Mapped[bool] = mapped_column(Boolean, server_default=false())
     problem_since: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))
     deleted_at: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+# what lists show as the package's name: the invoice number, or a configured package's reference
+PACKAGE_NAME = func.coalesce(InvoicePackage.invoice_number, InvoicePackage.reference)

@@ -63,3 +63,14 @@ async def test_invoice_list_and_dashboard_leave_configured_packages_out(
     assert page["total_count"] == 14
     detail = await client.get(f"/v1/packages/{uid('unec_0914')}", headers=auth("u2"))
     assert detail.status_code == 404  # PackageDetail is invoice-shaped (known limitation)
+
+
+async def test_lists_name_configured_packages_by_their_reference(
+    client: httpx.AsyncClient, seeded: AsyncSession, auth: Auth
+) -> None:
+    page = (await client.get(f"/v1/audit?package_id={uid('unec_0914')}", headers=auth("u2"))).json()
+    assert page["items"] and {e["package"]["invoice_number"] for e in page["items"]} == {
+        "QR-2026-0914"
+    }
+    found = (await client.get("/v1/audit?q=QR-2026-0927", headers=auth("u2"))).json()["items"]
+    assert found and found[0]["package"]["invoice_number"] == "QR-2026-0927"
