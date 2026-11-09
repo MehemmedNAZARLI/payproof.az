@@ -61,3 +61,27 @@ class OutputTemplate(TenantEntity, Base):
     storage_key: Mapped[str] = mapped_column(Text, unique=True)
     placeholders: Mapped[list[str]] = mapped_column(ARRAY(Text))
     uploaded_by: Mapped[uuid.UUID] = mapped_column()
+
+
+class GenericExtraction(TenantEntity, Base):
+    """ADR-0011: what extraction read from one document version of a configured package, in the
+    registry shape of the type version it was read with. Every value has a source in `evidence`
+    (`field` or `table[i]` → page + quote); unread top-level keys are listed and null."""
+
+    __tablename__ = "generic_extractions"
+    __table_args__ = (
+        same_tenant_fk("document_version_id", "document_versions"),
+        CheckConstraint("document_type_version >= 1", name="type_version_positive"),
+        CheckConstraint("jsonb_typeof(fields) = 'object'", name="fields_is_object"),
+        CheckConstraint("jsonb_typeof(tables) = 'object'", name="tables_is_object"),
+        CheckConstraint("jsonb_typeof(evidence) = 'object'", name="evidence_is_object"),
+    )
+
+    document_version_id: Mapped[uuid.UUID] = mapped_column(unique=True)
+    document_type: Mapped[str] = mapped_column(Text)
+    document_type_version: Mapped[int] = mapped_column(Integer)
+    fields: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    unreadable: Mapped[list[str]] = mapped_column(ARRAY(Text))
+    tables: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    evidence: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    source: Mapped[str] = mapped_column(Text)  # mock | pdf | anthropic | openai | seed

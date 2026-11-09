@@ -4,7 +4,11 @@
 from payproof.repositories import base as _tenant_guard  # noqa: F401
 from payproof.repositories.models.approvals import ApprovalRecord, ExportRecord
 from payproof.repositories.models.audit import AuditEvent
-from payproof.repositories.models.config import DocumentTypeEntry, OutputTemplate
+from payproof.repositories.models.config import (
+    DocumentTypeEntry,
+    GenericExtraction,
+    OutputTemplate,
+)
 from payproof.repositories.models.customers import Customer, RequirementSet
 from payproof.repositories.models.documents import Document, DocumentVersion
 from payproof.repositories.models.extraction import (
@@ -37,6 +41,7 @@ __all__ = [
     "ExtractedField",
     "ExtractedInvoice",
     "ExtractedInvoiceLine",
+    "GenericExtraction",
     "IdempotencyKey",
     "InvoicePackage",
     "Job",

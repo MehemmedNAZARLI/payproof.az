@@ -45,6 +45,15 @@ class InvoicePackage(TenantEntity, Base):
             unique=True,
             postgresql_where=text("deleted_at IS NULL"),
         ),
+        # ADR-0011 configured packages are named by a reference ("QR-2026-0914")
+        Index(
+            "uq_invoice_packages_live_reference",
+            "company_id",
+            "customer_id",
+            "reference",
+            unique=True,
+            postgresql_where=text("deleted_at IS NULL AND reference IS NOT NULL"),
+        ),
         tenant_key(),
         UniqueConstraint("id", "customer_id", "company_id"),  # validation runs pin the customer
         same_tenant_fk("customer_id", "customers"),
@@ -66,6 +75,9 @@ class InvoicePackage(TenantEntity, Base):
     customer_id: Mapped[uuid.UUID] = mapped_column()
     # NULL until extraction: the package is created from uploaded files (openapi createPackage)
     invoice_number: Mapped[str | None] = mapped_column(Text)
+    # ADR-0011: set on packages of a configured requirement set (no invoice/order link shape);
+    # NULL on invoice packages (legacy profile)
+    reference: Mapped[str | None] = mapped_column(Text)
     currency: Mapped[str | None] = mapped_column(String(3))
     invoice_date: Mapped[dt.date | None] = mapped_column(Date)
     owner_id: Mapped[uuid.UUID] = mapped_column()
