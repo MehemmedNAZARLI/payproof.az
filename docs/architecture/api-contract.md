@@ -82,7 +82,8 @@ Həqiqət mənbəyi: `packages/contracts/openapi.yaml` (S-04). Bu sənəd onun q
 - `RequirementSet` + optional `documents[]` (`DocumentRequirement`), `checks[]` (`CheckConfig`: `id, type, title, parameters`), `output` (`OutputConfig` | null). Legacy dəstlər `invoice 1..1, order 0..1, delivery 0|1..1` və `R-001…R-009` (`type: legacy_rule`) kimi ifadə olunur.
 - `RuleId` = `^[A-Z]{1,4}-[0-9]{2,3}$` (`R-001`, `D-001`, `U-07`); `CheckResult.check_type` — kitabxana ailəsi.
 - `ExportRecord.output` — doldurulmuş şablon, manifest, placeholder dəyərləri, göndərmə statusu. Xəritələnmiş dəyər yoxdursa export `422 VALIDATION_ERROR` + `details.missing_placeholders[]`.
-- **Planlaşdırılıb (backend step-i ilə eyni PR-da, çünki `test_contract_drift` müqavilə = xidmət olunan əməliyyatlar tələb edir):** `GET /v1/document-types`, `GET /v1/check-library`, `POST /v1/customers/{id}/output-templates` (multipart `.docx`), `createRequirementSet` body-sinə `documents/checks/output`.
+- **0.5.0 (B-27…B-30):** `GET /v1/document-types` (reyestrin cari versiyaları; `instructions` serverdə qalır), `GET /v1/check-library`, `POST /v1/customers/{id}/output-templates` (multipart `.docx`, yalnız approver; eyni məzmun → saxlanmış şablon), `createRequirementSet` body-sinə `documents` + `checks` (birlikdə) və `output` — saxlanarkən reyestr, kitabxana və yüklənmiş şablonla yoxlanır (səhv → `422`, `details.fields`). `ExportRecord.files[].type` = `DocumentTypeKey`.
+- Konfiqurasiya olunan paketlər (UNEC) faktura formalı `GET /v1/packages`, `/v1/dashboard` siyahılarına düşmür və `GET /v1/packages/{id}` onlar üçün `404` qaytarır (`PackageDetail` sənəd növü enum-u faktura/sifariş/təhvildir) — ümumi detal UI step-ləri ilə (M-13). Təsdiq və ixrac onlar üçün işləyir.
 
 ## Canlı hadisələr — `GET /v1/events` (ADR-0010)
 - `Authorization: Bearer` header-i ilə (fetch əsaslı klient; token query string-də qəbul edilmir). Tenant yalnız JWT-dən.

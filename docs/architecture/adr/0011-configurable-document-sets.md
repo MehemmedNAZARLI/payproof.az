@@ -65,7 +65,7 @@ AI_BASE_URL=                         # boşdursa provayderin default ünvanı (p
 - Provayder dəyişmək yalnız env-dir; kod, reyestr və qaydalar dəyişmir. Provayder adapteri SDK-nı yalnız `extraction/providers/<ad>.py` daxilində import edir.
 - PDF mətn qatı və CSV/XLSX oxunuşu provayder deyil, ön-emaldır: mətn qatı varsa LLM-ə mətn, yoxdursa şəkil göndərilir. Köhnə `AI_PROVIDER=pdf` keçid dövründə `mock`-dan sonra ilk addım kimi qəbul edilir və sonra silinir (backend step-i).
 - Model ID-si, provayder və prompt versiyası audit metadata-sına yazılır; sənəd mətni log-a yazılmır.
-- Bu gün backend `settings.py` yalnız `mock|pdf|llm` qəbul edir; `anthropic|openai` dəyərləri provayder backend step-i ilə gəlir (o vaxta qədər `AI_PROVIDER=anthropic` başlanğıcda validasiya xətası verir).
+- B-29 (2026-11-09): backend `mock|pdf|anthropic|openai` qəbul edir (`llm` silindi); `anthropic` rəsmi Python SDK ilə (default model `claude-opus-5-5`, structured outputs, server-side fallback), `openai` eyni interfeys arxasında stub-dır. Açarsız `anthropic|openai` başlanğıcda xəta verir. Hər sahə `value + page + quote + confidence`; `AI_MIN_CONFIDENCE`-dən aşağı və ya mənbəsiz dəyər oxunmamış sayılır.
 
 ## Müqavilə (0.4.0, pozucu deyil)
 - `RequirementSet` + optional `documents`, `checks`, `output`; yeni sxemlər `DocumentTypeKey`, `DocumentRequirement`, `CheckConfig`, `OutputConfig`, `PlaceholderMapping`. Sahə istinadı (`{document_type, field}`) ayrıca sxem deyil — `CheckConfig.parameters` daxilindədir və tələb dəsti saxlananda kitabxana ilə yoxlanır.
@@ -76,5 +76,5 @@ AI_BASE_URL=                         # boşdursa provayderin default ünvanı (p
 ## Nəticələr
 - Yeni müştəri dəsti = reyestr qeydi + tələb dəsti; kod yalnız yeni kitabxana ailəsi lazım olanda yazılır.
 - Paket hələ də bir müştəriyə və bir valyutaya bağlıdır; çoxvalyutalı dəst `values_equal(currency)` ilə `FAIL` verir, çevrilmir.
-- Demo: `fixtures/scenarios/unec.json` — UNEC tələbə qrantı hesabatı (2 paket: biri keçir, biri `U-07` ilə `NEEDS_FIX`). UNEC hələ mock store-un müştəri siyahısına əlavə edilmir: paket siyahısı/detal ekranları faktura formalıdır; ümumi paket axını backend + UI step-ləri ilə gəlir.
+- Demo: `fixtures/scenarios/unec.json` — UNEC tələbə qrantı hesabatı (2 paket: biri keçir, biri `U-07` ilə `NEEDS_FIX`). B-27…B-30-dan sonra UNEC (`c3`) `customers.json`-da, mock müştəri siyahısında və seed-dədir; iki hesabat backend-də konfiqurasiya olunan paket kimi saxlanılır və yoxlanılır, lakin faktura formalı siyahı/detal ekranlarında göstərilmir — ümumi paket UI-ı M-13 / veb step-i ilə gəlir. Bayt-bayt paritet: `fixtures/scenarios/unec.mutations.json` → `unec.reference.json` (TS) = Python çıxışı.
 - Risk: konfiqurasiya səhvi (səhv parametr) səhv nəticə verə bilər → tələb dəsti saxlananda parametrlər kitabxana sxemi ilə yoxlanır, dəyişiklik approver təsdiqi və səbəb tələb edir (mövcud axın), hər dəyişiklik paket versiyasını artırır (ADR-0009).
