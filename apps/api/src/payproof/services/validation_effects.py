@@ -69,4 +69,5 @@ async def status_changed(
         )
     )
     amount = f" · {format_money(total)}" if total else ""
-    await notify(session, pkg, approvers, f"{pkg.invoice_number} təsdiqinizi gözləyir{amount}")
+    name = pkg.invoice_number or pkg.reference  # ADR-0011 packages have a reference
+    await notify(session, pkg, approvers, f"{name} təsdiqinizi gözləyir{amount}")

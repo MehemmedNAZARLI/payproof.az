@@ -91,7 +91,7 @@ async def approve(
             session,
             pkg,
             [pkg.owner_id],
-            f"{pkg.invoice_number} {approver.full_name} tərəfindən təsdiqləndi — "
+            f"{pkg.invoice_number or pkg.reference} {approver.full_name} tərəfindən təsdiqləndi — "
             "paket göndərilməyə hazırdır.",
         )
     pkg.problem_since = None
