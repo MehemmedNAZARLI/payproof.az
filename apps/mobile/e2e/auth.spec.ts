@@ -37,7 +37,7 @@ test("signs out and clears the session, the Query cache and the runtime caches",
   page,
 }) => {
   await signIn(page);
-  await page.getByRole("link", { name: "Packages" }).click();
+  await page.getByRole("navigation").getByRole("link", { name: "Packages", exact: true }).click();
   await expect(page.getByRole("list", { name: "Packages" })).toBeVisible();
   // The service worker fills its runtime caches (RSC payloads) as the signed-in user browses.
   await expect
