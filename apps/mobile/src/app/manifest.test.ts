@@ -24,5 +24,4 @@ describe("web app manifest", () => {
     expect(m).toMatchObject({ lang: "en", theme_color: viewport.themeColor });
     expect(m.background_color).toBe(brand.backgroundLight);
   });
-
 });

@@ -130,7 +130,9 @@ describe("approval sheet", () => {
     const sheet = await openSheet();
     fireEvent.click(within(sheet).getByRole("checkbox"));
     fireEvent.click(confirm(sheet));
-    expect(await within(sheet).findByRole("alert")).toHaveTextContent(/Approval requires you to be online/);
+    expect(await within(sheet).findByRole("alert")).toHaveTextContent(
+      /Approval requires you to be online/,
+    );
     fireEvent.click(confirm(sheet));
     await waitFor(() => expect(push).toHaveBeenCalledOnce());
     expect(wire.keys).toHaveLength(2);
@@ -183,7 +185,11 @@ describe("approval sheet", () => {
     expect(within(sheet).getByRole("checkbox")).toBeChecked();
     const key = packageDetailKeys.detail(ID);
     act(() => client.setQueryData<Schemas["PackageDetail"]>(key, (d) => d && { ...d, version: 2 }));
-    await waitFor(() => expect(within(sheet).getByText(/I reviewed the documents and check results for v2/)).toBeVisible());
+    await waitFor(() =>
+      expect(
+        within(sheet).getByText(/I reviewed the documents and check results for v2/),
+      ).toBeVisible(),
+    );
     expect(within(sheet).getByRole("checkbox")).not.toBeChecked();
     expect(within(sheet).getByText("0/3 reviewed")).toBeVisible();
   });
@@ -208,7 +214,11 @@ describe("approval sheet", () => {
     fireEvent.click(confirm(sheet));
     expect(recordedApprovals()).toHaveLength(0);
     // v2 loads by itself; it has to be reviewed again, and the notice stays to say why.
-    await waitFor(() => expect(within(sheet).getByText(/I reviewed the documents and check results for v2/)).toBeVisible());
+    await waitFor(() =>
+      expect(
+        within(sheet).getByText(/I reviewed the documents and check results for v2/),
+      ).toBeVisible(),
+    );
     expect(within(sheet).getByText("0/3 reviewed")).toBeVisible();
     expect(within(sheet).getByRole("alert")).toHaveTextContent("(v2)");
   });
@@ -226,7 +236,9 @@ describe("approval sheet", () => {
     const sheet = await openSheet();
     const online = vi.spyOn(navigator, "onLine", "get").mockReturnValue(false);
     act(() => void window.dispatchEvent(new Event("offline")));
-    expect(within(sheet).getByRole("alert")).toHaveTextContent(/Approval requires you to be online/);
+    expect(within(sheet).getByRole("alert")).toHaveTextContent(
+      /Approval requires you to be online/,
+    );
     expect(confirm(sheet)).toHaveAttribute("aria-disabled", "true");
     online.mockRestore();
   });

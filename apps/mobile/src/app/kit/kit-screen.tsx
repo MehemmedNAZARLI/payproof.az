@@ -55,8 +55,8 @@ export function KitScreen() {
       >
         <CheckOutcomeBadge outcome="FAIL" />
         <p className="text-text-2 mt-3 text-footnote leading-relaxed">
-          GY-1L costs 9,50 AZN on the invoice and 9,00 AZN on the confirmed order.
-          The difference exceeds the 0,01 AZN tolerance.
+          GY-1L costs 9,50 AZN on the invoice and 9,00 AZN on the confirmed order. The difference
+          exceeds the 0,01 AZN tolerance.
         </p>
         <p className="text-text-3 mt-4 text-caption">
           Swipe down, tap outside, or press Escape to close.

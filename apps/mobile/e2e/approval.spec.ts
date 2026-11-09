@@ -22,7 +22,9 @@ async function review(page: Page) {
 test("reviews every document, approves once and shows it everywhere", async ({ page }) => {
   const errors = watchErrors(page);
   await signIn(page);
-  await expect(page.getByRole("link", { name: /Awaiting your approval/ })).toContainText(/2\s*packages/);
+  await expect(page.getByRole("link", { name: /Awaiting your approval/ })).toContainText(
+    /2\s*packages/,
+  );
   await page.goto(`/packages/${ID}`);
   await page.getByRole("button", { name: "Review evidence and approve" }).click();
 
@@ -41,11 +43,13 @@ test("reviews every document, approves once and shows it everywhere", async ({ p
 
   await expect(page).toHaveURL(`/packages/${ID}/success`);
   await expect(page.getByRole("heading", { name: "Package ready to send" })).toBeFocused();
-  await expect(page.getByText(/4\.860,00 AZNinvoice package \(INV-1038, v1\)/)).toBeVisible();
+  await expect(page.getByText(/4\.860,00 AZN invoice package \(INV-1038, v1\)/)).toBeVisible();
   expect(await horizontalOverflow(page)).toBeLessThanOrEqual(0);
 
   await page.getByRole("link", { name: "Back to home" }).click();
-  await expect(page.getByRole("link", { name: /Awaiting your approval/ })).toContainText(/1\s*packages/);
+  await expect(page.getByRole("link", { name: /Awaiting your approval/ })).toContainText(
+    /1\s*packages/,
+  );
   // In the app from here on: the mock DB lives in the page, a reload would start it afresh.
   await page
     .getByRole("list", { name: "Statuses" })
@@ -74,7 +78,9 @@ test("approval says plainly that it needs a connection", async ({ page, context 
   await page.goto(`/packages/${ID}`);
   await page.getByRole("button", { name: "Review evidence and approve" }).click();
   await context.setOffline(true);
-  await expect(sheetOf(page).getByRole("alert")).toContainText("Approval requires you to be online");
+  await expect(sheetOf(page).getByRole("alert")).toContainText(
+    "Approval requires you to be online",
+  );
   await expect(confirm(page)).toHaveAttribute("aria-disabled", "true");
   await context.setOffline(false);
   await expect(sheetOf(page).getByRole("alert")).toHaveCount(0);

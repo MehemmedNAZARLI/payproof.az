@@ -35,4 +35,3 @@ test("is installable: manifest, service worker, no Chrome installability errors"
   const { installabilityErrors } = await cdp.send("Page.getInstallabilityErrors");
   expect(installabilityErrors).toEqual([]);
 });
-

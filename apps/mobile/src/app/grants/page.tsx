@@ -7,5 +7,9 @@ import { env } from "@/lib/env";
 export const metadata = { title: "UNEC student grant" };
 export default function GrantsPage() {
   if (!env.apiMock) notFound();
-  return <SessionGate><GrantsScreen /></SessionGate>;
+  return (
+    <SessionGate>
+      <GrantsScreen />
+    </SessionGate>
+  );
 }
