@@ -28,7 +28,7 @@ describe("PackageResults", () => {
 
   it("shows the error in place only when nothing was loaded yet", () => {
     show(query({ isError: true, error: new ApiError("INTERNAL_ERROR", "Server errorsı.", 500) }));
-    expect(screen.getByText("Server errorsı.")).toBeInTheDocument();
+    expect(screen.getByText("Something went wrong. Try again shortly.")).toBeInTheDocument();
   });
 
   it("keeps the rows in place while a refresh fetches (the pull spinner shows it)", () => {

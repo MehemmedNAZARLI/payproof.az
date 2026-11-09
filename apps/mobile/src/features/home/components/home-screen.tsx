@@ -22,6 +22,7 @@ import { refreshAll } from "@/lib/refresh";
 import { useSession } from "@/lib/session";
 
 import { useDashboard, useRecentActivity } from "../queries";
+import { AiWork } from "./ai-work";
 import { OpenAmounts, RecentActivity, SectionSkeleton } from "./home-sections";
 import { ApprovalHero, StatusTiles, SummarySkeleton } from "./home-summary";
 import { Section } from "./section";
@@ -59,6 +60,7 @@ export function HomeScreen() {
         }
       />
       <main className="px-safe pb-tabbar pull-shift mx-auto max-w-app pt-2">
+        <AiWork />
         {/* Loaded numbers stay on screen if a background refresh fails (a toast reports it). */}
         <Section query={dashboard} skeleton={<SummarySkeleton />}>
           {(data) => (

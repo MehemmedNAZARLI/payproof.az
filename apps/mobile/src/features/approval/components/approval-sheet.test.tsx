@@ -84,7 +84,7 @@ const seeAll = async () => {
   const pkg = await detailOf(ID);
   for (const d of pkg.documents) markSeen(meFor("u2").id, pkg, d.current.id);
 };
-const confirm = (sheet: HTMLElement) => within(sheet).getByRole("button", { name: /Approve/ });
+const confirm = (sheet: HTMLElement) => within(sheet).getByRole("button", { name: /Approv/ });
 
 describe("approval sheet", () => {
   it("locks the acknowledgement and the confirm until every document is seen", async () => {

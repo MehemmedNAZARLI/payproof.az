@@ -35,7 +35,7 @@ describe("NotificationsScreen", () => {
     expect(screen.getAllByText("Unread:")).toHaveLength(2);
     expect(screen.getByText("2 unread")).toBeVisible();
     await waitFor(() => expect(tab()).toHaveAccessibleName("Notifications, 2 unread"));
-    expect(screen.getByText(/Push notifications P2/)).toBeVisible();
+    expect(screen.getByText(/Push notifications are coming soon/)).toBeVisible();
   });
 
   it("opens the package and marks it read in one tap", async () => {
