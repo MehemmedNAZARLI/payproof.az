@@ -47,7 +47,7 @@
   /* Translucent bar material: tinted canvas + blur, like UIKit's system chrome. */
   --material: color-mix(in srgb, var(--bg) 78%, transparent);
   --hairline: var(--separator);
-  /* Skeleton shimmer: a lighter band in light mode, a brighter one in dark. */
+  /* Skeleton shimmer: a lighter band across the loading surface. */
   --skel-base: var(--surface-2);
   --skel-band: color-mix(in srgb, var(--surface-2), var(--surface) 80%);
 }
@@ -236,8 +236,7 @@
   }
 }
 
-/* Hero card (login, home, success): navy in both themes with one soft accent glow, so white
-   text keeps its contrast. A faint top highlight gives the card an edge on the dark canvas. */
+/* Hero card (login, home, success): navy with one soft accent glow, so white text keeps contrast. */
 @utility hero {
   color: #fff;
   background:

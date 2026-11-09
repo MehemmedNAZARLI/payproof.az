@@ -1,6 +1,8 @@
-import { expect, test } from "@playwright/test";
+import { devices, expect, test } from "@playwright/test";
 
 import { horizontalOverflow, signIn } from "./helpers";
+
+test.use({ userAgent: devices["Pixel 7"].userAgent, isMobile: true, hasTouch: true });
 
 for (const width of [360, 390, 430]) {
   for (const inset of [0, 24]) {

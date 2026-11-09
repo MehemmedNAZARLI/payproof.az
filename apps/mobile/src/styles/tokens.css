@@ -1,5 +1,5 @@
 /* PayProof Mobile design system — owned by apps/mobile only (web keeps @payproof/design-tokens).
-   Light/dark follow the OS preference; data-theme="light" pins light (no dark pin today). Every Tailwind colour,
+   The mobile app uses a single light palette. Every Tailwind colour,
    radius, shadow and type size in tailwind.config.ts points at a variable here. */
 
 :root {
@@ -51,14 +51,14 @@
   --av-5: #ffe8ec;
   --av-5t: #a3203d;
 
-  /* Hero (balance-card style): navy in both themes, so its white text keeps contrast. */
+  /* Hero: navy, so its white text keeps contrast. */
   --hero-from: #0b1026;
   --hero-to: #1b2550;
   --hero-glow: rgb(61 90 254 / 0.55);
   --hero-text-2: rgb(255 255 255 / 0.72);
   --hero-fill: rgb(255 255 255 / 0.12);
 
-  /* Document viewer: paper stays paper-white in dark mode, like a PDF in Files. */
+  /* Document viewer: paper and its source highlights. */
   --paper: #ffffff;
   --paper-ink: #1b1e27;
   --paper-line: #e4e6ec;

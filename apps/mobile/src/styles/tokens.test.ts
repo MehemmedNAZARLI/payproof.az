@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-// Contrast guard for the mobile palette: text pairs must stay at WCAG AA (4.5:1) in both themes,
+// Contrast guard for the mobile palette: text pairs must stay at WCAG AA (4.5:1),
 // and status/accent glyphs at 3:1 against the surface they sit on.
 const css = readFileSync(resolve(process.cwd(), "src/styles/tokens.css"), "utf8");
 

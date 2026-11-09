@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
-// Mobile-only theme: every value is a variable from src/styles/tokens.css, so light/dark need no
-// `dark:` variants. Tailwind v4 loads this through `@config` in globals.css.
+// Mobile-only light theme: every value is a variable from src/styles/tokens.css.
+// Tailwind v4 loads this through `@config` in globals.css.
 const v = (name: string) => `var(--${name})`;
 const tone = (name: string) => ({
   DEFAULT: v(name),
