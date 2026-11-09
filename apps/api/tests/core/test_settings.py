@@ -70,3 +70,30 @@ def test_env_files_resolve_independent_of_cwd() -> None:
     assert isinstance(files, tuple)
     assert [p.name for p in files] == [".env", ".env"]
     assert (files[0].parent / "apps/api/pyproject.toml").exists()
+
+
+@pytest.mark.parametrize("provider", ["anthropic", "openai"])
+def test_ai_provider_without_a_key_fails_at_startup(
+    monkeypatch: pytest.MonkeyPatch, provider: str
+) -> None:
+    monkeypatch.setenv("AI_PROVIDER", provider)
+    monkeypatch.setenv("AI_API_KEY", " ")
+    with pytest.raises(ValidationError, match=f"AI_PROVIDER={provider} requires AI_API_KEY"):
+        Settings(_env_file=None)
+
+
+def test_retired_llm_provider_is_rejected(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("AI_PROVIDER", "llm")
+    with pytest.raises(ValidationError):
+        Settings(_env_file=None)
+
+
+def test_ai_key_is_never_printed(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("AI_PROVIDER", "anthropic")
+    monkeypatch.setenv("AI_API_KEY", "sk-ant-test-secret-value")
+    monkeypatch.setenv("AI_BASE_URL", "https://proxy.example.test")
+    s = Settings(_env_file=None)
+    assert "sk-ant-test-secret-value" not in repr(s) and "sk-ant-test" not in str(s)
+    monkeypatch.setenv("AI_BASE_URL", "ftp://proxy")
+    with pytest.raises(ValidationError, match="AI_BASE_URL"):
+        Settings(_env_file=None)

@@ -2,7 +2,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal, Self
 
-from pydantic import SecretStr, model_validator
+from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 _API_DIR = Path(__file__).resolve().parents[3]
@@ -24,7 +24,15 @@ class Settings(BaseSettings):
     s3_access_key: str
     s3_secret_key: SecretStr
     s3_bucket: str
-    ai_provider: Literal["mock", "pdf", "llm"] = "mock"
+    # ADR-0011 §5: switching provider is env-only. `pdf` (text layer) stays for the transition.
+    ai_provider: Literal["mock", "pdf", "anthropic", "openai"] = "mock"
+    ai_api_key: SecretStr | None = None  # server-side only; never logged or returned
+    ai_model: str | None = None  # empty: the provider adapter's default model
+    ai_base_url: str | None = None  # empty: the provider's own endpoint
+    ai_timeout_seconds: float = Field(default=120.0, gt=0, le=600)
+    ai_max_retries: int = Field(default=2, ge=0, le=5)
+    # below this the extracted value counts as unread (a person reads it) — never a guess
+    ai_min_confidence: float = Field(default=0.8, gt=0, le=1)
     # signed links must use an address the browser reaches; in compose the API itself talks to
     # http://minio:9000, the browser to http://localhost:9000. Unset: same as s3_endpoint_url
     s3_public_endpoint_url: str | None = None
@@ -36,6 +44,16 @@ class Settings(BaseSettings):
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+
+    @model_validator(mode="after")
+    def _ai_provider_is_configured(self) -> Self:
+        if self.ai_provider in ("anthropic", "openai"):
+            key = self.ai_api_key.get_secret_value().strip() if self.ai_api_key else ""
+            if not key:
+                raise ValueError(f"AI_PROVIDER={self.ai_provider} requires AI_API_KEY")
+        if self.ai_base_url and not self.ai_base_url.startswith(("https://", "http://")):
+            raise ValueError("AI_BASE_URL must be an http(s) URL")
+        return self
 
     @model_validator(mode="after")
     def _prod_secret_is_strong(self) -> Self:
