@@ -25,7 +25,7 @@ export function TabBar({ notificationCount = 0 }: { notificationCount?: number }
   return (
     <nav
       aria-label={t.nav.label}
-      className="material hairline-t pb-safe fixed inset-x-0 bottom-0 z-30 mx-auto max-w-app"
+      className="tabbar material hairline-t fixed inset-x-0 bottom-0 z-30 mx-auto max-w-app"
     >
       <ul className="flex h-(--tabbar-h) px-safe">
         {tabs.map((tab) => {
