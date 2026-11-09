@@ -27,6 +27,7 @@ Hər app-in öz `CLAUDE.md` faylı var — həmin qovluqda işləyəndə onu da 
 7. Test-first: domen məntiqi (qaydalar, pul, status, versiya) üçün əvvəl test, sonra kod.
 8. Step bitəndə `/finish-step <ID>`: lint + typecheck + test keçməlidir, Definition of Done (`docs/engineering/definition-of-done.md`) yoxlanır, progress faylı yenilənir.
 9. Başqa track-in qovluğuna toxunma. API müqaviləsini dəyişmək lazımdırsa — `/contract-change` prosesi.
+10. **Preview:** W-, M-, B- step-i bitəndə server işlədilir (web :3000, mobile :3001, api :8000/docs; mock rejimi) və istifadəçiyə klikləməli linklər + nəyə baxmalı + hansı demo istifadəçi verilir — `/finish-step`-in "Preview" bölməsi. Server artıq işləyirsə yenidən başladılmır, sonda dayandırılmır.
 
 ## Domen invariantları (heç vaxt pozulmur)
 - Pul **heç vaxt float deyil**: Python-da `Decimal`, API-də string (`"12000.00"`) + `currency`. AZN və USD bir cəmdə toplanmır.
@@ -40,6 +41,9 @@ Hər app-in öz `CLAUDE.md` faylı var — həmin qovluqda işləyəndə onu da 
 - Audit append-only-dir. Sənəd mətni log-lara yazılmır.
 - UI mətnləri Azərbaycan dilindədir: "Paket göndərilməyə hazırdır" — heç vaxt "Ödəniş təmin edildi".
 
+## Alətlər
+- Bu repo macOS-da işləyir (BSD sed). Faylları dəyişmək üçün sed/perl/heredoc yox, Edit və Write alətlərindən istifadə et; Bash yalnız əmrləri işlətmək üçündür.
+
 ## Əmrlər (S-01-dən sonra işləyir)
 - `make setup` · `make up` (postgres + minio) · `make seed` · `make test` · `make lint`
 - Backend: `cd apps/api && uv run pytest` · `uv run ruff check .` · `uv run mypy .`
@@ -47,7 +51,7 @@ Hər app-in öz `CLAUDE.md` faylı var — həmin qovluqda işləyəndə onu da 
 - Kontrakt: `pnpm --filter @payproof/api-client generate`
 
 ## Skills (mövcuddursa istifadə et)
-Plan: `superpowers:writing-plans` · TDD: `superpowers:test-driven-development` · Paralel işləmə: `superpowers:using-git-worktrees` · API dizaynı: `api-and-interface-design` · UI: `frontend-ui-engineering`, `frontend-design:frontend-design` · Təhlükəsizlik: `security-and-hardening` · Bitirməzdən əvvəl: `superpowers:verification-before-completion`, `code-review`, `simplify`.
+Plan: `superpowers:writing-plans` · TDD: `superpowers:test-driven-development` · Paralel işləmə: `superpowers:using-git-worktrees` · API dizaynı: `api-and-interface-design` · UI: `frontend-ui-engineering`, `frontend-design:frontend-design` · Təhlükəsizlik: `security-and-hardening` · Bitirməzdən əvvəl: `superpowers:verification-before-completion`. **Review yoxdur:** token qənaəti üçün `code-review`, `simplify`, review subagent-ləri işlədilmir (istifadəçi açıq istəməsə).
 
 ## Ətraflı sənədlər
 - Başlanğıc: `docs/00-START-HERE.md`

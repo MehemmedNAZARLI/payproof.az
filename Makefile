@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help setup up down logs psql seed test lint typecheck dev-api dev-web dev-mobile
+.PHONY: help setup up down logs psql migrate seed test lint typecheck dev-api dev-web dev-mobile
 
 API := apps/api
 has_api := $(wildcard $(API)/pyproject.toml)
@@ -28,8 +28,11 @@ logs: ## Follow infrastructure logs
 psql: ## Open psql in the postgres container
 	docker compose exec postgres sh -c 'psql -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"'
 
-seed: ## Load demo fixtures into the database
-	$(call not_ready,seed,B-09)
+migrate: ## Apply database migrations
+	cd $(API) && uv run alembic upgrade head
+
+seed: ## Load demo fixtures (RESET=1 truncates all tables first)
+	cd $(API) && uv run payproof-seed $(if $(RESET),--reset,)
 
 test: ## Run all tests
 	pnpm turbo run test
@@ -54,7 +57,7 @@ dev-api: ## Run the API dev server
 ifeq ($(has_api),)
 	$(call not_ready,apps/api,B-01)
 else
-	cd $(API) && uv run fastapi dev
+	cd $(API) && uv run payproof-api
 endif
 
 dev-web: ## Run the web app
