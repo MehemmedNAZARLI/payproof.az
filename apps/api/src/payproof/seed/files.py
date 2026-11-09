@@ -12,8 +12,10 @@ from pathlib import PurePath
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from payproof.repositories.models import DocumentVersion, ExportRecord
+from payproof.repositories.models import DocumentVersion, ExportRecord, OutputTemplate
+from payproof.seed.config import TEMPLATES
 from payproof.services.export import zip_key
+from payproof.services.output_templates import DOCX
 from payproof.storage.s3 import Storage
 
 
@@ -67,3 +69,5 @@ async def store_demo_files(session: AsyncSession, storage: Storage) -> None:
             for f in e.files:
                 z.writestr(f"{f['type']}/{f['file_name']}", placeholder(f["file_name"]))
         await storage.put(zip_key(e.manifest_key), buf.getvalue(), "application/zip")
+    for t in await session.scalars(select(OutputTemplate)):  # ADR-0011 output templates
+        await storage.put(t.storage_key, (TEMPLATES / t.file_name).read_bytes(), DOCX)
