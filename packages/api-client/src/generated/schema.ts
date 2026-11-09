@@ -931,6 +931,72 @@ export interface components {
                 address: string;
             };
         };
+        DocumentRequirementInput: {
+            type: components["schemas"]["DocumentTypeKey"];
+            min_count: number;
+            max_count: number | null;
+        };
+        RegistryColumn: {
+            key: string;
+            label: string;
+            /** @enum {string} */
+            type: "text" | "date" | "money" | "decimal" | "integer" | "boolean" | "currency" | "party";
+            critical: boolean;
+        };
+        RegistryList: {
+            key: string;
+            label: string;
+            columns: components["schemas"]["RegistryColumn"][];
+        };
+        /** @description A document type registry entry (current version). Extraction instructions stay server-side. */
+        DocumentTypeInfo: {
+            key: components["schemas"]["DocumentTypeKey"];
+            name: string;
+            version: number;
+            builtin: boolean;
+            accepted_formats: string[];
+            extraction: {
+                fields: components["schemas"]["RegistryColumn"][];
+                tables: components["schemas"]["RegistryList"][];
+                transaction_lists: components["schemas"]["RegistryList"][];
+            };
+        };
+        CheckLibrary: {
+            families: {
+                type: string;
+                name: string;
+                description: string;
+                /** @description Derived by the server (document_count); not configurable */
+                system: boolean;
+                parameters: {
+                    name: string;
+                    /**
+                     * @example field_refs
+                     * @example enum:debit,credit
+                     */
+                    type: string;
+                    required: boolean;
+                    description: string;
+                }[];
+                related_rules: components["schemas"]["RuleId"][];
+            }[];
+            legacy_rules: {
+                rule_id: components["schemas"]["RuleId"];
+                family: string | null;
+                note: string;
+            }[];
+        };
+        OutputTemplate: {
+            id: components["schemas"]["Uuid"];
+            file_name: string;
+            sha256: string;
+            size: number;
+            /** @description Distinct `{{placeholder}}` names found in the document, in order of appearance */
+            placeholders: string[];
+            uploaded_by: components["schemas"]["UserRef"];
+            /** Format: date-time */
+            created_at: string;
+        };
         PlaceholderMapping: {
             /** @example {{total_spent}} */
             placeholder: string;

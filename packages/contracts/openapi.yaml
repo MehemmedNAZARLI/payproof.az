@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: PayProof API
-  version: 0.4.0
+  version: 0.5.0
   description: |
     PayProof P0 API contract — the single source of truth (docs/architecture/api-contract.md).
     Conventions: `snake_case` fields; money is a decimal **string** with its currency, never a float;
@@ -2346,6 +2346,108 @@ components:
           properties:
             channel: { type: string, enum: [email] }
             address: { type: string, format: email }
+    DocumentRequirementInput:
+      type: object
+      additionalProperties: false
+      required: [type, min_count, max_count]
+      properties:
+        type: { $ref: "#/components/schemas/DocumentTypeKey" }
+        min_count: { type: integer, minimum: 0 }
+        max_count: { type: ["integer", "null"], minimum: 1 }
+    RegistryColumn:
+      type: object
+      additionalProperties: false
+      required: [key, label, type, critical]
+      properties:
+        key: { type: string }
+        label: { type: string }
+        type:
+          { type: string, enum: [text, date, money, decimal, integer, boolean, currency, party] }
+        critical: { type: boolean }
+    RegistryList:
+      type: object
+      additionalProperties: false
+      required: [key, label, columns]
+      properties:
+        key: { type: string }
+        label: { type: string }
+        columns: { type: array, items: { $ref: "#/components/schemas/RegistryColumn" } }
+    DocumentTypeInfo:
+      type: object
+      additionalProperties: false
+      required: [key, name, version, builtin, accepted_formats, extraction]
+      description: A document type registry entry (current version). Extraction instructions stay server-side.
+      properties:
+        key: { $ref: "#/components/schemas/DocumentTypeKey" }
+        name: { type: string }
+        version: { type: integer, minimum: 1 }
+        builtin: { type: boolean }
+        accepted_formats: { type: array, items: { type: string } }
+        extraction:
+          type: object
+          additionalProperties: false
+          required: [fields, tables, transaction_lists]
+          properties:
+            fields: { type: array, items: { $ref: "#/components/schemas/RegistryColumn" } }
+            tables: { type: array, items: { $ref: "#/components/schemas/RegistryList" } }
+            transaction_lists: { type: array, items: { $ref: "#/components/schemas/RegistryList" } }
+    CheckLibrary:
+      type: object
+      additionalProperties: false
+      required: [families, legacy_rules]
+      properties:
+        families:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [type, name, description, system, parameters, related_rules]
+            properties:
+              type: { type: string }
+              name: { type: string }
+              description: { type: string }
+              system:
+                {
+                  type: boolean,
+                  description: "Derived by the server (document_count); not configurable",
+                }
+              parameters:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: false
+                  required: [name, type, required, description]
+                  properties:
+                    name: { type: string }
+                    type: { type: string, examples: ["field_refs", "enum:debit,credit"] }
+                    required: { type: boolean }
+                    description: { type: string }
+              related_rules: { type: array, items: { $ref: "#/components/schemas/RuleId" } }
+        legacy_rules:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [rule_id, family, note]
+            properties:
+              rule_id: { $ref: "#/components/schemas/RuleId" }
+              family: { type: ["string", "null"] }
+              note: { type: string }
+    OutputTemplate:
+      type: object
+      additionalProperties: false
+      required: [id, file_name, sha256, size, placeholders, uploaded_by, created_at]
+      properties:
+        id: { $ref: "#/components/schemas/Uuid" }
+        file_name: { type: string, pattern: "\\.docx$" }
+        sha256: { type: string, pattern: "^[0-9a-f]{64}$" }
+        size: { type: integer, minimum: 1 }
+        placeholders:
+          type: array
+          description: Distinct `{{placeholder}}` names found in the document, in order of appearance
+          items: { type: string }
+        uploaded_by: { $ref: "#/components/schemas/UserRef" }
+        created_at: { type: string, format: date-time }
     PlaceholderMapping:
       type: object
       additionalProperties: false
