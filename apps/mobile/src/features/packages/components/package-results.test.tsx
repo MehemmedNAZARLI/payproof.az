@@ -3,8 +3,8 @@ import { render, screen } from "@testing-library/react";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 
 import { ApiError, type Schemas, unwrap } from "@/lib/api";
-import { mockClient } from "@/test/mock";
 import { createQueryClient } from "@/lib/query-client";
+import { mockClient } from "@/test/mock";
 
 import { PackageResults } from "./package-results";
 

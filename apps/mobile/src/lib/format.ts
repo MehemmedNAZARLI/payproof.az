@@ -1,6 +1,6 @@
-import { t } from "./i18n";
-
 import { formatDate as sharedDate } from "@payproof/api-client/format";
+
+import { t } from "./i18n";
 
 export { formatMoney } from "@payproof/api-client/format";
 
