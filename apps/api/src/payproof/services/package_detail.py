@@ -148,6 +148,7 @@ async def package_detail(
                 created_by=ref(e.created_by),
                 created_at=e.created_at,
                 files=[d.ExportFile(**f) for f in e.files],
+                output=e.output,
             )
             for e in exports
         ],

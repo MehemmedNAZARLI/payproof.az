@@ -90,3 +90,6 @@ class ExportRecord(TenantEntity, Base):
     files: Mapped[list[dict[str, Any]]] = mapped_column(JSONB)  # selected document versions
     manifest_key: Mapped[str] = mapped_column(Text)
     created_by: Mapped[uuid.UUID] = mapped_column()
+    # ADR-0011 §4: filled template, placeholder values and the e-mail submission status
+    # (openapi ExportOutput); NULL when the requirement set has no output template
+    output: Mapped[dict[str, Any] | None] = mapped_column(JSONB(none_as_null=True))

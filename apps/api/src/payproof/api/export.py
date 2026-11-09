@@ -84,6 +84,7 @@ async def export_package(
         created_by=UserRef(id=user.id, full_name=user.full_name, title=user.title, role=role),
         created_at=done.export.created_at,
         files=[d.ExportFile(**f) for f in done.export.files],
+        output=done.export.output,
     )
     if replay is None:
         body_out = {"export_id": str(done.export.id)}

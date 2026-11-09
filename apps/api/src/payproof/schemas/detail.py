@@ -138,7 +138,7 @@ class ApprovalRecord(BaseModel):
 
 class ExportFile(BaseModel):
     document_version_id: uuid.UUID
-    type: Literal["invoice", "order", "delivery"]
+    type: str  # registry key (openapi DocumentTypeKey): configured packages export any type
     file_name: str
 
 
@@ -149,6 +149,7 @@ class ExportRecord(BaseModel):
     created_by: UserRef
     created_at: dt.datetime
     files: list[ExportFile]
+    output: dict[str, Any] | None = Field(default=None, exclude_if=lambda v: v is None)
 
 
 class Task(BaseModel):
