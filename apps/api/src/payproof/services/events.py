@@ -32,6 +32,7 @@ _EXACT = {  # same table as packages/mocks/src/events.ts
     "approval.created": LiveEventType.PACKAGE_APPROVED,
     "export.created": LiveEventType.PACKAGE_EXPORTED,
     "requirements.updated": LiveEventType.REQUIREMENTS_CHANGED,
+    "output_template.uploaded": LiveEventType.REQUIREMENTS_CHANGED,
 }
 
 
