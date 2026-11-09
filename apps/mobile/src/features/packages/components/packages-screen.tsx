@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { AppHeader } from "@/components/ui/app-header";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
+import { GrantLink } from "@/features/grants/grant-link";
 import { useDashboard } from "@/features/home/queries";
 import { t } from "@/lib/i18n";
 import { refreshAll } from "@/lib/refresh";
@@ -71,6 +72,7 @@ export function PackagesScreen() {
         subtitle={dashboard.data ? t.packages.subtitle(dashboard.data.package_count) : undefined}
       />
       <main className="px-safe pb-tabbar pull-shift mx-auto max-w-app">
+        <GrantLink />
         <SearchField value={text} onChange={setText} />
         <FilterChips
           value={filter}
