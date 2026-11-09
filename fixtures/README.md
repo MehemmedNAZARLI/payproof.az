@@ -9,6 +9,13 @@ Generasiya: `pnpm fixtures:generate` — `scripts/fixtures/generate.mjs` prototi
 - **Nə vaxt yox:** test keçsin deyə — `expected.json` golden məlumatdır.
 - Generasiyadan sonra `git diff fixtures/` diqqətlə nəzərdən keçirilir; dəyişiklik ayrıca `fix(S-03)` commit-i və səbəbi ilə gedir.
 
+## Konfiqurasiya olunan sənəd dəstləri (ADR-0011) — əl ilə yazılır, generasiya olunmur
+- `config/document-types.json` — sənəd növü reyestri (builtin `invoice/order/delivery` + `bank_statement`, `card_statement`, `contract`, `receipt`).
+- `config/check-library.json` — yoxlama kitabxanası ailələri, parametrləri və R-qaydalarının konseptual xəritəsi.
+- `scenarios/unec.json` — UNEC tələbə qrantı hesabatı: müştəri `c3`, tələb dəsti (fakturalar 1–10, bank çıxarışı 1, kart çıxarışı 1, `U-01…U-08`, akt şablonu, göndərmə ünvanı) və 2 paket. `scenarios/unec.expected.json` — golden nəticə (`packages/mocks/test/checks-unec.test.ts`).
+- Sxem: `schema/config.json`; yoxlama: `validate-config.mjs` (`fixtures:check`-in hissəsi) — reyestr/kitabxana istinadları, parametrlər, `field` mənbəli placeholder-in `field_present` hədəfi olması, hər çıxarılmış dəyərin mənbəyi.
+- `fixtures:generate` bu fayllara toxunmur. Ssenari müştərisi `customers.json`-a əlavə edilmir: backend seed-i və faktura formalı ekranlar onu hələ istifadə etmir.
+
 ## Konvensiyalar
 - **Pul** — string, 2 onluq (`"9.00"`), həmişə `currency` ilə. Heç vaxt float deyil; validator tam qəpiklə (BigInt) hesablayır. AZN və USD bir cəmdə toplanmır.
 - **Tarix** — `YYYY-MM-DD`; **vaxt** — RFC 3339, Bakı vaxtı (`2026-11-03T09:12:00+04:00`). Demo "bu gün": `expected.demo_now`.
