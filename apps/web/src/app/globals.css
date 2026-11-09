@@ -1,0 +1,24 @@
+@import "tailwindcss";
+@import "@payproof/design-tokens/tokens.css";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@config "../../tailwind.config.ts";
+/* Tailwind v4 only scans this app; badgeClass and other class strings live in the tokens package. */
+@source "../../../../packages/design-tokens/src";
+
+/* Light/dark comes from tokens.css (OS preference or html[data-theme]); shadcn's `dark:` tweaks stay off. */
+@custom-variant dark (&:is(.dark *));
+
+/* shadcn components read --radius-* directly (e.g. rounded-[min(var(--radius-md),10px)]). */
+:root {
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+  --radius-xl: var(--r-xl);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+}
