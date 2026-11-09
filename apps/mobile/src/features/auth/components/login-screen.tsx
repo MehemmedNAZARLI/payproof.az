@@ -21,6 +21,7 @@ import { signOutReason, useSession } from "@/lib/session";
 
 import { safeNextPath } from "../next-path";
 import { useDevLogin, useDevUsers } from "../queries";
+import { Welcome } from "./welcome";
 
 // The approver is the main mobile user, so that account comes first.
 const ROLE_ORDER: Schemas["Role"][] = ["approver", "operator", "readonly", "admin", "assignee"];
@@ -43,7 +44,7 @@ export function LoginScreen() {
     login.mutate(user.id, { onSuccess: () => toast.success(t.auth.signedIn(user.full_name)) });
 
   return (
-    <div className="bg-bg flex min-h-dvh flex-col">
+    <Welcome><div className="bg-bg flex min-h-dvh flex-col">
       <header className="hero pt-safe">
         <div className="px-safe mx-auto max-w-app pt-12 pb-14">
           <span className="grid size-14 place-items-center rounded-lg bg-white text-[#3d5afe] shadow-2">
@@ -100,7 +101,7 @@ export function LoginScreen() {
           </p>
         </div>
       </main>
-    </div>
+    </div></Welcome>
   );
 }
 
