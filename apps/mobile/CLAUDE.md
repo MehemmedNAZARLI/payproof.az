@@ -16,13 +16,16 @@ src/
                       swipe-down, focus trap, Esc, arxa fon inert), ListGroup/ListItem, Chip, Card/SectionHeader,
                       Banner, Badge + status badge-ləri, Skeleton/ListSkeleton (shimmer), EmptyState, Button,
                       IconButton/CountBadge, Toaster + `toast` (toast-store.ts)
-  lib/api.ts          `api` (openapi-fetch) + `unwrap` + `ApiError`; mock rejimində fetch səhifədaxili mock-a gedir
-  lib/api/client.ts   createApiClient/ApiError — S-05 imzası ilə (shortcut: S-05 gələndə import dəyişir)
-  lib/api/generated/  openapi.yaml-dan generasiya (`pnpm api:generate`; gitignore-dadır, dev/build/typecheck-dən əvvəl işləyir)
-  lib/api/mock/       fixtures-dan store + MSW handler-ləri + createMockFetch (S-06 gələnə qədər); yazılar
-                      (təsdiq, oxunmuş bildiriş, idempotency cavabları) session-db.ts-də (sessionStorage);
-                      engine/ — prototip qayda mühərrikinin portu (mesaj, sübut), paper.ts — mock sənəd kağızı
+  lib/api.ts          `api` = `@payproof/api-client`-in `createApiClient` (+ `unwrap`, `ApiError`, `Schemas`); mock rejimində
+                      fetch səhifədaxili mock-a gedir (`apiFetch`)
+  lib/api/mock/       createMockFetch: `@payproof/mocks` handler-ləri MSW `getResponse` ilə səhifədə; `mockApi()` — tab başına
+                      bir demo şirkət
+  lib/mock-paper/     mock fayl linkləri (`/mock-files/<versiya>`) üçün fixtures-dan çəkilən sənəd kağızı (model, sitatlar)
+  lib/live.ts         canlı yeniləmələr (M-04b): `liveInvalidation`, `useLiveUpdates`, `onLiveEvent`, `usePackageChangedSince`;
+                      lib/live-toasts.ts — "kim dəyişdi" toast-u
   lib/{query-client.ts,env.ts,format.ts,i18n.ts,spring.ts,cx.ts,brand.ts,status-tone.ts,fonts.ts}
+                      format/i18n: pul, tarix və enum etiketləri `@payproof/api-client/{format,i18n}`-dən re-export; qalanı mobil mətnləri
+  test/mock.ts        test köməkçiləri: `signInAs`, `mockClient`, `meFor`, `detailOf`, `notificationsOf`, `recordedApprovals`
   styles/tokens.css   mobil dizayn sistemi (yalnız mobil; veb @payproof/design-tokens-də qalır) + tokens.test.ts (kontrast)
   lib/session.ts      dev-login sessiyası (localStorage), useSession, watchUserChange; lib/runtime-caches.ts — çıxışda SW keşləri
   app/(tabs)/layout.tsx · app/packages/layout.tsx   SessionGate + (tabs üçün) TabBar
@@ -37,13 +40,12 @@ e2e/                  Playwright (iPhone 13 profili, Chromium; prod build :3101-
 ## Əmrlər
 `pnpm --filter mobile dev` (:3001) · `build` · `start` (:3002 — dev ilə eyni origin olmasın, SW qarışmasın) · `lint` · `typecheck` · `test` (Vitest) · `e2e` (Playwright, öz build-ini qaldırır)
 Mock: `NEXT_PUBLIC_API_MOCK=1` (default). Real: `NEXT_PUBLIC_API_MOCK=0`, `NEXT_PUBLIC_API_URL=http://localhost:8000`.
-`pnpm --filter mobile api:generate` — API tipləri (dev/build/typecheck özü işlədir).
+API tipləri `@payproof/api-client`-in commit olunmuş generasiyasından gəlir (mobil özü generasiya etmir).
 
 ## Data qatı (M-02)
-- Mock **səhifədaxilidir**: `createMockFetch` MSW handler-lərini `getResponse` ilə çağırır. MSW service worker yoxdur — scope-u Serwist tutur. DevTools-da `/v1/` sorğusu görünməz; offline-ı `navigator.onLine` ilə təqlid edir.
-- Mock sessiyası: token `mock.<fixture slug>` (`mockToken("u1")`), `POST /v1/auth/dev-login` verir; tokensiz sorğu → 401.
-- Mock həmçinin `GET /v1/auth/dev-users`, `GET /v1/dashboard` (fixtures-dan, golden test) və `GET /v1/audit` (tarixçə prototipin `reset()` qaydası ilə fixtures-dan törədilir; yalnız `limit`, `package_id`) verir.
-- Statuslar `fixtures/expected.json`-dan (prototip mühərrikinin golden nəticəsi), mühərrik portu S-06-dadır.
+- Mock = `@payproof/mocks` (vebdəki ilə eyni handler-lər, mühərrik, hadisələr), amma **səhifədaxili**: `createMockFetch` handler-ləri `getResponse` ilə çağırır. MSW service worker yoxdur — scope-u Serwist tutur. DevTools-da `/v1/` sorğusu görünməz; offline-ı `navigator.onLine` ilə təqlid edir. Gecikmə 350 ms (testdə 0).
+- Mock DB tab-ın yaddaşındadır (veb kimi): reload fixtures-a qaytarır. Eyni origin-in tab-ları `BroadcastChannel('payproof-mock')` ilə sinxrondur (testdə söndürülüb). e2e yazmadan sonra `page.goto` etmir — tətbiq daxilində keçir (`e2e/helpers.ts`: `tabLink`, `signOutInApp`).
+- Mock sessiyası: token `mock.<user uuid>` (`mockToken("u1")` — `src/test/mock.ts`), `POST /v1/auth/dev-login` verir; tokensiz sorğu → 401. Vitest hər testdən sonra mock-u sıfırlayır (`vitest.setup.ts`).
 - QueryClient: 30 s təzə, focus/reconnect-də yenilənir, sessiya boyu keşdə (offline göstərilir), 4xx təkrarlanmır. İlk yükləmə xətası ekranda (EmptyState + "Yenidən cəhd et"); fon yeniləməsi və mutation xətası → toast (`meta: { silentError: true }` ilə söndürülür).
 - Massiv query parametrləri vergüllə (`status=A,B`, müqavilədəki `explode: false`).
 
@@ -59,9 +61,9 @@ Mock: `NEXT_PUBLIC_API_MOCK=1` (default). Real: `NEXT_PUBLIC_API_MOCK=0`, `NEXT_
 
 ## Paket detalı və sübut (M-07, M-08)
 - `features/package-detail/`: `usePackage(id)` (`packageKeys.all` altında — paketlər yenilənəndə detal da yenilənir), `useDocumentFile(versionId)` (imzalı link 5 dəq; 4 dəq təzə sayılır), `cta.ts` (CTA vəziyyəti status + serverin `permissions`-ından, rol cihazda yoxlanmır).
-- Mock detal: `lib/api/mock/package-detail.ts` + `engine/` (prototipin `runChecks` portu; nəticələr `expected.json` ilə golden, sitatlar `engine/quotes.ts`-də). Bütün mock cavabları `src/test/contract.ts` ilə `openapi.yaml`-a qarşı yoxlanır.
+- Mock detal `@payproof/mocks`-dandır (mühərrik golden testləri və müqavilə yoxlaması orada).
 - Sübut sheet-i (`components/evidence-sheet.tsx` + `sheet-stack.ts`): bir `BottomSheet`, səhifələr yığını (yoxlama → sənəd → Geri). `BottomSheet`-in `page`/`direction` prop-ları səhifəni sürüşdürür və hündürlüyü morph edir; `size="large"` sənəd üçündür (landşaftda tam ekran, footer gizlənir, "Geri" başlığa keçir — `short:` variantı, `globals.css`).
-- Sənəd görüntüləyici (`features/document-viewer/`): link `mock:paper/` ilə başlayırsa (`lib/api/mock-file.ts`) fixtures-dan kağız (`lib/api/mock/paper.ts` → `paper.tsx`, lazy chunk); əks halda `source_kind`-ə görə react-pdf (`pdf-pages.tsx`, lazy; worker `pdfjs-dist`-dən `new URL(..., import.meta.url)`), skan şəkli və ya cədvəl üçün "Faylı aç". Vurğu: kağızda sitat bərabərliyi, PDF/skanda `bbox`; tapılmırsa "səhifə + sitat" göstərilir (təxmini vurğu yoxdur).
+- Sənəd görüntüləyici (`features/document-viewer/`): mock rejimində link `/mock-files/<versiya id>` olarsa (`lib/api/mock-file.ts`) fixtures-dan kağız (`lib/mock-paper/paper.ts` → `paper.tsx`, lazy chunk; sitatlar mock-un sübutu ilə eynidir); əks halda `source_kind`-ə görə react-pdf (`pdf-pages.tsx`, lazy; worker `pdfjs-dist`-dən `new URL(..., import.meta.url)`), skan şəkli və ya cədvəl üçün "Faylı aç". Vurğu: kağızda sitat bərabərliyi, PDF/skanda `bbox`; tapılmırsa "səhifə + sitat" göstərilir (təxmini vurğu yoxdur).
 - `ZoomPane`: səhifə enə sığır (geniş ekranda 640px-də dayanır), pinch/double-tap/ctrl+wheel/± düymələri fokus nöqtəsini saxlayır; pinch zamanı yalnız transform, buraxanda bir dəfə layout. Sitatdan açılanda mətn ~12.5px olana qədər böyüdülür.
 - Baxılma (`seen-store.ts`): sessionStorage `payproof.seen`, açar istifadəçi + paket, dəyər paket versiyası + baxılmış sənəd versiyaları; versiya dəyişəndə boş sayılır; istifadəçi dəyişəndə `providers.tsx` silir. Sənəd ekranda göründükdən sonra işarələnir (açılış deyil). Yalnız UX qoruyucusudur.
 
@@ -72,7 +74,14 @@ Mock: `NEXT_PUBLIC_API_MOCK=1` (default). Real: `NEXT_PUBLIC_API_MOCK=0`, `NEXT_
 - Uğurdan sonra `approval-cache.ts` cavabı detal, bütün siyahı səhifələri (filtrə görə çıxarır və ya yenidən etiketləyir) və dashboard-a (say + `ready_amounts`, BigInt sent) dərhal yazır, sonra hamısı yenidən sorğulanır (gözlənilmir). Uğur ekranı `/packages/[id]/success` yalnız `current_approval` varsa uğuru göstərir.
 - Haptik (`lib/haptics.ts`): Android-də Vibration API, iOS 18+-da gizli `switch` checkbox; mənası həmişə ekranda da var.
 - Bildirişlər (`features/notifications/`): bir query (`["notifications","list"]`, 60 s polling ön planda) — siyahı, tab bar, zəng və app ikonu (Badging API) eyni `unread_count`-u oxuyur. Oxuma optimistikdir (xətada geri qaytarılır). Qruplar Bakı günü ilə ("Bu gün", "Dünən", "6 noyabr, cümə") — prototipin "Yeni/Əvvəlki" əvəzinə (istifadəçi qərarı); oxunmamış nöqtə + qalın mətn + ekran oxuyucu üçün "Oxunmamış". Toxunuş → oxundu + paketə keçid.
-- Mock: təsdiq paketin sahibinə bildiriş yaradır; təsdiq statusu siyahı, dashboard, detal və auditə tətbiq olunur (`mock/live.ts`). Yeni tab fixtures-dan başlayır.
+- Mock: təsdiq paketin sahibinə bildiriş yaradır; status siyahı, dashboard, detal və auditə tətbiq olunur. Yeni tab fixtures-dan başlayır. Bildirişin gün başlığı mock-un demo saatına (`2026-11-08`-dən) görədir.
+
+## Canlı yeniləmələr (M-04b, ADR-0010)
+- `useLiveUpdates` (`lib/live.ts`) `providers.tsx`-də bir dəfə qoşulur (layout-da yox — tab/paket ekranları arasında bağlantı qalır): sessiya + online + səhifə görünən olanda `subscribeEvents` (token header-də; mock rejimində `apiFetch`). Gizli/oflayn → axın bağlanır; növbəti açılışda bütün keş invalidate olunur. Axın qırıq ikən aktiv query-lər 30 s-dən bir; bərpada dayanır. Axının 401-i sessiyanı bitirir.
+- `liveInvalidation` (təmiz, testli): paket hadisələri → siyahılar, həmin paketin detalı, dashboard, fəaliyyət; `task.changed` → detal + fəaliyyət; `notification.created` → bildiriş query-si (tab bar, zəng, app ikonu); `requirements.changed` → bütün paketlər; bilinməyən tip → hamısı.
+- Toast (`lib/live-toasts.ts`): başqasının dəyişikliyi üçün "Aygün Məmmədova INV-1042 paketini yenilədi (v5)"; ad `GET /v1/users`-dən (ilk hadisədə), faktura nömrəsi keşdən; öz dəyişikliyi üçün toast yoxdur.
+- Təsdiq vərəqəsi: `usePackageChangedSince` başqasının yeni versiyasını `FailureBanner`-də "Başqa istifadəçi paketi yenilədi (vN)" kimi göstərir, versiya yüklənənə qədər "Təsdiqlə" kilidlidir; sonra adi qayda — yeni versiyaya yenidən baxılır. 409 yolu qalır.
+- Mock rejimində eyni brauzerin tab-ları eyni istifadəçidir (sessiya localStorage-da) — iki tab-da toast yoxdur; başqa istifadəçinin dəyişikliyi və cihazlar arası yoxlama real API ilə (M-12).
 
 ## Dizayn sistemi
 - Palitra: light `bg #F5F6FA / surface #FFF / surface-2 #EEF0F6`, dark `#05060A / #0E1018 / #161926`; **bir accent** (`#3D5AFE` / dark `#6E86FF`). Mətn üçün `accent`, ağ mətnli dolu düymə üçün `accent-fill` (dark-da `#4B65FF` — `#6E86FF` üzərində ağ 3.2:1-dir).
@@ -93,7 +102,7 @@ Mock: `NEXT_PUBLIC_API_MOCK=1` (default). Real: `NEXT_PUBLIC_API_MOCK=0`, `NEXT_
 - Naviqasiya: alt tab bar (Əsas, Paketlər, Bildirişlər, Profil); detal ekranlarında sticky başlıq + geri.
 - Təsdiq: **paket versiyasındakı bütün sənədlərə baxılmayınca** və "baxdım" qeydi işarələnməyincə təsdiq düyməsi işləmir. Versiya dəyişəndə baxılma sıfırlanır. `expected_version` + `Idempotency-Key`; 409 → yenilə və yenidən bax.
 - Offline: keşdən yalnız oxuma; təsdiq offline mümkün deyil — aydın mesaj.
-- API, i18n, format — `@payproof/*` paketlərindən (veblə eyni). Tokenlər mobilə məxsusdur: `src/styles/tokens.css` + `tailwind.config.ts` + `lib/status-tone.ts` (`@payproof/design-tokens` mobil tərəfindən istifadə olunmur). Paylaşılan paketdə dəyişiklik lazımdırsa — lead ilə razılaşdır (`/contract-change` və ya ayrıca `fix/` branch).
+- API, i18n, format — `@payproof/*` paketlərindən (veblə eyni); mock — `@payproof/mocks`. Tokenlər mobilə məxsusdur: `src/styles/tokens.css` + `tailwind.config.ts` + `lib/status-tone.ts` (`@payproof/design-tokens` mobil tərəfindən istifadə olunmur). Paylaşılan paketdə dəyişiklik lazımdırsa — lead ilə razılaşdır (`/contract-change` və ya ayrıca `fix/` branch).
 - Hər ekran: skeleton, boş vəziyyət, xəta; light/dark; VoiceOver üçün label-lar.
 - Service worker (`src/lib/sw-policy.ts`): `/v1/` və bütün cross-origin sorğular **NetworkOnly** — istifadəçi məlumatı Cache Storage-a düşmür. Baxılmış səhifələr (HTML/RSC, şəxsi məlumatsız) Serwist-in network-first default-ları ilə keşlənir.
 - Yeniləmə (`features/pwa/sw-update.ts`, `update-prompt.tsx`): `skipWaiting: false`; yeni versiya sticky toast ("Yeni versiya hazırdır" + "Yenilə") — qəbul → `SKIP_WAITING`, `controllerchange`-də reload. İlk quraşdırma (`isUpdate` yox) yeniləmə sayılmır. e2e deploy-u `?v=2` URL-i ilə təqlid edir (brauzerin öz update fetch-i route olunmur).
