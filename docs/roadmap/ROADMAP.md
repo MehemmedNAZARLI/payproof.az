@@ -44,7 +44,7 @@ Track daxilində step-lər əsasən ardıcıldır; dəqiq asılılıq hər step-
 | 3 | S-09, B-07 … B-12b | W-05b, W-06 … W-09 | M-04b, M-05 … M-07 |
 | 4 | B-13 … B-19 | W-10 … W-12 | M-08 |
 | 5 | B-20 … B-24, B-26 | W-13 … W-17 | M-09 … M-11 |
-| 6 | B-25 (stretch) | W-18 | M-12 |
+| 6 | B-25 (stretch), B-27 … B-30 | W-18 | M-12, M-13 |
 | 7 | I-01 … I-03 — birlikdə | | |
 
 ## Scope sərhədi

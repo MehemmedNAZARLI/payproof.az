@@ -41,7 +41,7 @@ Backend hazır olana qədər `NEXT_PUBLIC_API_MOCK=1` — `@payproof/mocks`. Rea
 - mobil davranış: `visibilitychange` gizli → axın bağlanır, görünən → yenidən qoşulma + tam refetch; offline-da qoşulmur (M-11 offline rejimi ilə uyğun)
 - "kim dəyişdi" toast-u (M-03 `Toast`; öz hadisəsi üçün yox) və `usePackageChangedSince(packageId, version)` + `Banner` — açıq vərəqədə (M-08/M-09 təsdiq vərəqəsi istifadə edir) "Başqa istifadəçi paketi yenilədi (vN)…" + təsdiq bağlanır
 - ehtiyat polling: axın qırıq ikən 30 s, bərpada dayanır
-**Daxil deyil:** Web Push (P2, M-13), bağlantı statusu indikatoru, təsdiq vərəqəsinin özü (M-09).
+**Daxil deyil:** Web Push (P2, M-14), bağlantı statusu indikatoru, təsdiq vərəqəsinin özü (M-09).
 **Qəbul meyarları:**
 - [ ] İki tab (mock, eyni origin `:3001`): bir tab-da dəyişiklik → digərində ≤ 2 s-də refresh-siz + toast
 - [ ] Fona keçib qayıdanda axın yenidən qoşulur və məlumat yenilənir (Vitest, `visibilitychange`)
@@ -87,5 +87,10 @@ Backend hazır olana qədər `NEXT_PUBLIC_API_MOCK=1` — `@payproof/mocks`. Rea
 **Daxildir:** `NEXT_PUBLIC_API_MOCK=0`, real dev-login, real fayl linkləri (imzalı URL), fərqlərin düzəldilməsi (müqavilə pozuntusu → `/contract-change` — lead ilə), e2e real stack-də.
 **Qəbul:** [ ] mobil təsdiq → veb-də `APPROVED_READY` (real API) refresh-siz, ≤ 2 s-də (SSE) [ ] vebdəki dəyişiklik mobildə ≤ 2 s-də görünür
 
+### M-13 · Konfiqurasiya olunan sənəd dəstləri (təsdiqçi)
+**Branch:** `feat/M-13-document-sets` · **Asılılıq:** M-12, B-28, B-30
+**Daxildir:** ümumi paket (məs. UNEC qrant hesabatı) üçün detal: sənəd növü reyestrindən ad, `check_type`-a görə yoxlama kartları (`transaction_match` üçün tutuşan/ən yaxın əməliyyat, `amount_within_limit` üçün cəm/limit), sübut vərəqəsində çıxarış cədvəli sətrinə keçid; təsdiq vərəqəsində çıxış şablonu dəyərlərinin önizləməsi (yalnız oxu); ixrac göndərmə statusu (`QUEUED|SENT|FAILED`). Faktura formalı ekranlar dəyişmir.
+**Qəbul:** [ ] QR-2026-0927 detalında U-07 ən yaxın əməliyyat və fərq görünür [ ] QR-2026-0914 təsdiqi mobil-dən işləyir [ ] axe təmiz
+
 ---
-**Gələcək (P2, indi etmə):** M-13 Web Push bildirişləri · anbar üçün kamera ilə təhvil aktı yükləmə (brifdə yoxdur — əvvəl validasiya).
+**Gələcək (P2, indi etmə):** M-14 Web Push bildirişləri · anbar üçün kamera ilə təhvil aktı yükləmə (brifdə yoxdur — əvvəl validasiya).

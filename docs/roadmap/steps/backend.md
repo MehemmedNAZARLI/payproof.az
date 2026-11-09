@@ -157,3 +157,27 @@ Hər endpoint `packages/contracts/openapi.yaml`-a uyğun olmalıdır; uyğunsuzl
 **Branch:** `feat/B-26-hardening` · **Asılılıq:** B-24 · **Skills:** `security-and-hardening`, `security-review`
 **Daxildir:** FastAPI sxemi ↔ `openapi.yaml` drift testi (CI-da), hər yazma endpoint-i üçün tenant testi, sadə rate limit (upload, login), log-larda sənəd mətni olmadığını yoxlayan test, `security-review` nəticələrinin düzəldilməsi.
 **Qəbul:** [ ] drift testi CI-da [ ] security review-da kritik tapıntı yoxdur
+
+---
+## ADR-0011 — konfiqurasiya olunan sənəd dəstləri (backend)
+PR #10 (müqavilə 0.4.0, mock referans implementasiyası) backend-ə buraxdığı işi bu step-lər bağlayır. Referans: `packages/mocks/src/checks/`, golden: `fixtures/scenarios/unec.expected.json`.
+
+### B-27 · Sənəd növü reyestri, tələb dəsti konfiqurasiyası, UNEC
+**Branch:** `feat/B-27-document-sets` · **Asılılıq:** B-22, B-26 · **Skills:** `api-and-interface-design`
+**Daxildir:** `document_types` cədvəli (açar + versiya, dəyişməz; `fixtures/config/document-types.json`-dan sinxron — eyni versiyanın məzmunu dəyişibsə xəta), `requirement_sets` + `documents/checks/output` (JSONB, NULL = legacy profil; dəyişməzlik trigger-i qalır), `output_templates` (müştəri üzrə `.docx`, sha256, tapılan placeholder-lər); tələb dəsti saxlananda konfiqurasiya validasiyası (`validate-config.mjs` ilə eyni qaydalar: naməlum növ/sahə/sütun, rezerv ID-lər, `field` mənbəli placeholder `field_present` hədəfi və `max_count = 1`, şablon müştəriyə yüklənib və placeholder-ləri ehtiva edir). `/contract-change` (0.5.0): `GET /v1/document-types`, `GET /v1/check-library`, `POST /v1/customers/{id}/output-templates` (multipart), tələb dəsti POST-una `documents/checks/output`; mock handler-ləri. UNEC (`c3`) `customers.json`-da, mock müştəri siyahısında və seed-də.
+**Qəbul:** [ ] drift testi yaşıl (yeni əməliyyatlar backend-də) [ ] legacy dəst cavabda `documents/checks` legacy profili ilə [ ] səhv parametrli dəst → 422, səbəb `details`-də [ ] seed testi 3 müştəri
+
+### B-28 · Yoxlama kitabxanası (Python) və ümumi paketlər
+**Branch:** `feat/B-28-check-library` · **Asılılıq:** B-27 · **Skills:** `superpowers:test-driven-development`
+**Daxildir:** `domain/checks/` — 10 ailə TS referansı ilə bayt-bayt eyni nəticə (mesaj, `data`, evidence sırası); golden: referansın UNEC + mutasiya ssenariləri üzrə çıxışı (`fixtures/scenarios/unec.reference.json`, node skripti ilə generasiya) Python çıxışına JSON səviyyəsində bərabərdir; R-qaydaları golden-ləri dəyişmir. Ümumi paket: `invoice_packages.reference`, eyni növdən bir neçə sənəd, `generic_extractions` (sənəd versiyası üzrə sahələr/cədvəllər/oxunmayanlar/mənbələr + reyestr versiyası), revalidation tələb dəstinə görə mühərrik seçir; `check_results.check_type`. Seed UNEC-in iki hesabatını (fayllar, çıxarış, run) yazır. Faktura formalı siyahı/dashboard ümumi paketləri göstərmir (UI step-ləri gələnə qədər).
+**Qəbul:** [ ] QR-2026-0914 → `READY_FOR_APPROVAL`, QR-2026-0927 → `NEEDS_FIX` [`U-07`] (DB testi) [ ] oxunmayan dəyər heç vaxt FAIL/NOT_APPLICABLE deyil, UNKNOWN-dur [ ] R-qaydası golden testləri dəyişməyib
+
+### B-29 · AI provayder adapteri
+**Branch:** `feat/B-29-ai-provider` · **Asılılıq:** B-27 · **Skills:** `claude-api`, `security-and-hardening`
+**Daxildir:** bir `LlmExtractor` interfeysi, `AI_PROVIDER=mock|pdf|anthropic|openai` (`pdf` keçid dövrü üçün qalır, `llm` silinir); `AI_API_KEY`, `AI_MODEL`, `AI_BASE_URL`; anthropic — rəsmi Python SDK, PDF/şəkil sənəd bloku, strukturlaşdırılmış JSON çıxışı (sxem reyestr növündən törənir); openai — eyni interfeys arxasında stub. Hər sahə `value + page + quote + confidence`; aşağı əminlik → oxunmayan (heç vaxt təxmin yox); saxlamadan əvvəl validasiya (səhifə aralığı, sitat boş deyil, tip). Timeout, retry, səhv konfiqurasiyada aydın başlanğıc xətası; log-da sənəd mətni və açar yoxdur. SDK yalnız `extraction/providers/<ad>.py`-də import olunur.
+**Qəbul:** [ ] açarsız `AI_PROVIDER=anthropic` başlanğıcda aydın xəta [ ] injection mətni sxemdən kənar sahə yarada bilmir [ ] əminlik aşağı → UNKNOWN [ ] SDK çağırışı test ikiqatı ilə yoxlanır (şəbəkəsiz)
+
+### B-30 · Çıxış şablonu ilə ixrac və göndərmə
+**Branch:** `feat/B-30-output-export` · **Asılılıq:** B-28 · **Skills:** `security-and-hardening`
+**Daxildir:** ixracda `docxtpl` ilə şablon yalnız xəritələnmiş placeholder-lərdə doldurulur; çatışmayan dəyər → `422 VALIDATION_ERROR` + `details.missing_placeholders[]`, qismən sənəd yoxdur; zip = doldurulmuş şablon + seçilmiş sənədlər + `manifest.json` (dəyərlər + mənbə istinadları, sha256); `ExportRecord.output`; göndərmə `send_export` job-u ilə yalnız tələb dəstindəki ünvana — Resend (`RESEND_API_KEY`, `RESEND_FROM`), açar yoxdursa dev-də log; status `QUEUED|SENT|FAILED`, təkrar göndərmə idempotent; hər addım auditdə.
+**Qəbul:** [ ] UNEC export_refusal ssenarisi → 422 `{{grantee_name}}`, `{{grantee_fin}}` [ ] QR-2026-0914 ixracı şablonu doldurur, manifestdə hər dəyərin mənbəyi var [ ] göndərmə xətası ixracı ləğv etmir
