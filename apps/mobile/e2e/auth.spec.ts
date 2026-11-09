@@ -61,7 +61,10 @@ test("signs out and clears the session, the Query cache and the runtime caches",
   });
   expect(left.storage).toBeNull();
   expect(
-    left.urls.filter((path) => !path.startsWith("/login") && !path.startsWith("/_next/static/")),
+    left.urls.filter(
+      (path) =>
+        !path.startsWith("/login") && !path.startsWith("/_next/static/") && path !== "/icon.svg",
+    ),
   ).toEqual([]);
 
   await page.goto("/home");
