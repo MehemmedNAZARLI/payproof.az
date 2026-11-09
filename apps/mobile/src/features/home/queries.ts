@@ -5,7 +5,8 @@ import { t } from "@/lib/i18n";
 
 export const homeKeys = {
   dashboard: () => ["dashboard"] as const,
-  activity: (limit: number) => ["audit", "recent", limit] as const,
+  activityAll: () => ["audit"] as const,
+  activity: (limit: number) => [...homeKeys.activityAll(), "recent", limit] as const,
 };
 
 /** KPIs for the home screen and the list chips (`GET /v1/dashboard`). */
