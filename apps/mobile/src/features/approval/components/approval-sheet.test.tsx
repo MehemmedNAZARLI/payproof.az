@@ -6,9 +6,11 @@ import { PackageDetailScreen } from "@/features/package-detail/components/packag
 import { packageDetailKeys } from "@/features/package-detail/queries";
 import { clearSeen, markSeen } from "@/features/package-detail/seen-store";
 import type { Schemas } from "@/lib/api";
+import { unwrap } from "@/lib/api";
+import { useLiveUpdates } from "@/lib/live";
 import { createQueryClient } from "@/lib/query-client";
 import { startSession } from "@/lib/session";
-import { detailOf, meFor, mockToken, recordedApprovals } from "@/test/mock";
+import { detailOf, meFor, mockClient, mockToken, recordedApprovals } from "@/test/mock";
 
 const push = vi.fn();
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
@@ -53,6 +55,12 @@ beforeEach(() => {
   wire.fail.length = 0;
 });
 
+// The app's one live stream (providers.tsx), over the in-page mock.
+function LiveBridge() {
+  useLiveUpdates();
+  return null;
+}
+
 let client = createQueryClient();
 async function openSheet() {
   client = createQueryClient();
@@ -65,6 +73,7 @@ async function openSheet() {
   render(
     <QueryClientProvider client={client}>
       <PackageDetailScreen id={ID} />
+      <LiveBridge />
     </QueryClientProvider>,
   );
   fireEvent.click(await screen.findByRole("button", { name: "Sübutlara baxıb təsdiqlə" }));
@@ -177,6 +186,31 @@ describe("approval sheet", () => {
     await waitFor(() => expect(within(sheet).getByText(/Cari v2/)).toBeVisible());
     expect(within(sheet).getByRole("checkbox")).not.toBeChecked();
     expect(within(sheet).getByText("0/3 baxılıb")).toBeVisible();
+  });
+
+  it("says at once when someone else makes a newer version, and holds the confirm", async () => {
+    await seeAll();
+    const sheet = await openSheet();
+    fireEvent.click(within(sheet).getByRole("checkbox"));
+    expect(confirm(sheet)).not.toHaveAttribute("aria-disabled");
+    // Aygün (operator) confirms the PO field on the web: the package moves to v2.
+    const field = (await detailOf(ID, "u1")).fields[0]!;
+    await unwrap(
+      mockClient("u1").PATCH("/v1/fields/{field_id}", {
+        params: { path: { field_id: field.id } },
+        body: { value: field.value!, reason: "Sifariş nömrəsi yoxlanıldı", expected_version: 1 },
+      }),
+    );
+    expect(await within(sheet).findByRole("alert")).toHaveTextContent(
+      "Başqa istifadəçi paketi yenilədi (v2)",
+    );
+    expect(confirm(sheet)).toHaveAttribute("aria-disabled", "true");
+    fireEvent.click(confirm(sheet));
+    expect(recordedApprovals()).toHaveLength(0);
+    // v2 loads by itself; it has to be reviewed again, and the notice stays to say why.
+    await waitFor(() => expect(within(sheet).getByText(/Cari v2/)).toBeVisible());
+    expect(within(sheet).getByText("0/3 baxılıb")).toBeVisible();
+    expect(within(sheet).getByRole("alert")).toHaveTextContent("(v2)");
   });
 
   it("tells a screen reader why a locked confirm did nothing", async () => {

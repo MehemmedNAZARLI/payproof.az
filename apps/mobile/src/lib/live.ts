@@ -2,7 +2,7 @@
 
 import { type Schemas, subscribeEvents } from "@payproof/api-client";
 import { type QueryKey, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import { homeKeys } from "@/features/home/queries";
 import { notificationKeys } from "@/features/notifications/queries";
@@ -121,4 +121,29 @@ export function useLiveUpdates() {
       if (opened) state.maybe = true;
     };
   }, [queryClient, token, online, visible]);
+}
+
+/**
+ * While a sheet works on `version` of a package (approval): the newer version someone else has
+ * made since, or null. The server would answer 409 anyway; this says so before the user tries.
+ * Own changes don't count — so the viewer's own second tab doesn't either: 409 is still handled.
+ */
+export function usePackageChangedSince(packageId: string, version: number): number | null {
+  const me = useSession()?.user.id;
+  const [seen, setSeen] = useState<{ packageId: string; version: number } | null>(null);
+  useEffect(
+    () =>
+      onLiveEvent((event) => {
+        if (event.package_id !== packageId || !event.package_version || event.actor_id === me)
+          return;
+        const newer = event.package_version;
+        setSeen((prev) =>
+          prev?.packageId === packageId && prev.version >= newer
+            ? prev
+            : { packageId, version: newer },
+        );
+      }),
+    [packageId, me],
+  );
+  return seen?.packageId === packageId && seen.version > version ? seen.version : null;
 }
