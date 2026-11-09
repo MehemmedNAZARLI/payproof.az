@@ -45,7 +45,10 @@ describe("createQueryClient error toasts", () => {
     const client = createQueryClient();
     client.setQueryData(["x"], { ok: true });
     await client.fetchQuery({ queryKey: ["x"], queryFn: fail, staleTime: 0 }).catch(() => {});
-    expect(spy).toHaveBeenCalledWith("Could not refresh data", "You do not have permission for this action.");
+    expect(spy).toHaveBeenCalledWith(
+      "Could not refresh data",
+      "You do not have permission for this action.",
+    );
     expect(client.getQueryData(["x"])).toEqual({ ok: true });
   });
 

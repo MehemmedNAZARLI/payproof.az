@@ -43,9 +43,7 @@ describe("dates (Baku time)", () => {
 
   it("writes today in words with the weekday", () => {
     expect(formatLongDate(new Date("2026-11-08T06:30:00Z"))).toBe("8 November 2026, Sunday");
-    expect(formatLongDate(new Date("2026-11-09T20:30:00Z"))).toBe(
-      "10 November 2026, Tuesday",
-    );
+    expect(formatLongDate(new Date("2026-11-09T20:30:00Z"))).toBe("10 November 2026, Tuesday");
   });
 
   it("greets by the time of day", () => {

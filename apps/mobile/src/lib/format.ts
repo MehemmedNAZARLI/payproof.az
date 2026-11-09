@@ -7,13 +7,21 @@ export { formatMoney } from "@payproof/api-client/format";
 // Dates are shown in Baku time, as the business and the fixtures keep them, on any device.
 const ZONE = "Asia/Baku";
 const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 // Sunday first, as Date#getDay counts.
-const WEEKDAYS = [
-  "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",
-];
+const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 const partsFormat = new Intl.DateTimeFormat("en-GB", {
   timeZone: ZONE,

@@ -27,18 +27,26 @@ const failures: Record<string, string> = {
   "R-009": "The invoice total does not match its line totals.",
 };
 export function checkMessage(check: Schemas["CheckResult"]): string {
-  if (check.outcome === "PASS") return "This requirement passed the deterministic check. Review the cited source values below.";
-  if (check.outcome === "NOT_APPLICABLE") return "This requirement does not apply to this document set.";
-  if (check.outcome === "UNKNOWN") return check.cascade
-    ? "A related check must be resolved before this result can be determined. Unknown results block approval."
-    : "The available evidence is unreadable or insufficient. The result is unknown and blocks approval; no value was guessed.";
-  return failures[check.rule_id] ?? "This requirement failed. Review the cited source values below.";
+  if (check.outcome === "PASS")
+    return "This requirement passed the deterministic check. Review the cited source values below.";
+  if (check.outcome === "NOT_APPLICABLE")
+    return "This requirement does not apply to this document set.";
+  if (check.outcome === "UNKNOWN")
+    return check.cascade
+      ? "A related check must be resolved before this result can be determined. Unknown results block approval."
+      : "The available evidence is unreadable or insufficient. The result is unknown and blocks approval; no value was guessed.";
+  return (
+    failures[check.rule_id] ?? "This requirement failed. Review the cited source values below."
+  );
 }
 
 const titles: Record<string, string> = {
-  "Maliyyə əməkdaşı": "Finance specialist", "Maliyyə direktoru": "Finance director",
-  "Anbar və logistika": "Warehouse and logistics", "Satış meneceri": "Sales manager",
-  "Daxili auditor": "Internal auditor", "Mühasib": "Accountant",
+  "Maliyyə əməkdaşı": "Finance specialist",
+  "Maliyyə direktoru": "Finance director",
+  "Anbar və logistika": "Warehouse and logistics",
+  "Satış meneceri": "Sales manager",
+  "Daxili auditor": "Internal auditor",
+  Mühasib: "Accountant",
 };
 export const jobTitle = (title: string) => titles[title] ?? title;
 
@@ -68,19 +76,25 @@ const notificationPhrases: Record<string, string> = {
   "2 mümkün sifariş tapıldı — seçim tələb olunur.": "2 possible orders found. Select a match.",
   "təsdiqləndi və ixrac gözləyir.": "was approved and is awaiting export.",
   "üzrə qiymət tapşırığını icraya götürdü.": "started the price review task.",
-  "fakturada PO yoxdur; PO-381 namizəd kimi tapıldı.": "invoice has no PO; PO-381 was suggested as a match.",
+  "fakturada PO yoxdur; PO-381 namizəd kimi tapıldı.":
+    "invoice has no PO; PO-381 was suggested as a match.",
   "təhvil sənədinin yeni versiyası yükləndi.": "a new delivery document version was uploaded.",
   "təsdiqi etibarsızlaşdı —": "approval was invalidated;",
   "yenidən təsdiq tələb edir.": "requires a new approval.",
-  "əvvəlki təsdiq etibarsızlaşdı (audit qeydi).": "the previous approval was invalidated (audit record).",
+  "əvvəlki təsdiq etibarsızlaşdı (audit qeydi).":
+    "the previous approval was invalidated (audit record).",
   "təsdiqinizi gözləyir": "is awaiting your approval",
-  "bütün yoxlamalardan keçdi və təsdiqçiyə göndərildi.": "passed all checks and was sent for approval.",
+  "bütün yoxlamalardan keçdi və təsdiqçiyə göndərildi.":
+    "passed all checks and was sent for approval.",
   "paketi ixrac edildi": "package was exported",
-  "tərəfindən təsdiqləndi — paket göndərilməyə hazırdır.": "approved the package. It is ready to send.",
+  "tərəfindən təsdiqləndi — paket göndərilməyə hazırdır.":
+    "approved the package. It is ready to send.",
 };
 export function notificationText(text: string): string {
   let translated = text;
-  for (const [source, english] of Object.entries(notificationPhrases)) translated = translated.replaceAll(source, english);
+  for (const [source, english] of Object.entries(notificationPhrases))
+    translated = translated.replaceAll(source, english);
+  if (translated !== text) return translated;
   // A new server notification must not leak untranslated application copy into the UI.
   return /[əƏıİşŞçÇğĞüÜöÖ]/.test(translated.replace(/^[^:]*:/, ""))
     ? "Package activity updated. Open the package to review its current status."

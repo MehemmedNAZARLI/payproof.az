@@ -7,20 +7,36 @@ export type TaskStatus = keyof typeof taskStatusTone;
 
 // Mobile owns its English labels; shared clients and the web retain their own language.
 const packageStatusLabel = {
-  PROCESSING: "Processing", NEEDS_REVIEW: "Needs review", NEEDS_FIX: "Needs correction",
-  READY_FOR_APPROVAL: "Awaiting approval", APPROVED_READY: "Ready to send", EXPORTED: "Exported",
+  PROCESSING: "Processing",
+  NEEDS_REVIEW: "Needs review",
+  NEEDS_FIX: "Needs correction",
+  READY_FOR_APPROVAL: "Awaiting approval",
+  APPROVED_READY: "Ready to send",
+  EXPORTED: "Exported",
 } satisfies Record<PackageStatus, string>;
 const checkOutcomeLabel = {
-  PASS: "Passed", FAIL: "Failed", UNKNOWN: "Unknown", NOT_APPLICABLE: "Not applicable",
+  PASS: "Passed",
+  FAIL: "Failed",
+  UNKNOWN: "Unknown",
+  NOT_APPLICABLE: "Not applicable",
 } satisfies Record<CheckOutcome, string>;
 const taskStatusLabel = {
-  OPEN: "Open", IN_PROGRESS: "In progress", SUBMITTED_FOR_RECHECK: "Awaiting recheck", RESOLVED: "Resolved",
+  OPEN: "Open",
+  IN_PROGRESS: "In progress",
+  SUBMITTED_FOR_RECHECK: "Awaiting recheck",
+  RESOLVED: "Resolved",
 } satisfies Record<TaskStatus, string>;
 const documentTypeLabel = {
-  invoice: "Invoice", order: "Order", delivery: "Delivery document",
+  invoice: "Invoice",
+  order: "Order",
+  delivery: "Delivery document",
 } satisfies Record<Schemas["DocumentType"], string>;
 const roleLabel = {
-  operator: "Operator", approver: "Approver", readonly: "Read only", admin: "Admin", assignee: "Assignee",
+  operator: "Operator",
+  approver: "Approver",
+  readonly: "Read only",
+  admin: "Admin",
+  assignee: "Assignee",
 } satisfies Record<Schemas["Role"], string>;
 
 export const t = {
@@ -59,8 +75,7 @@ export const t = {
     ruleSet: (v: number) => `Rule set v${v}`,
     approvedBy: "Approved by",
     linkPending: "Order selection pending",
-    linkPendingBody:
-      "Confirm the match in the web app to compare documents side by side.",
+    linkPendingBody: "Confirm the match in the web app to compare documents side by side.",
     checks: "Checks",
     checksSummary: (pass: number, blocking: number) => `${pass} passed · ${blocking} blocking`,
     documents: "Documents",
@@ -110,8 +125,7 @@ export const t = {
     conflictBody: (v?: number) =>
       `${v ? `A new package version is available (v${v}).` : "The package or rule set has changed."} Review the documents again and confirm your review.`,
     forbiddenTitle: "You do not have approval permission",
-    forbiddenBody:
-      "Only an approver can approve a ready package. Your role may have changed.",
+    forbiddenBody: "Only an approver can approve a ready package. Your role may have changed.",
     notReadyTitle: "Package is no longer awaiting approval",
     inProgress: "Approval is being submitted. Try again in a few seconds.",
     failedTitle: "Could not submit approval",
@@ -154,9 +168,11 @@ export const t = {
     loadFailed: "Could not open document",
     highlightHint: "The yellow highlight marks the source of the check.",
     currentHint: "Showing the current document version.",
-    quoteOnly: (page: number) => `Highlight unavailable. Showing page ${page} and the source quote.`,
+    quoteOnly: (page: number) =>
+      `Highlight unavailable. Showing page ${page} and the source quote.`,
     scan: "Scanned document: text recognition may be unreliable. Review the source visually.",
-    spreadsheet: "Spreadsheet preview is unavailable on mobile. Review the quote below or open the file.",
+    spreadsheet:
+      "Spreadsheet preview is unavailable on mobile. Review the quote below or open the file.",
     openFile: "Open file",
   },
   rule: {
@@ -199,8 +215,7 @@ export const t = {
     recommended: "Recommended",
     signingIn: "Signing in…",
     signedIn: (name: string) => `${name} signed in.`,
-    footnote:
-      "Explore with a demo account. Roles and permissions are checked by the server.",
+    footnote: "Explore with a demo account. Roles and permissions are checked by the server.",
     unavailable: "Demo sign-in unavailable",
     expired: "Your session expired. Sign in again.",
   },
@@ -270,11 +285,9 @@ export const t = {
     web: "Open web app",
     signOut: "Sign out",
     signOutTitle: "Sign out?",
-    signOutBody:
-      "Saved package data will be removed from this device. Sign in again with one tap.",
+    signOutBody: "Saved package data will be removed from this device. Sign in again with one tap.",
     cancel: "Cancel",
-    footnote:
-      "PayProof demo · synthetic data · no real payments, emails or ERP operations",
+    footnote: "PayProof demo · synthetic data · no real payments, emails or ERP operations",
     loadFailed: "Could not load profile",
   },
   time: { today: "Today", yesterday: "Yesterday" },
@@ -315,7 +328,8 @@ export const t = {
   },
   offline: {
     strip: "Offline · showing last loaded data",
-    notLoaded: "This data has not been loaded on this device. It will load when your connection returns.",
+    notLoaded:
+      "This data has not been loaded on this device. It will load when your connection returns.",
   },
   install: {
     title: "Add to Home Screen",
