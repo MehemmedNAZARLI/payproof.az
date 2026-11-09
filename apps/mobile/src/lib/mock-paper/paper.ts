@@ -4,7 +4,6 @@ import packages from "@fixtures/packages.json";
 import type { PaperDocument, PaperPage } from "@/features/document-viewer/paper-model";
 import { formatDate } from "@/lib/format";
 
-import { findVersion } from "./documents";
 import {
   customer,
   type Delivery,
@@ -12,11 +11,12 @@ import {
   type PackageModel,
   packageModel,
   product,
-} from "./engine/model";
-import { deliveryQuote, invoiceQuote, lineSum, money, orderQuote, quantity } from "./engine/quotes";
+} from "./model";
+import { deliveryQuote, invoiceQuote, lineSum, money, orderQuote, quantity } from "./quotes";
 
-// shortcut: the mock has no file bytes, so a document version is drawn from its fixture data
-// (prototype docPage). Fixtures keep only the latest data, so older versions draw the same.
+// Mock mode only: @payproof/mocks links to placeholder files with no bytes, so a document version
+// is drawn from its fixture data (prototype docPage). Fixtures keep only the latest data, so older
+// versions draw the same. Quotes match the mock's evidence (both port the prototype's ev()).
 
 const PRICED = [
   { text: "Kod" },
@@ -142,9 +142,25 @@ function deliveryPage(d: Delivery, file: string, version: number, scan: boolean)
   };
 }
 
+const DOC_TYPES = ["invoice", "order", "delivery"] as const;
+// @payproof/mocks version IDs: 0193a000-0000-7000-8005-0000<package><type 1-3><version 001>
+const VERSION_ID = /^0193a000-0000-7000-8005-0000(\d{4})([123])(\d{3})$/;
+
+/** The fixture package, document type and file behind a mock document version ID. */
+function findVersion(versionId: string) {
+  const m = VERSION_ID.exec(versionId);
+  if (!m) return undefined;
+  const pkg = packages.find((p) => p.id === `pkg_${Number(m[1])}`);
+  const type = DOC_TYPES[Number(m[2]) - 1]!;
+  const version = pkg?.documents
+    .find((d) => d.type === type)
+    ?.versions.find((v) => v.version_no === Number(m[3]));
+  return pkg && version ? { pkg, type, version } : undefined;
+}
+
 /** The paper for a mock file link's document version. */
 export function mockPaper(versionId: string): PaperDocument | undefined {
-  const found = findVersion(packages, versionId);
+  const found = findVersion(versionId);
   if (!found) return undefined;
   const m = packageModel(found.pkg);
   const { file_name: file, version_no: version, source_kind } = found.version;

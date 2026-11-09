@@ -2,19 +2,25 @@ import packages from "@fixtures/packages.json";
 import { describe, expect, it } from "vitest";
 
 import { pageQuotes } from "@/features/document-viewer/paper-model";
+import { unwrap } from "@/lib/api";
+import { mockClient, pkgId } from "@/test/mock";
 
-import { packageDetail } from "./package-detail";
 import { mockPaper } from "./paper";
-import { mockUuid } from "./store";
 
+const detail = (slug: string) =>
+  unwrap(
+    mockClient().GET("/v1/packages/{package_id}", {
+      params: { path: { package_id: pkgId(slug) } },
+    }),
+  );
 const regions = (versionId: string) => (mockPaper(versionId)?.pages ?? []).flatMap(pageQuotes);
 
-describe("mock paper", () => {
-  it("has a region for every evidence quote, except text the scan could not read", () => {
+describe("mock paper", async () => {
+  it("has a region for every evidence quote, except text the scan could not read", async () => {
     let cited = 0;
     for (const p of packages) {
-      const detail = packageDetail(mockUuid("package", p.id), "u2")!;
-      for (const check of detail.checks)
+      const d = await detail(p.id);
+      for (const check of d.checks)
         for (const e of check.evidence) {
           cited++;
           const found = regions(e.document_version_id).includes(e.quote);
@@ -26,8 +32,8 @@ describe("mock paper", () => {
     expect(cited).toBeGreaterThan(50);
   });
 
-  it("blurs an unreadable PO instead of offering it as a highlight", () => {
-    const inv = packageDetail(mockUuid("package", "pkg_1047"), "u2")!.documents[0]!;
+  it("blurs an unreadable PO instead of offering it as a highlight", async () => {
+    const inv = (await detail("pkg_1047")).documents[0]!;
     const page = mockPaper(inv.current.id)!.pages[0]!;
     expect(page.scan).toBe(true);
     expect(page.meta.find((r) => r.label === "Sifariş №")).toEqual({
@@ -38,9 +44,8 @@ describe("mock paper", () => {
     });
   });
 
-  it("shows every candidate order, marked unconfirmed, while the link is open", () => {
-    const detail = packageDetail(mockUuid("package", "pkg_1048"), "u2")!;
-    const order = detail.documents.find((d) => d.type === "order")!;
+  it("shows every candidate order, marked unconfirmed, while the link is open", async () => {
+    const order = (await detail("pkg_1048")).documents.find((d) => d.type === "order")!;
     const pages = mockPaper(order.current.id)!.pages;
     expect(pages.map((x) => [x.number, x.notice])).toEqual([
       ["PO-383", "Namizəd — təsdiqlənməyib"],
@@ -48,9 +53,8 @@ describe("mock paper", () => {
     ]);
   });
 
-  it("draws the signature and stamp only on a signed delivery note", () => {
-    const detail = packageDetail(mockUuid("package", "pkg_1038"), "u2")!;
-    const delivery = detail.documents.find((d) => d.type === "delivery")!;
+  it("draws the signature and stamp only on a signed delivery note", async () => {
+    const delivery = (await detail("pkg_1038")).documents.find((d) => d.type === "delivery")!;
     const page = mockPaper(delivery.current.id)!.pages[0]!;
     expect(page.signatures).toMatchObject({ signed: true });
     expect(page.stamp).toBe("B");

@@ -6,8 +6,8 @@ import products from "@fixtures/products.json";
 
 import { toCents } from "@/lib/money";
 
-// shortcut: a normalised, read-only view of one fixture package for the ported rule engine
-// (S-06 brings the shared mock engine). Money is integer cents throughout.
+// A normalised, read-only view of one fixture package for drawing its documents as paper (mock
+// mode). Money is integer cents throughout.
 
 export type DocType = "invoice" | "order" | "delivery";
 export type Line = { code: string; qty: number; price: bigint };

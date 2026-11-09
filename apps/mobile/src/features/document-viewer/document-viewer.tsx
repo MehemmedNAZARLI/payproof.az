@@ -43,7 +43,7 @@ export function DocumentViewer({ version, title, evidence, onViewed }: ViewerPro
   const mockId = url ? mockFileVersion(url) : null;
   const paper = useQuery({
     queryKey: ["mock-paper", mockId],
-    queryFn: () => import("@/lib/api/mock/paper").then((m) => m.mockPaper(mockId!) ?? null),
+    queryFn: () => import("@/lib/mock-paper/paper").then((m) => m.mockPaper(mockId!) ?? null),
     enabled: mockId !== null,
     staleTime: Number.POSITIVE_INFINITY,
   });
