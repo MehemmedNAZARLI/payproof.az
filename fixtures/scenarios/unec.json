@@ -1,0 +1,1002 @@
+{
+  "customer": {
+    "id": "c3",
+    "name": "UNEC — Azərbaycan Dövlət İqtisad Universiteti",
+    "external_id": "UNEC-QRANT",
+    "voen": "1700354821",
+    "requirement_sets": [
+      {
+        "version": 1,
+        "effective_from": "2026-09-01",
+        "approved_by": "u2",
+        "reason": "UNEC tələbə qrantı üzrə xərc hesabatı qaydası (2026/27 tədris ili, payız semestri).",
+        "documents": [
+          {
+            "type": "invoice",
+            "min_count": 1,
+            "max_count": 10
+          },
+          {
+            "type": "bank_statement",
+            "min_count": 1,
+            "max_count": 1
+          },
+          {
+            "type": "card_statement",
+            "min_count": 1,
+            "max_count": 1
+          }
+        ],
+        "checks": [
+          {
+            "id": "U-01",
+            "type": "field_present",
+            "title": "Məcburi sahələr çıxarılıb",
+            "parameters": {
+              "targets": [
+                {
+                  "document_type": "invoice",
+                  "field": "invoice_number"
+                },
+                {
+                  "document_type": "invoice",
+                  "field": "invoice_date"
+                },
+                {
+                  "document_type": "invoice",
+                  "field": "seller.name"
+                },
+                {
+                  "document_type": "invoice",
+                  "field": "seller.tax_id"
+                },
+                {
+                  "document_type": "invoice",
+                  "field": "total"
+                },
+                {
+                  "document_type": "bank_statement",
+                  "field": "account_holder.name"
+                },
+                {
+                  "document_type": "bank_statement",
+                  "field": "account_holder.id_number"
+                },
+                {
+                  "document_type": "bank_statement",
+                  "field": "period_start"
+                },
+                {
+                  "document_type": "bank_statement",
+                  "field": "period_end"
+                },
+                {
+                  "document_type": "card_statement",
+                  "field": "card_holder.id_number"
+                }
+              ]
+            }
+          },
+          {
+            "id": "U-02",
+            "type": "party_identity_match",
+            "title": "Bank və kart çıxarışı eyni tələbəyə aiddir",
+            "parameters": {
+              "parties": [
+                {
+                  "document_type": "bank_statement",
+                  "field": "account_holder"
+                },
+                {
+                  "document_type": "card_statement",
+                  "field": "card_holder"
+                }
+              ],
+              "match_on": ["id_number", "name"]
+            }
+          },
+          {
+            "id": "U-03",
+            "type": "values_equal",
+            "title": "Bütün sənədlər eyni valyutadadır",
+            "parameters": {
+              "fields": [
+                {
+                  "document_type": "invoice",
+                  "field": "currency"
+                },
+                {
+                  "document_type": "bank_statement",
+                  "field": "currency"
+                },
+                {
+                  "document_type": "card_statement",
+                  "field": "currency"
+                }
+              ],
+              "normalize": "exact"
+            }
+          },
+          {
+            "id": "U-04",
+            "type": "totals_sum",
+            "title": "Faktura sətirlərinin cəmi yekuna bərabərdir",
+            "parameters": {
+              "document_type": "invoice",
+              "table": "lines",
+              "amount_column": "amount",
+              "total_field": "total",
+              "tolerance": "0.01"
+            }
+          },
+          {
+            "id": "U-05",
+            "type": "date_within_period",
+            "title": "Faktura qrant dövrü daxilindədir",
+            "parameters": {
+              "target": {
+                "document_type": "invoice",
+                "field": "invoice_date"
+              },
+              "period": {
+                "from": {
+                  "document_type": "bank_statement",
+                  "field": "period_start"
+                },
+                "to": {
+                  "document_type": "bank_statement",
+                  "field": "period_end"
+                }
+              }
+            }
+          },
+          {
+            "id": "U-06",
+            "type": "amount_within_limit",
+            "title": "Xərclər qrant limitini aşmır",
+            "parameters": {
+              "target": {
+                "document_type": "invoice",
+                "field": "total"
+              },
+              "aggregate": "sum",
+              "limit": {
+                "amount": "1500.00",
+                "currency": "AZN"
+              }
+            }
+          },
+          {
+            "id": "U-07",
+            "type": "transaction_match",
+            "title": "Hər faktura ödəniş əməliyyatı ilə təsdiqlənir",
+            "parameters": {
+              "source": {
+                "document_type": "invoice",
+                "amount_field": "total",
+                "date_field": "invoice_date",
+                "counterparty_field": "seller.name"
+              },
+              "against": [
+                {
+                  "document_type": "bank_statement",
+                  "list": "transactions"
+                },
+                {
+                  "document_type": "card_statement",
+                  "list": "transactions"
+                }
+              ],
+              "amount_tolerance": "0.00",
+              "date_window_days": 3,
+              "counterparty": "normalized",
+              "direction": "debit"
+            }
+          },
+          {
+            "id": "U-08",
+            "type": "no_duplicate_use",
+            "title": "Faktura başqa hesabatda istifadə olunmayıb",
+            "parameters": {
+              "subjects": [
+                {
+                  "document_type": "invoice",
+                  "key_fields": ["seller.tax_id", "invoice_number"]
+                }
+              ],
+              "scope": "customer"
+            }
+          }
+        ],
+        "output": {
+          "template": {
+            "file_name": "UNEC_qrant_xerc_akti.docx",
+            "sha256": "f6902e35f88d6a0ff723d4c24dffabe0770ff0266c7def6ecebca8e67e025813"
+          },
+          "placeholders": [
+            {
+              "placeholder": "{{report_reference}}",
+              "source": {
+                "kind": "package",
+                "value": "reference"
+              }
+            },
+            {
+              "placeholder": "{{grantee_name}}",
+              "source": {
+                "kind": "field",
+                "document_type": "bank_statement",
+                "field": "account_holder.name"
+              }
+            },
+            {
+              "placeholder": "{{grantee_fin}}",
+              "source": {
+                "kind": "field",
+                "document_type": "bank_statement",
+                "field": "account_holder.id_number"
+              }
+            },
+            {
+              "placeholder": "{{period_start}}",
+              "source": {
+                "kind": "field",
+                "document_type": "bank_statement",
+                "field": "period_start"
+              }
+            },
+            {
+              "placeholder": "{{period_end}}",
+              "source": {
+                "kind": "field",
+                "document_type": "bank_statement",
+                "field": "period_end"
+              }
+            },
+            {
+              "placeholder": "{{invoice_count}}",
+              "source": {
+                "kind": "aggregate",
+                "op": "count",
+                "document_type": "invoice"
+              }
+            },
+            {
+              "placeholder": "{{total_spent}}",
+              "source": {
+                "kind": "aggregate",
+                "op": "sum",
+                "document_type": "invoice",
+                "field": "total"
+              }
+            },
+            {
+              "placeholder": "{{approved_by}}",
+              "source": {
+                "kind": "approval",
+                "value": "approver_name"
+              }
+            },
+            {
+              "placeholder": "{{approved_on}}",
+              "source": {
+                "kind": "approval",
+                "value": "approved_on"
+              }
+            }
+          ],
+          "submission": {
+            "channel": "email",
+            "address": "qrant-hesabat@unec.test"
+          }
+        }
+      }
+    ]
+  },
+  "packages": [
+    {
+      "id": "unec_0914",
+      "reference": "QR-2026-0914",
+      "customer_id": "c3",
+      "owner_id": "u1",
+      "currency": "AZN",
+      "created_at": "2026-11-04T10:20:00+04:00",
+      "documents": [
+        {
+          "id": "unec_0914_ke2231",
+          "type": "invoice",
+          "file_name": "KE-2231.pdf",
+          "sha256": "9a6963eff21053024eb922a963a49aeb292ed89f406d254fdf92744145fd6bb3",
+          "pages": 1,
+          "uploaded_by": "u1",
+          "uploaded_at": "2026-11-04T10:21:00+04:00",
+          "fields": {
+            "invoice_number": "KE-2231",
+            "invoice_date": "2026-09-12",
+            "seller": {
+              "name": "Kitab Evi MMC",
+              "tax_id": "1403216781"
+            },
+            "buyer": {
+              "name": "Leyla Həsənova"
+            },
+            "po_ref": null,
+            "currency": "AZN",
+            "total": "135.00"
+          },
+          "unreadable": [],
+          "tables": {
+            "lines": [
+              {
+                "description": "Makroiqtisadiyyat dərsliyi",
+                "qty": "3",
+                "unit_price": "45.00",
+                "amount": "135.00"
+              }
+            ]
+          },
+          "evidence": {
+            "invoice_number": {
+              "page": 1,
+              "quote": "Faktura № KE-2231"
+            },
+            "invoice_date": {
+              "page": 1,
+              "quote": "Tarix: 12.09.2026"
+            },
+            "seller": {
+              "page": 1,
+              "quote": "Kitab Evi MMC, VÖEN 1403216781"
+            },
+            "buyer": {
+              "page": 1,
+              "quote": "Alıcı: Leyla Həsənova"
+            },
+            "currency": {
+              "page": 1,
+              "quote": "Valyuta: AZN"
+            },
+            "total": {
+              "page": 1,
+              "quote": "Cəmi: 135,00 AZN"
+            },
+            "lines[0]": {
+              "page": 1,
+              "quote": "Makroiqtisadiyyat dərsliyi — 3 × 45,00 = 135,00"
+            }
+          }
+        },
+        {
+          "id": "unec_0914_tm88017",
+          "type": "invoice",
+          "file_name": "TM-88017.pdf",
+          "sha256": "fa263f3b8612633afbb1e30c96b0cb28ae7177eaa93fd68fc644b4dfeed2808d",
+          "pages": 1,
+          "uploaded_by": "u1",
+          "uploaded_at": "2026-11-04T10:21:00+04:00",
+          "fields": {
+            "invoice_number": "TM-88017",
+            "invoice_date": "2026-09-20",
+            "seller": {
+              "name": "Texno Market MMC",
+              "tax_id": "1501122334"
+            },
+            "buyer": {
+              "name": "Leyla Həsənova"
+            },
+            "po_ref": null,
+            "currency": "AZN",
+            "total": "1050.00"
+          },
+          "unreadable": [],
+          "tables": {
+            "lines": [
+              {
+                "description": "Noutbuk 14\"",
+                "qty": "1",
+                "unit_price": "1050.00",
+                "amount": "1050.00"
+              }
+            ]
+          },
+          "evidence": {
+            "invoice_number": {
+              "page": 1,
+              "quote": "Faktura № TM-88017"
+            },
+            "invoice_date": {
+              "page": 1,
+              "quote": "Tarix: 20.09.2026"
+            },
+            "seller": {
+              "page": 1,
+              "quote": "Texno Market MMC, VÖEN 1501122334"
+            },
+            "buyer": {
+              "page": 1,
+              "quote": "Alıcı: Leyla Həsənova"
+            },
+            "currency": {
+              "page": 1,
+              "quote": "Valyuta: AZN"
+            },
+            "total": {
+              "page": 1,
+              "quote": "Cəmi: 1050,00 AZN"
+            },
+            "lines[0]": {
+              "page": 1,
+              "quote": "Noutbuk 14\" — 1 × 1050,00 = 1050,00"
+            }
+          }
+        },
+        {
+          "id": "unec_0914_ol5520",
+          "type": "invoice",
+          "file_name": "OL-5520.pdf",
+          "sha256": "84e8b0a36acb54b2014df1e39697ed8b7bacbb766de9d8ab3e5569197bd73139",
+          "pages": 1,
+          "uploaded_by": "u1",
+          "uploaded_at": "2026-11-04T10:22:00+04:00",
+          "fields": {
+            "invoice_number": "OL-5520",
+            "invoice_date": "2026-10-03",
+            "seller": {
+              "name": "Ofis Ləvazimatları ASC",
+              "tax_id": "1702334455"
+            },
+            "buyer": {
+              "name": "Leyla Həsənova"
+            },
+            "po_ref": null,
+            "currency": "AZN",
+            "total": "105.00"
+          },
+          "unreadable": [],
+          "tables": {
+            "lines": [
+              {
+                "description": "Dəftər A4",
+                "qty": "10",
+                "unit_price": "4.50",
+                "amount": "45.00"
+              },
+              {
+                "description": "Kalkulyator",
+                "qty": "5",
+                "unit_price": "12.00",
+                "amount": "60.00"
+              }
+            ]
+          },
+          "evidence": {
+            "invoice_number": {
+              "page": 1,
+              "quote": "Faktura № OL-5520"
+            },
+            "invoice_date": {
+              "page": 1,
+              "quote": "Tarix: 03.10.2026"
+            },
+            "seller": {
+              "page": 1,
+              "quote": "Ofis Ləvazimatları ASC, VÖEN 1702334455"
+            },
+            "buyer": {
+              "page": 1,
+              "quote": "Alıcı: Leyla Həsənova"
+            },
+            "currency": {
+              "page": 1,
+              "quote": "Valyuta: AZN"
+            },
+            "total": {
+              "page": 1,
+              "quote": "Cəmi: 105,00 AZN"
+            },
+            "lines[0]": {
+              "page": 1,
+              "quote": "Dəftər A4 — 10 × 4,50 = 45,00"
+            },
+            "lines[1]": {
+              "page": 1,
+              "quote": "Kalkulyator — 5 × 12,00 = 60,00"
+            }
+          }
+        },
+        {
+          "id": "unec_0914_bank_statement",
+          "type": "bank_statement",
+          "file_name": "bank_cixarisi_LH_2026-09_10.pdf",
+          "sha256": "6a97a0d6c8dd1a59b7cfffb42ac43d24acb70cf19f9fa6cb814ef0d9cc51d794",
+          "pages": 1,
+          "uploaded_by": "u1",
+          "uploaded_at": "2026-11-04T10:23:00+04:00",
+          "fields": {
+            "account_holder": {
+              "name": "Leyla Həsənova",
+              "id_number": "5ZK8M2P"
+            },
+            "currency": "AZN",
+            "period_start": "2026-09-01",
+            "period_end": "2026-10-31",
+            "bank_name": "Kapital Bank ASC",
+            "iban": "AZ21NABZ00000000137010001944",
+            "opening_balance": "0.00",
+            "closing_balance": "150.00"
+          },
+          "unreadable": [],
+          "tables": {
+            "transactions": [
+              {
+                "date": "2026-09-02",
+                "amount": "1500.00",
+                "direction": "credit",
+                "counterparty": "UNEC",
+                "reference": "Tələbə qrantı QR-2026-0914"
+              },
+              {
+                "date": "2026-09-21",
+                "amount": "1050.00",
+                "direction": "debit",
+                "counterparty": "Texno Market MMC",
+                "reference": "Faktura TM-88017"
+              },
+              {
+                "date": "2026-09-25",
+                "amount": "300.00",
+                "direction": "debit",
+                "counterparty": "Leyla Həsənova",
+                "reference": "Kart hesabına köçürmə"
+              }
+            ]
+          },
+          "evidence": {
+            "account_holder": {
+              "page": 1,
+              "quote": "Leyla Həsənova (FİN 5ZK8M2P)"
+            },
+            "currency": {
+              "page": 1,
+              "quote": "Valyuta: AZN"
+            },
+            "period_start": {
+              "page": 1,
+              "quote": "Dövr: 01.09.2026 – 31.10.2026"
+            },
+            "period_end": {
+              "page": 1,
+              "quote": "Dövr: 01.09.2026 – 31.10.2026"
+            },
+            "bank_name": {
+              "page": 1,
+              "quote": "Kapital Bank ASC"
+            },
+            "iban": {
+              "page": 1,
+              "quote": "AZ21NABZ00000000137010001944"
+            },
+            "opening_balance": {
+              "page": 1,
+              "quote": "0.00"
+            },
+            "closing_balance": {
+              "page": 1,
+              "quote": "150.00"
+            },
+            "transactions[0]": {
+              "page": 1,
+              "quote": "02.09.2026  UNEC  +1500,00"
+            },
+            "transactions[1]": {
+              "page": 1,
+              "quote": "21.09.2026  Texno Market MMC  -1050,00"
+            },
+            "transactions[2]": {
+              "page": 1,
+              "quote": "25.09.2026  Leyla Həsənova  -300,00"
+            }
+          }
+        },
+        {
+          "id": "unec_0914_card_statement",
+          "type": "card_statement",
+          "file_name": "kart_cixarisi_4417_2026-09_10.pdf",
+          "sha256": "0a16ce895a732005c54999c0f7c8540607a7c2c703066603679325c96b4a6fd4",
+          "pages": 1,
+          "uploaded_by": "u1",
+          "uploaded_at": "2026-11-04T10:23:00+04:00",
+          "fields": {
+            "card_holder": {
+              "name": "LEYLA HASANOVA",
+              "id_number": "5ZK8M2P"
+            },
+            "currency": "AZN",
+            "period_start": "2026-09-01",
+            "period_end": "2026-10-31",
+            "issuer": "Kapital Bank ASC",
+            "card_mask": "**** 4417"
+          },
+          "unreadable": [],
+          "tables": {
+            "transactions": [
+              {
+                "date": "2026-09-12",
+                "amount": "135.00",
+                "direction": "debit",
+                "counterparty": "KITAB EVI MMC",
+                "mcc": "5942"
+              },
+              {
+                "date": "2026-09-25",
+                "amount": "300.00",
+                "direction": "credit",
+                "counterparty": "Hesabdan köçürmə"
+              },
+              {
+                "date": "2026-09-30",
+                "amount": "18.40",
+                "direction": "debit",
+                "counterparty": "COFFEE MOFFIE",
+                "mcc": "5814"
+              },
+              {
+                "date": "2026-10-04",
+                "amount": "105.00",
+                "direction": "debit",
+                "counterparty": "OFIS LEVAZIMATLARI",
+                "mcc": "5943"
+              }
+            ]
+          },
+          "evidence": {
+            "card_holder": {
+              "page": 1,
+              "quote": "LEYLA HASANOVA (FİN 5ZK8M2P)"
+            },
+            "currency": {
+              "page": 1,
+              "quote": "Valyuta: AZN"
+            },
+            "period_start": {
+              "page": 1,
+              "quote": "Dövr: 01.09.2026 – 31.10.2026"
+            },
+            "period_end": {
+              "page": 1,
+              "quote": "Dövr: 01.09.2026 – 31.10.2026"
+            },
+            "issuer": {
+              "page": 1,
+              "quote": "Kapital Bank ASC"
+            },
+            "card_mask": {
+              "page": 1,
+              "quote": "**** 4417"
+            },
+            "transactions[0]": {
+              "page": 1,
+              "quote": "12.09.2026  KITAB EVI MMC  -135,00"
+            },
+            "transactions[1]": {
+              "page": 1,
+              "quote": "25.09.2026  Hesabdan köçürmə  +300,00"
+            },
+            "transactions[2]": {
+              "page": 1,
+              "quote": "30.09.2026  COFFEE MOFFIE  -18,40"
+            },
+            "transactions[3]": {
+              "page": 1,
+              "quote": "04.10.2026  OFIS LEVAZIMATLARI  -105,00"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "unec_0927",
+      "reference": "QR-2026-0927",
+      "customer_id": "c3",
+      "owner_id": "u1",
+      "currency": "AZN",
+      "created_at": "2026-11-05T15:05:00+04:00",
+      "documents": [
+        {
+          "id": "unec_0927_ke2307",
+          "type": "invoice",
+          "file_name": "KE-2307.pdf",
+          "sha256": "a33411aaba6800b27c49bcf321df5de738b18045dbae994a828decbca5bf40ee",
+          "pages": 1,
+          "uploaded_by": "u1",
+          "uploaded_at": "2026-11-05T15:06:00+04:00",
+          "fields": {
+            "invoice_number": "KE-2307",
+            "invoice_date": "2026-10-08",
+            "seller": {
+              "name": "Kitab Evi MMC",
+              "tax_id": "1403216781"
+            },
+            "buyer": {
+              "name": "Tural Quliyev"
+            },
+            "po_ref": null,
+            "currency": "AZN",
+            "total": "120.00"
+          },
+          "unreadable": [],
+          "tables": {
+            "lines": [
+              {
+                "description": "Statistika dərsliyi",
+                "qty": "2",
+                "unit_price": "60.00",
+                "amount": "120.00"
+              }
+            ]
+          },
+          "evidence": {
+            "invoice_number": {
+              "page": 1,
+              "quote": "Faktura № KE-2307"
+            },
+            "invoice_date": {
+              "page": 1,
+              "quote": "Tarix: 08.10.2026"
+            },
+            "seller": {
+              "page": 1,
+              "quote": "Kitab Evi MMC, VÖEN 1403216781"
+            },
+            "buyer": {
+              "page": 1,
+              "quote": "Alıcı: Tural Quliyev"
+            },
+            "currency": {
+              "page": 1,
+              "quote": "Valyuta: AZN"
+            },
+            "total": {
+              "page": 1,
+              "quote": "Cəmi: 120,00 AZN"
+            },
+            "lines[0]": {
+              "page": 1,
+              "quote": "Statistika dərsliyi — 2 × 60,00 = 120,00"
+            }
+          }
+        },
+        {
+          "id": "unec_0927_tm88412",
+          "type": "invoice",
+          "file_name": "TM-88412.pdf",
+          "sha256": "0df459218243d391b29638abfd5029fc3182f82c20bb3e4f719da79cee7b4dc4",
+          "pages": 1,
+          "uploaded_by": "u1",
+          "uploaded_at": "2026-11-05T15:06:00+04:00",
+          "fields": {
+            "invoice_number": "TM-88412",
+            "invoice_date": "2026-10-15",
+            "seller": {
+              "name": "Texno Market MMC",
+              "tax_id": "1501122334"
+            },
+            "buyer": {
+              "name": "Tural Quliyev"
+            },
+            "po_ref": null,
+            "currency": "AZN",
+            "total": "640.00"
+          },
+          "unreadable": [],
+          "tables": {
+            "lines": [
+              {
+                "description": "Planşet 10\"",
+                "qty": "1",
+                "unit_price": "640.00",
+                "amount": "640.00"
+              }
+            ]
+          },
+          "evidence": {
+            "invoice_number": {
+              "page": 1,
+              "quote": "Faktura № TM-88412"
+            },
+            "invoice_date": {
+              "page": 1,
+              "quote": "Tarix: 15.10.2026"
+            },
+            "seller": {
+              "page": 1,
+              "quote": "Texno Market MMC, VÖEN 1501122334"
+            },
+            "buyer": {
+              "page": 1,
+              "quote": "Alıcı: Tural Quliyev"
+            },
+            "currency": {
+              "page": 1,
+              "quote": "Valyuta: AZN"
+            },
+            "total": {
+              "page": 1,
+              "quote": "Cəmi: 640,00 AZN"
+            },
+            "lines[0]": {
+              "page": 1,
+              "quote": "Planşet 10\" — 1 × 640,00 = 640,00"
+            }
+          }
+        },
+        {
+          "id": "unec_0927_bank_statement",
+          "type": "bank_statement",
+          "file_name": "bank_cixarisi_TQ_2026-09_10.pdf",
+          "sha256": "35c0f7a722acba9a8c119d0872dea70affb8c8bc42dfc78f4e5728ab9c57a6d1",
+          "pages": 1,
+          "uploaded_by": "u1",
+          "uploaded_at": "2026-11-05T15:07:00+04:00",
+          "fields": {
+            "account_holder": {
+              "name": "Tural Quliyev",
+              "id_number": "7HD2KQ1"
+            },
+            "currency": "AZN",
+            "period_start": "2026-09-01",
+            "period_end": "2026-10-31",
+            "bank_name": "ABB ASC",
+            "iban": "AZ77IBAZ38090019449712345678",
+            "opening_balance": "0.00",
+            "closing_balance": "500.00"
+          },
+          "unreadable": [],
+          "tables": {
+            "transactions": [
+              {
+                "date": "2026-09-02",
+                "amount": "1500.00",
+                "direction": "credit",
+                "counterparty": "UNEC",
+                "reference": "Tələbə qrantı QR-2026-0927"
+              },
+              {
+                "date": "2026-09-28",
+                "amount": "1000.00",
+                "direction": "debit",
+                "counterparty": "Tural Quliyev",
+                "reference": "Kart hesabına köçürmə"
+              }
+            ]
+          },
+          "evidence": {
+            "account_holder": {
+              "page": 1,
+              "quote": "Tural Quliyev (FİN 7HD2KQ1)"
+            },
+            "currency": {
+              "page": 1,
+              "quote": "Valyuta: AZN"
+            },
+            "period_start": {
+              "page": 1,
+              "quote": "Dövr: 01.09.2026 – 31.10.2026"
+            },
+            "period_end": {
+              "page": 1,
+              "quote": "Dövr: 01.09.2026 – 31.10.2026"
+            },
+            "bank_name": {
+              "page": 1,
+              "quote": "ABB ASC"
+            },
+            "iban": {
+              "page": 1,
+              "quote": "AZ77IBAZ38090019449712345678"
+            },
+            "opening_balance": {
+              "page": 1,
+              "quote": "0.00"
+            },
+            "closing_balance": {
+              "page": 1,
+              "quote": "500.00"
+            },
+            "transactions[0]": {
+              "page": 1,
+              "quote": "02.09.2026  UNEC  +1500,00"
+            },
+            "transactions[1]": {
+              "page": 1,
+              "quote": "28.09.2026  Tural Quliyev  -1000,00"
+            }
+          }
+        },
+        {
+          "id": "unec_0927_card_statement",
+          "type": "card_statement",
+          "file_name": "kart_cixarisi_9032_2026-09_10.pdf",
+          "sha256": "b842c24c75ffc82173658212b406950a37766393e2e0de524dfa6ba4398aea55",
+          "pages": 1,
+          "uploaded_by": "u1",
+          "uploaded_at": "2026-11-05T15:07:00+04:00",
+          "fields": {
+            "card_holder": {
+              "name": "TURAL QULIYEV",
+              "id_number": "7HD2KQ1"
+            },
+            "currency": "AZN",
+            "period_start": "2026-09-01",
+            "period_end": "2026-10-31",
+            "issuer": "ABB ASC",
+            "card_mask": "**** 9032"
+          },
+          "unreadable": [],
+          "tables": {
+            "transactions": [
+              {
+                "date": "2026-09-28",
+                "amount": "1000.00",
+                "direction": "credit",
+                "counterparty": "Hesabdan köçürmə"
+              },
+              {
+                "date": "2026-10-08",
+                "amount": "120.00",
+                "direction": "debit",
+                "counterparty": "KITAB EVI MMC",
+                "mcc": "5942"
+              },
+              {
+                "date": "2026-10-15",
+                "amount": "604.00",
+                "direction": "debit",
+                "counterparty": "TEXNO MARKET",
+                "mcc": "5732"
+              }
+            ]
+          },
+          "evidence": {
+            "card_holder": {
+              "page": 1,
+              "quote": "TURAL QULIYEV (FİN 7HD2KQ1)"
+            },
+            "currency": {
+              "page": 1,
+              "quote": "Valyuta: AZN"
+            },
+            "period_start": {
+              "page": 1,
+              "quote": "Dövr: 01.09.2026 – 31.10.2026"
+            },
+            "period_end": {
+              "page": 1,
+              "quote": "Dövr: 01.09.2026 – 31.10.2026"
+            },
+            "issuer": {
+              "page": 1,
+              "quote": "ABB ASC"
+            },
+            "card_mask": {
+              "page": 1,
+              "quote": "**** 9032"
+            },
+            "transactions[0]": {
+              "page": 1,
+              "quote": "28.09.2026  Hesabdan köçürmə  +1000,00"
+            },
+            "transactions[1]": {
+              "page": 1,
+              "quote": "08.10.2026  KITAB EVI MMC  -120,00"
+            },
+            "transactions[2]": {
+              "page": 1,
+              "quote": "15.10.2026  TEXNO MARKET  -604,00"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
