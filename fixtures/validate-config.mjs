@@ -1,5 +1,6 @@
 // Configurable document sets (ADR-0011): fixtures/config/*.json and fixtures/scenarios/*.json.
 // Schema validity plus cross-file invariants. Called from validate.mjs (pnpm fixtures:check).
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -148,6 +149,15 @@ export function validateConfig({ ajv, dir, fail, customers, users }) {
             fail(`${label} ${c.id}: a period bound needs a document type with max_count 1`);
       if (c.type === "field_present")
         for (const t of c.parameters.targets) present.add(`${t.document_type}.${t.field}`);
+    }
+    if (rs.output) {
+      // the demo template is a real file (seed uploads it; the API reads its placeholders)
+      const file = path.join(dir, "templates", rs.output.template.file_name);
+      const sha = fs.existsSync(file)
+        ? crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex")
+        : null;
+      if (sha !== rs.output.template.sha256)
+        fail(`${label}: templates/${rs.output.template.file_name} missing or sha256 differs`);
     }
     const names = (rs.output?.placeholders ?? []).map((x) => x.placeholder);
     if (new Set(names).size !== names.length) fail(`${label}: a placeholder is mapped twice`);
