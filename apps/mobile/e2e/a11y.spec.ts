@@ -22,6 +22,7 @@ for (const scheme of ["light"] as const)
   test(`no axe violations on any screen (${scheme})`, async ({ page }) => {
     await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });
     await page.goto("/login");
+    await page.getByRole("button", { name: "Get started" }).click();
     await expect(page.getByRole("button", { name: /Rəşad Əliyev/ })).toBeVisible();
     await axe(page, "login");
     await signIn(page);

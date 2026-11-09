@@ -1,8 +1,10 @@
+import { QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 
 import { ApiError, type Schemas, unwrap } from "@/lib/api";
 import { mockClient } from "@/test/mock";
+import { createQueryClient } from "@/lib/query-client";
 
 import { PackageResults } from "./package-results";
 
@@ -11,7 +13,7 @@ vi.mock("next/navigation", () => ({}));
 type List = Parameters<typeof PackageResults>[0]["list"];
 const query = (state: Partial<List>) =>
   ({ refetch: vi.fn(), isPlaceholderData: false, fetchStatus: "idle", ...state }) as List;
-const show = (list: List) => render(<PackageResults list={list} onClear={() => {}} />);
+const show = (list: List) => render(<QueryClientProvider client={createQueryClient()}><PackageResults list={list} onClear={() => {}} /></QueryClientProvider>);
 
 describe("PackageResults", () => {
   let page: Schemas["PackagePage"];

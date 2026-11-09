@@ -3,7 +3,7 @@ import { Suspense } from "react";
 
 import { LoginScreen } from "@/features/auth/components/login-screen";
 
-export const metadata: Metadata = { title: "Giriş" };
+export const metadata: Metadata = { title: "Sign in" };
 
 // useSearchParams (?next=) needs a Suspense boundary for the static render.
 export default function LoginPage() {

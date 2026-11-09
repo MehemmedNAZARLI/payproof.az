@@ -7,6 +7,7 @@ export const AYGUN = "Aygün Məmmədova";
 export async function signIn(page: Page, name = RASHAD) {
   if (!new URL(page.url()).pathname.startsWith("/login")) await page.goto("/login");
   const start = page.getByRole("button", { name: "Get started" });
+  await expect(start.or(page.getByRole("button", { name: new RegExp(name) }))).toBeVisible();
   if (await start.isVisible()) await start.click();
   await page.getByRole("button", { name: new RegExp(name) }).click();
   await expect(page).not.toHaveURL(/\/login/);

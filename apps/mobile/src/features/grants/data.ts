@@ -5,9 +5,9 @@ export type Source = { page: number; quote: string };
 export type GrantDocument = {
   id: string; type: string; file_name: string;
   fields: Record<string, unknown>;
-  evidence: Record<string, Source>;
+  evidence: Record<string, Source | undefined>;
   unreadable: string[];
-  tables: { transactions?: { date: string; amount: string; direction: string; counterparty: string }[] };
+  tables: { lines?: Record<string, unknown>[]; transactions?: { date: string; amount: string; direction: string; counterparty: string }[] };
 };
 type Expected = {
   status: "READY_FOR_APPROVAL" | "NEEDS_FIX";
@@ -21,7 +21,7 @@ type Expected = {
   };
   template_values?: Record<string, string>;
 };
-const outcomes: Record<string, Expected> = expected.packages;
+const outcomes = expected.packages as Record<string, Expected>;
 
 // Immutable scenario and golden outcomes from the shared mocks. No new results are inferred.
 export const grants = scenario.packages.map((pkg) => ({

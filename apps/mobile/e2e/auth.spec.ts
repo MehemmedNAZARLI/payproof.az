@@ -8,6 +8,7 @@ test("signs in with one tap and greets the approver", async ({ page }) => {
   const errors = watchErrors(page);
   await page.goto("/");
   await expect(page).toHaveURL(/\/login$/);
+  await page.getByRole("button", { name: "Get started" }).click();
   await page.getByRole("button", { name: /Rəşad Əliyev/ }).click();
   await expect(page).toHaveURL(/\/home$/);
   await expect(page.getByRole("heading", { level: 1, name: /, Rəşad$/ })).toBeVisible();

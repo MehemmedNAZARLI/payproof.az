@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { ProfileScreen } from "@/features/profile/components/profile-screen";
 
-export const metadata: Metadata = { title: "Profil" };
+export const metadata: Metadata = { title: "Profile" };
 
 export default function ProfilePage() {
   return <ProfileScreen />;
