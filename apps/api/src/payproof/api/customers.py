@@ -15,9 +15,10 @@ from payproof.core.errors import NotFound
 from payproof.domain.permissions import Permission
 from payproof.repositories import package_reads as reads
 from payproof.repositories.models import Customer, RequirementSet
+from payproof.schemas import config as cfg
 from payproof.schemas import detail as d
 from payproof.schemas.auth import UserRef
-from payproof.services import requirements
+from payproof.services import requirement_config, requirements
 
 router = APIRouter(tags=["customers"])
 Viewer = Annotated[Member, Depends(require(Permission.VIEW))]
@@ -46,6 +47,9 @@ class CreateRules(BaseModel):
     effective_from: dt.date
     reason: str = Field(min_length=10, max_length=500)
     expected_version: int = Field(ge=1)
+    documents: list[cfg.DocumentRequirementIn] | None = Field(default=None, min_length=1)
+    checks: list[cfg.CheckConfig] | None = None
+    output: cfg.OutputConfig | None = None
 
 
 async def _out(session: AsyncSession, sets: list[RequirementSet]) -> list[d.RequirementSet]:
@@ -55,21 +59,8 @@ async def _out(session: AsyncSession, sets: list[RequirementSet]) -> list[d.Requ
         user, role = users[user_id]
         return UserRef(id=user.id, full_name=user.full_name, title=user.title, role=role)
 
-    return [
-        d.RequirementSet(
-            id=s.id,
-            version=s.version,
-            require_po=s.require_po,
-            require_delivery=s.require_delivery,
-            require_signature=s.require_signature,
-            tolerance=f"{s.tolerance:.2f}",
-            effective_from=s.effective_from,
-            approved_by=ref(s.approved_by),
-            reason=s.reason,
-            created_at=s.created_at,
-        )
-        for s in sets
-    ]
+    names = await requirement_config.type_names(session)
+    return [requirement_config.requirement_set_out(s, ref(s.approved_by), names) for s in sets]
 
 
 @router.get("/customers")
@@ -115,7 +106,10 @@ async def create_rule_set(
         session,
         actor_id=member.user_id,
         customer_id=customer_id,
-        new=requirements.NewRules(**body.model_dump()),
+        new=requirements.NewRules(
+            **body.model_dump(exclude={"output"}),
+            output=body.output.model_dump(exclude_none=True) if body.output else None,
+        ),
     )
     [out] = await _out(session, [rs])
     return out

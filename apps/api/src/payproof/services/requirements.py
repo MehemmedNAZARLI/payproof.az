@@ -6,12 +6,14 @@ import datetime as dt
 import uuid
 from dataclasses import dataclass
 from decimal import Decimal
+from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from payproof.core.errors import Conflict, InvalidInput, NotFound
 from payproof.repositories.models import Customer, ExportRecord, InvoicePackage, RequirementSet
+from payproof.services import requirement_config
 from payproof.services.audit import record
 from payproof.services.validation import revalidate
 from payproof.services.versioning import bump
@@ -26,6 +28,10 @@ class NewRules:
     effective_from: dt.date
     reason: str
     expected_version: int
+    # ADR-0011: documents + checks make a configured set; both None = legacy flags only
+    documents: list[dict[str, Any]] | None = None
+    checks: list[dict[str, Any]] | None = None
+    output: dict[str, Any] | None = None
 
 
 async def latest(session: AsyncSession, customer_id: uuid.UUID) -> RequirementSet | None:
@@ -38,11 +44,10 @@ async def latest(session: AsyncSession, customer_id: uuid.UUID) -> RequirementSe
 
 
 def _same(rs: RequirementSet, new: NewRules) -> bool:
-    return (rs.require_po, rs.require_delivery, rs.require_signature, rs.tolerance) == (
-        new.require_po,
-        new.require_delivery,
-        new.require_signature,
-        new.tolerance,
+    old = (rs.require_po, rs.require_delivery, rs.require_signature, rs.tolerance)
+    old_config = (rs.documents, rs.checks, rs.output)
+    return old == (new.require_po, new.require_delivery, new.require_signature, new.tolerance) and (
+        old_config == (new.documents, new.checks, new.output)
     )
 
 
@@ -61,6 +66,17 @@ async def create_rule_set(
             f"Qayda dəsti v{version}-ə yenilənib; səhifəni yeniləyin.",
             {"current_version": version, "expected_version": new.expected_version},
         )
+    if (new.documents is None) != (new.checks is None):
+        raise InvalidInput(
+            "documents və checks birlikdə göndərilir.", {"fields": {"documents": "checks ilə"}}
+        )
+    if new.output is not None and new.checks is None:
+        raise InvalidInput("Çıxış şablonu yalnız konfiqurasiya olunan dəstdə ola bilər.",
+                           {"fields": {"output": "documents/checks tələb olunur"}})  # fmt: skip
+    if new.documents is not None and new.checks is not None:
+        await requirement_config.validate(
+            session, customer.id, new.documents, new.checks, new.output
+        )
     if current and _same(current, new):
         raise InvalidInput("Qaydalarda dəyişiklik yoxdur.", {"fields": {"rules": "dəyişməyib"}})
     rs = RequirementSet(
@@ -68,6 +84,7 @@ async def create_rule_set(
         require_po=new.require_po, require_delivery=new.require_delivery,
         require_signature=new.require_signature, tolerance=new.tolerance,
         effective_from=new.effective_from, approved_by=actor_id, reason=new.reason.strip(),
+        documents=new.documents, checks=new.checks, output=new.output,
     )  # fmt: skip
     session.add(rs)
     await session.flush()
