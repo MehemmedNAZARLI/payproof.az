@@ -2,10 +2,10 @@ import customers from "@fixtures/customers.json";
 import expected from "@fixtures/expected.json";
 import packages from "@fixtures/packages.json";
 import tasks from "@fixtures/tasks.json";
+import type { Schemas } from "@payproof/api-client";
 
 import { decimal, toCents } from "@/lib/money";
 
-import type { Schemas } from "../client";
 import { livePackages, sessionApprovalRecords } from "./live";
 import { mockUuid, packageList, toUtc, userRef } from "./store";
 

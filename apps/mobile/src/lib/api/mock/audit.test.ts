@@ -1,6 +1,6 @@
+import { createApiClient, type Schemas, unwrap } from "@payproof/api-client";
 import { describe, expect, it } from "vitest";
 
-import { createApiClient, type Schemas, unwrap } from "../client";
 import { auditLog } from "./audit";
 import { mockToken } from "./handlers";
 import { createMockFetch } from "./mock-fetch";

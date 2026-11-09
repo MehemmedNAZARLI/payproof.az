@@ -3,8 +3,7 @@ import customers from "@fixtures/customers.json";
 import expected from "@fixtures/expected.json";
 import packages from "@fixtures/packages.json";
 import users from "@fixtures/users.json";
-
-import type { Schemas } from "../client";
+import type { Schemas } from "@payproof/api-client";
 
 // shortcut: read-only stand-in for @payproof/mocks (S-06). Statuses and blockers come from
 // expected.json (the prototype engine's golden output) instead of a ported rule engine.

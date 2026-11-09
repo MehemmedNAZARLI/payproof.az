@@ -1,4 +1,4 @@
-import type { Schemas } from "../client";
+import type { Schemas } from "@payproof/api-client";
 
 type Item = Schemas["PackageListItem"];
 type Status = Schemas["PackageStatus"];

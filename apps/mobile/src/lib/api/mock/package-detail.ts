@@ -1,6 +1,6 @@
 import packages from "@fixtures/packages.json";
+import type { Schemas } from "@payproof/api-client";
 
-import type { Schemas } from "../client";
 import { link, packageTasks, permissions, requirementSet, uuid } from "./detail-parts";
 import { mockDocuments } from "./documents";
 import { type RuleId, runChecks } from "./engine/checks";

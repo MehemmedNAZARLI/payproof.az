@@ -1,7 +1,7 @@
 import expected from "@fixtures/expected.json";
+import { ApiError, createApiClient, unwrap } from "@payproof/api-client";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { ApiError, createApiClient, unwrap } from "../client";
 import { mockToken } from "./handlers";
 import { createMockFetch } from "./mock-fetch";
 import { resetSessionDb } from "./session-db";

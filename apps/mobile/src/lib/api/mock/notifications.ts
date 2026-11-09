@@ -1,6 +1,6 @@
 import notifications from "@fixtures/notifications.json";
+import type { Schemas } from "@payproof/api-client";
 
-import type { Schemas } from "../client";
 import { isRead, markRead, sessionApprovals } from "./session-db";
 import { mockUuid, packageList, toUtc, userRef, userSlug } from "./store";
 

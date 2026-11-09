@@ -1,4 +1,5 @@
-import type { Schemas } from "../client";
+import type { Schemas } from "@payproof/api-client";
+
 import type { DocType, FixturePackage } from "./engine/model";
 import { toUtc, userRef } from "./store";
 

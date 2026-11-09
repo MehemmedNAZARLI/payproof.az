@@ -1,6 +1,7 @@
+import type { Schemas } from "@payproof/api-client";
+
 import { decimal } from "@/lib/money";
 
-import type { Schemas } from "../../client";
 import { customer, type DocType, type PackageModel, product } from "./model";
 import {
   type Anchor,

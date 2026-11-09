@@ -1,4 +1,5 @@
-import type { Schemas } from "../client";
+import type { Schemas } from "@payproof/api-client";
+
 import { approvalRecord } from "./live";
 import { packageDetail } from "./package-detail";
 import { addApproval, rememberReplay, replayOf, sessionApprovals } from "./session-db";

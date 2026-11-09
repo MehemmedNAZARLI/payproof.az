@@ -2,8 +2,8 @@ import customers from "@fixtures/customers.json";
 import expected from "@fixtures/expected.json";
 import packages from "@fixtures/packages.json";
 import tasks from "@fixtures/tasks.json";
+import type { Schemas } from "@payproof/api-client";
 
-import type { Schemas } from "../client";
 import { sessionApprovals } from "./session-db";
 import { mockUuid, packageList, toUtc, userRef } from "./store";
 

@@ -1,7 +1,7 @@
 import packages from "@fixtures/packages.json";
+import type { Schemas } from "@payproof/api-client";
 import { http, HttpResponse } from "msw";
 
-import type { Schemas } from "../client";
 import { MOCK_FILE_SCHEME } from "../mock-file";
 import { approve } from "./approve";
 import { liveAuditLog } from "./audit";

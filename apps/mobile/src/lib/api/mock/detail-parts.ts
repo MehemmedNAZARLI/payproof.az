@@ -1,10 +1,10 @@
 import customers from "@fixtures/customers.json";
 import orders from "@fixtures/orders.json";
 import tasks from "@fixtures/tasks.json";
+import type { Schemas } from "@payproof/api-client";
 
 import { decimal, toCents } from "@/lib/money";
 
-import type { Schemas } from "../client";
 import type { FixturePackage } from "./engine/model";
 import { toUtc, userRef } from "./store";
 
