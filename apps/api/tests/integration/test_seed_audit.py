@@ -6,6 +6,7 @@ from payproof.repositories.models import AuditEvent, InvoicePackage
 from payproof.seed.audit import audit_rows
 from payproof.seed.cli import seed
 from payproof.seed.fixtures import PACKAGES, load, uid
+from payproof.seed.unec import SCENARIO as UNEC
 
 ACTIONS = {
     "package.created",
@@ -26,9 +27,10 @@ async def test_demo_history_is_seeded(db: AsyncSession) -> None:
     await seed(db)
     bind_tenant(db, uid("company_a"))
     events = (await db.scalars(select(AuditEvent).order_by(AuditEvent.created_at))).all()
-    assert len(events) == len(audit_rows())
+    unec = len(UNEC["packages"])  # ADR-0011 packages: one creation event each
+    assert len(events) == len(audit_rows()) + unec
     assert {e.action for e in events} >= ACTIONS
-    assert sum(e.action == "package.created" for e in events) == len(PACKAGES)
+    assert sum(e.action == "package.created" for e in events) == len(PACKAGES) + unec
     resolved = [e for e in events if e.action == "task.resolved"]
     assert len(resolved) == sum(1 for t in load("tasks.json") if t["resolved_at"])
     assert all(e.actor_id is None for e in resolved)  # the system resolves tasks

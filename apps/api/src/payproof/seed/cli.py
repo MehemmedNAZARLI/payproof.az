@@ -21,6 +21,7 @@ from payproof.seed.extraction import extraction_rows
 from payproof.seed.files import store_demo_files
 from payproof.seed.identity import COMPANY_ID, identity_rows
 from payproof.seed.packages import package_rows
+from payproof.seed.unec import unec_rows
 from payproof.seed.workflow import workflow_rows
 from payproof.services import registry
 from payproof.storage.s3 import get_storage
@@ -41,6 +42,7 @@ async def seed(session: AsyncSession) -> bool:
         return False
     await registry.sync(session)  # ADR-0011 document types (shared, outside the demo company)
     rows = identity_rows() + config_rows() + package_rows() + extraction_rows() + workflow_rows()
+    rows += unec_rows()  # ADR-0011 configured packages
     for group in [*rows, evidence_rows(), audit_rows()]:
         session.add_all(group)
         await session.flush()
