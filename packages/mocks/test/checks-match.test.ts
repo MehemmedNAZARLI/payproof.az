@@ -36,4 +36,25 @@ describe("check library: invoice ↔ statement transaction match", () => {
     card(other).tables.transactions![0]!.counterparty = "COFFEE MOFFIE";
     expect(transactionMatch(other, params).outcome).toBe("FAIL");
   });
+
+  it("two equal candidates for one invoice are UNKNOWN — a person picks, the engine does not guess", () => {
+    const p = pkg(0);
+    const rows = card(p).tables.transactions!;
+    rows.push({ ...rows[0]!, date: "2026-09-13" });
+    p.documents.find((d) => d.type === "card_statement")!.evidence["transactions[4]"] = {
+      page: 1,
+      quote: "13.09.2026  KITAB EVI MMC  -135,00",
+    };
+    const v = transactionMatch(p, params);
+    expect(v.outcome).toBe("UNKNOWN");
+    expect(v.data).toMatchObject({ ambiguous: ["unec_0914_ke2231"] });
+  });
+
+  it("a transaction pays one invoice only", () => {
+    const p = pkg(0);
+    const inv = p.documents.find((d) => d.id === "unec_0914_ke2231")!;
+    p.documents.push({ ...structuredClone(inv), id: "copy", file_name: "KE-2231-copy.pdf" });
+    const v = transactionMatch(p, params);
+    expect(v.outcome).toBe("UNKNOWN");
+  });
 });
