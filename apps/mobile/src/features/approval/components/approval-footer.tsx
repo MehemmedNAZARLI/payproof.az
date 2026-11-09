@@ -5,7 +5,7 @@ import { t } from "@/lib/i18n";
 
 import type { ApprovalFlow } from "../use-approval-flow";
 
-// "Təsdiqlə" stays tappable while locked (aria-disabled): a tap points at the missing step
+// "Approve" stays tappable while locked (aria-disabled): a tap points at the missing step
 // instead of doing nothing. Only a request in flight truly disables it.
 export function ApprovalFooter({ flow, onClose }: { flow: ApprovalFlow; onClose: () => void }) {
   const locked = !flow.ready;
