@@ -7,11 +7,11 @@ import { ListSkeleton } from "./skeleton";
 describe("ListGroup and ListItem", () => {
   it("renders a labelled list of link rows with a chevron", () => {
     render(
-      <ListGroup label="Paketlər" variant="cards">
+      <ListGroup label="Packages" variant="cards">
         <ListItem href="/packages/1" title="INV-1038" subtitle="B Mağazalar Şəbəkəsi · v1" />
       </ListGroup>,
     );
-    const list = screen.getByRole("list", { name: "Paketlər" });
+    const list = screen.getByRole("list", { name: "Packages" });
     expect(list.querySelectorAll("li")).toHaveLength(1);
     const link = screen.getByRole("link", { name: /INV-1038/ });
     expect(link).toHaveAttribute("href", "/packages/1");
@@ -22,7 +22,7 @@ describe("ListGroup and ListItem", () => {
     const onClick = vi.fn();
     render(
       <ListGroup>
-        <ListItem title="R-001" subtitle="Keçdi" onClick={onClick} />
+        <ListItem title="R-001" subtitle="Passed" onClick={onClick} />
       </ListGroup>,
     );
     fireEvent.click(screen.getByRole("button", { name: /R-001/ }));
@@ -32,7 +32,7 @@ describe("ListGroup and ListItem", () => {
   it("keeps static rows non-interactive and without a chevron", () => {
     render(
       <ListGroup>
-        <ListItem title="Paket versiyası" trailing="v3" />
+        <ListItem title="Package version" trailing="v3" />
       </ListGroup>,
     );
     expect(screen.queryByRole("button")).toBeNull();
@@ -44,7 +44,7 @@ describe("ListGroup and ListItem", () => {
 describe("ListSkeleton", () => {
   it("announces loading once and hides the placeholder blocks", () => {
     const { container } = render(<ListSkeleton rows={3} />);
-    expect(screen.getByRole("status")).toHaveTextContent("Yüklənir…");
+    expect(screen.getByRole("status")).toHaveTextContent("Loading…");
     expect(screen.getByRole("status")).toHaveAttribute("aria-busy", "true");
     expect(container.querySelectorAll('[aria-hidden="true"].shimmer')).toHaveLength(9);
   });

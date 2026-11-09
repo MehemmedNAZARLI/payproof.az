@@ -49,10 +49,10 @@ describe("dates (Baku time)", () => {
   });
 
   it("greets by the time of day", () => {
-    expect(greeting(new Date("2026-11-08T06:30:00Z"))).toBe("Sabahınız xeyir");
-    expect(greeting(new Date("2026-11-08T10:00:00Z"))).toBe("Günortanız xeyir");
-    expect(greeting(new Date("2026-11-08T16:00:00Z"))).toBe("Axşamınız xeyir");
-    expect(greeting(new Date("2026-11-08T22:30:00Z"))).toBe("Axşamınız xeyir");
+    expect(greeting(new Date("2026-11-08T06:30:00Z"))).toBe("Good morning");
+    expect(greeting(new Date("2026-11-08T10:00:00Z"))).toBe("Good afternoon");
+    expect(greeting(new Date("2026-11-08T16:00:00Z"))).toBe("Good evening");
+    expect(greeting(new Date("2026-11-08T22:30:00Z"))).toBe("Good evening");
   });
 });
 
@@ -73,8 +73,8 @@ describe("day headings (Baku time)", () => {
   });
 
   it("says today and yesterday in words, other days with the weekday", () => {
-    expect(formatDayHeading("2026-11-08", now)).toBe("Bu gün");
-    expect(formatDayHeading("2026-11-07", now)).toBe("Dünən");
+    expect(formatDayHeading("2026-11-08", now)).toBe("Today");
+    expect(formatDayHeading("2026-11-07", now)).toBe("Yesterday");
     expect(formatDayHeading("2026-11-06", now)).toBe("6 noyabr, cümə");
     expect(formatDayHeading("2025-12-31", now)).toBe("31 dekabr 2025, çərşənbə");
   });

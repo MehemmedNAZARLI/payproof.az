@@ -22,7 +22,7 @@ describe("toast store", () => {
 
   it("keeps errors on screen longer than confirmations", () => {
     const { result } = renderHook(() => useToasts());
-    act(() => void toast.error("Şəbəkə xətası"));
+    act(() => void toast.error("Network error"));
     act(() => vi.advanceTimersByTime(4500));
     expect(result.current[0]?.leaving).toBeUndefined();
   });
@@ -30,8 +30,8 @@ describe("toast store", () => {
   it("shows a repeated message once", () => {
     const { result } = renderHook(() => useToasts());
     act(() => {
-      toast.error("Şəbəkə xətası");
-      toast.error("Şəbəkə xətası");
+      toast.error("Network error");
+      toast.error("Network error");
     });
     expect(result.current).toHaveLength(1);
   });
@@ -51,7 +51,7 @@ describe("toast store", () => {
         tone: "info",
         title: "Yeni versiya",
         sticky: true,
-        action: { label: "Yenilə", onPress },
+        action: { label: "Refresh", onPress },
       });
     });
     act(() => vi.advanceTimersByTime(60_000));

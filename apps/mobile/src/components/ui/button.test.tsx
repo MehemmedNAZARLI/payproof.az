@@ -17,10 +17,10 @@ describe("Button", () => {
     const onClick = vi.fn();
     render(
       <Button disabled onClick={onClick} icon="eye">
-        Sübutlara baxıb təsdiqlə
+        Review evidence and approve
       </Button>,
     );
-    fireEvent.click(screen.getByRole("button", { name: "Sübutlara baxıb təsdiqlə" }));
+    fireEvent.click(screen.getByRole("button", { name: "Review evidence and approve" }));
     expect(onClick).not.toHaveBeenCalled();
   });
 });

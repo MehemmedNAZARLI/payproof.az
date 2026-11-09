@@ -69,10 +69,10 @@ describe("PullToRefresh", () => {
     const { onRefresh, finish } = setup();
     const status = screen.getByRole("status");
     expect(status).toBeEmptyDOMElement();
-    fireEvent.click(screen.getByRole("button", { name: "Məlumatı yenilə" }));
+    fireEvent.click(screen.getByRole("button", { name: "Refresh data" }));
     expect(onRefresh).toHaveBeenCalledOnce();
     expect(screen.getByTestId("ptr")).toHaveAttribute("data-pulling");
-    expect(status).toHaveTextContent("Yenilənir…");
+    expect(status).toHaveTextContent("Refreshing…");
     await act(async () => {
       finish();
       await vi.advanceTimersByTimeAsync(1000);

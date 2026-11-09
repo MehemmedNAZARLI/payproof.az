@@ -13,7 +13,7 @@ type Props = { onRefresh: () => Promise<unknown>; children: ReactNode };
  * iOS-style pull-to-refresh for a tab screen. Pulling down at the top moves the large title and
  * the content (`.pull-shift`) with rubber-band resistance; past the threshold a haptic tick arms
  * it, the content springs back to hold the spinner while `onRefresh` runs, then springs home.
- * The bar stays put. Touch only; a focusable "Məlumatı yenilə" covers keyboards and screen readers.
+ * The bar stays put. Touch only; a focusable "Refresh data" covers keyboards and screen readers.
  */
 export function PullToRefresh({ onRefresh, children }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
