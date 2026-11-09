@@ -1,5 +1,5 @@
 # ADR-0007: Sənəd çıxarışı adapter arxasında
-**Status:** qəbul edilib · 2026-11-08
+**Status:** qəbul edilib · 2026-11-08 · provayder seçimi (`AI_PROVIDER`) ADR-0011 §5 ilə əvəz olunub
 
 **Qərar:** `ExtractionAdapter` protokolu: `extract(document_version) -> ExtractionResult(fields, lines, evidence, unreadable, warnings)`. İmplementasiyalar:
 - `MockExtractionAdapter` — fixtures-dan əvvəlcədən hazırlanmış nəticə; UI-də "əvvəlcədən hazırlanmış nəticə (mock adapter)" kimi etiketlənir. Default.
