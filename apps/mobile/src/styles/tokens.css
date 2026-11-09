@@ -1,5 +1,5 @@
 /* PayProof Mobile design system — owned by apps/mobile only (web keeps @payproof/design-tokens).
-   Light/dark follow the OS preference; data-theme="light" pins light (no dark pin today). Every Tailwind colour,
+   The mobile app uses a single light palette. Every Tailwind colour,
    radius, shadow and type size in tailwind.config.ts points at a variable here. */
 
 :root {
@@ -51,14 +51,14 @@
   --av-5: #ffe8ec;
   --av-5t: #a3203d;
 
-  /* Hero (balance-card style): navy in both themes, so its white text keeps contrast. */
+  /* Hero: navy, so its white text keeps contrast. */
   --hero-from: #0b1026;
   --hero-to: #1b2550;
   --hero-glow: rgb(61 90 254 / 0.55);
   --hero-text-2: rgb(255 255 255 / 0.72);
   --hero-fill: rgb(255 255 255 / 0.12);
 
-  /* Document viewer: paper stays paper-white in dark mode, like a PDF in Files. */
+  /* Document viewer: paper and its source highlights. */
   --paper: #ffffff;
   --paper-ink: #1b1e27;
   --paper-line: #e4e6ec;
@@ -102,59 +102,4 @@
   /* Motion */
   --dur: 220ms;
   --ease: cubic-bezier(0.32, 0.72, 0, 1);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #05060a;
-    --surface: #0e1018;
-    --surface-2: #161926;
-    --surface-3: #202434;
-    --separator: rgb(244 245 249 / 0.1);
-    --text: #f4f5f9;
-    --text-2: #9aa0b4;
-    --text-3: #8a90a5;
-    /* #6e86ff carries text on black; white on it is 3.2:1, so solid controls use a deeper fill. */
-    --accent: #6e86ff;
-    --accent-fill: #4b65ff;
-    --accent-press: #3f57e6;
-    --accent-soft: #1a2250;
-    --accent-ink: #a9b7ff;
-    --on-accent: #ffffff;
-    --success: #32d583;
-    --success-ink: #4ade96;
-    --success-soft: #0c2a1c;
-    --warning: #fdb022;
-    --warning-ink: #fdb94a;
-    --warning-soft: #2e2009;
-    --danger: #f97066;
-    --danger-ink: #ff8a80;
-    --danger-soft: #34110f;
-    --danger-fill: #d92d20;
-    --on-danger: #ffffff;
-    --neutral-ink: #b4b9ca;
-    --neutral-soft: #1c2030;
-    --av-1: #1a2250;
-    --av-1t: #a9b7ff;
-    --av-2: #33230c;
-    --av-2t: #fdc47a;
-    --av-3: #0f2e24;
-    --av-3t: #7ee2b8;
-    --av-4: #261a45;
-    --av-4t: #c9b2ff;
-    --av-5: #3a1520;
-    --av-5t: #ffa8bb;
-    --hero-glow: rgb(110 134 255 / 0.5);
-    --stage: #05060a;
-    --overlay: rgb(0 0 0 / 0.6);
-    /* Shadows vanish on black; a top highlight and a lighter surface carry the elevation. */
-    --elev-1: inset 0 0.5px 0 rgb(255 255 255 / 0.06), 0 0 0 0.5px rgb(255 255 255 / 0.04);
-    --elev-2:
-      inset 0 0.5px 0 rgb(255 255 255 / 0.08), 0 0 0 0.5px rgb(255 255 255 / 0.05),
-      0 8px 24px rgb(0 0 0 / 0.5);
-    --elev-3:
-      inset 0 0.5px 0 rgb(255 255 255 / 0.1), 0 0 0 0.5px rgb(255 255 255 / 0.06),
-      0 24px 64px rgb(0 0 0 / 0.7);
-    --elev-accent: 0 6px 20px rgb(110 134 255 / 0.28);
-  }
 }

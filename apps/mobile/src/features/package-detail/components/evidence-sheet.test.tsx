@@ -38,47 +38,49 @@ function open(pkg: number) {
   );
 }
 const docRow = (name: RegExp) =>
-  within(screen.getByRole("list", { name: "Sənədlər" })).getByRole("button", { name });
+  within(screen.getByRole("list", { name: "Documents" })).getByRole("button", { name });
 
 describe("evidence sheets", () => {
   it("follows a check to its cited region and comes back", async () => {
     open(1044);
-    fireEvent.click(await screen.findByRole("button", { name: /Vahid qiymət uyğunluğu/ }));
-    const check = await screen.findByRole("dialog", { name: "Vahid qiymət uyğunluğu" });
-    expect(within(check).getByText(/KY-10: fakturada 110,00 AZN/)).toBeVisible();
-    expect(within(check).getByText("Düzəliş və tapşırıq veb tətbiqdə idarə olunur.")).toBeVisible();
+    fireEvent.click(await screen.findByRole("button", { name: /Unit price match/ }));
+    const check = await screen.findByRole("dialog", { name: "Unit price match" });
+    expect(within(check).getByText(/Unit prices differ beyond/)).toBeVisible();
+    expect(within(check).getByText("Manage corrections and tasks in the web app.")).toBeVisible();
 
-    fireEvent.click(within(check).getByRole("button", { name: /Faktura · v1 · səh\. 1/ }));
-    const doc = await screen.findByRole("dialog", { name: "Faktura · v1" });
+    fireEvent.click(within(check).getByRole("button", { name: /Invoice · v1 · p\. 1/ }));
+    const doc = await screen.findByRole("dialog", { name: "Invoice · v1" });
     await waitFor(() => expect(doc.querySelector("[data-highlight]")).toHaveTextContent("KY-10"));
-    expect(within(doc).getByText("Sarı ilə vurğulanan hissə yoxlamanın mənbəyidir.")).toBeVisible();
+    expect(
+      within(doc).getByText("The yellow highlight marks the source of the check."),
+    ).toBeVisible();
 
-    fireEvent.click(within(doc).getAllByRole("button", { name: "Geri" }).at(-1)!);
-    expect(await screen.findByRole("dialog", { name: "Vahid qiymət uyğunluğu" })).toBeVisible();
+    fireEvent.click(within(doc).getAllByRole("button", { name: "Back" }).at(-1)!);
+    expect(await screen.findByRole("dialog", { name: "Unit price match" })).toBeVisible();
   });
 
   it("marks a document seen once it has been shown, and counts it", async () => {
     open(1038);
-    expect(await screen.findByText("0/3 baxılıb")).toBeVisible();
-    fireEvent.click(docRow(/Faktura · v1/));
+    expect(await screen.findByText("0/3 reviewed")).toBeVisible();
+    fireEvent.click(docRow(/Invoice · v1/));
     await screen.findByRole("article", { name: "HESAB-FAKTURA INV-1038" });
-    // The footer's "Bağla" (the header has a round close button of the same name).
+    // The footer's "Close" (the header has a round close button of the same name).
     fireEvent.click(
-      within(screen.getByRole("dialog")).getAllByRole("button", { name: "Bağla" }).at(-1)!,
+      within(screen.getByRole("dialog")).getAllByRole("button", { name: "Close" }).at(-1)!,
     );
-    await waitFor(() => expect(screen.getByText("1/3 baxılıb")).toBeVisible());
+    await waitFor(() => expect(screen.getByText("1/3 reviewed")).toBeVisible());
     expect(
-      within(screen.getByRole("list", { name: "Sənədlər" })).getByText("Baxılıb"),
+      within(screen.getByRole("list", { name: "Documents" })).getByText("Reviewed"),
     ).toBeVisible();
   });
 
   it("shows page and quote when the scan cannot be highlighted", async () => {
     open(1047);
-    fireEvent.click(await screen.findByRole("button", { name: /Məcburi sifariş nömrəsi/ }));
-    fireEvent.click(await screen.findByRole("button", { name: /Faktura · v1 · səh\. 1/ }));
-    const doc = await screen.findByRole("dialog", { name: "Faktura · v1" });
-    expect(within(doc).getByText(/Skan nüsxədir/)).toBeVisible();
-    expect(await within(doc).findByText(/Vurğulama mümkün deyil — səhifə 1/)).toBeVisible();
+    fireEvent.click(await screen.findByRole("button", { name: /Required purchase order number/ }));
+    fireEvent.click(await screen.findByRole("button", { name: /Invoice · v1 · p\. 1/ }));
+    const doc = await screen.findByRole("dialog", { name: "Invoice · v1" });
+    expect(within(doc).getByText(/Scanned document/)).toBeVisible();
+    expect(await within(doc).findByText(/Highlight unavailable. Showing page 1/)).toBeVisible();
     expect(within(doc).getByText("Sifariş №: PO-3?7 (oxunmur)")).toBeVisible();
     expect(doc.querySelector("[data-highlight]")).toBeNull();
   });
@@ -90,32 +92,32 @@ describe("evidence sheets", () => {
     const r008 = pkg.checks.find((c) => c.rule_id === "R-008")!;
     r008.evidence = [{ ...r008.evidence[0]!, document_version_id: old.id }];
     view(pkg);
-    fireEvent.click(screen.getByRole("button", { name: /İmza tələbi/ }));
-    fireEvent.click(await screen.findByRole("button", { name: /Təhvil sənədi · v1 · səh\. 1/ }));
-    const doc = await screen.findByRole("dialog", { name: "Təhvil sənədi · v1" });
+    fireEvent.click(screen.getByRole("button", { name: /Signature requirement/ }));
+    fireEvent.click(await screen.findByRole("button", { name: /Delivery document · v1 · p\. 1/ }));
+    const doc = await screen.findByRole("dialog", { name: "Delivery document · v1" });
     expect(within(doc).getByText("TS-5518.jpg")).toBeVisible();
     await within(doc).findByRole("article");
-    fireEvent.click(within(doc).getAllByRole("button", { name: "Geri" }).at(-1)!);
+    fireEvent.click(within(doc).getAllByRole("button", { name: "Back" }).at(-1)!);
     fireEvent.click(
-      within(screen.getByRole("dialog")).getAllByRole("button", { name: "Bağla" }).at(-1)!,
+      within(screen.getByRole("dialog")).getAllByRole("button", { name: "Close" }).at(-1)!,
     );
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
-    expect(screen.getByText("0/3 baxılıb")).toBeVisible();
+    expect(screen.getByText("0/3 reviewed")).toBeVisible();
   });
 
   it("forgets seen documents when the package moves to a new version", async () => {
     const pkg = await detailOf("0193a000-0000-7000-8002-000000001038");
     const { rerender } = view(pkg);
-    fireEvent.click(docRow(/Faktura · v1/));
+    fireEvent.click(docRow(/Invoice · v1/));
     await screen.findByRole("article", { name: "HESAB-FAKTURA INV-1038" });
     fireEvent.click(
-      within(screen.getByRole("dialog")).getAllByRole("button", { name: "Bağla" }).at(-1)!,
+      within(screen.getByRole("dialog")).getAllByRole("button", { name: "Close" }).at(-1)!,
     );
-    await waitFor(() => expect(screen.getByText("1/3 baxılıb")).toBeVisible());
+    await waitFor(() => expect(screen.getByText("1/3 reviewed")).toBeVisible());
     rerender(ui({ ...pkg, version: 2 }));
-    expect(screen.getByText("0/3 baxılıb")).toBeVisible();
+    expect(screen.getByText("0/3 reviewed")).toBeVisible();
     expect(
-      within(screen.getByRole("list", { name: "Sənədlər" })).queryByText("Baxılıb"),
+      within(screen.getByRole("list", { name: "Documents" })).queryByText("Reviewed"),
     ).toBeNull();
   });
 });

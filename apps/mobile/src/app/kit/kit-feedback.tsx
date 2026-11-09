@@ -20,7 +20,7 @@ export function BadgesSection() {
   ];
   return (
     <>
-      <SectionHeader title="Status nişanları" />
+      <SectionHeader title="Status badges" />
       <Card className="flex flex-wrap gap-2">
         {statuses.map((s) => (
           <PackageStatusBadge key={s} status={s} />
@@ -36,21 +36,21 @@ export function BadgesSection() {
 export function BannersSection() {
   return (
     <>
-      <SectionHeader title="Bannerlər" />
+      <SectionHeader title="Banners" />
       <div className="flex flex-col gap-2">
         <Banner
           tone="danger"
           icon="lock"
-          title="Təsdiq mümkün deyil"
-          action={<Button variant="secondary">Vebdə aç</Button>}
+          title="Approval unavailable"
+          action={<Button variant="secondary">Open on web</Button>}
         >
-          1 bloklayan problem: R-005
+          1 blocking issues: R-005
         </Banner>
-        <Banner tone="accent" icon="lock" title="Təsdiqçi gözlənilir">
-          Hazır paketi yalnız təsdiqçi rolu təsdiqləyə bilər.
+        <Banner tone="accent" icon="lock" title="Awaiting approver">
+          Only an approver can approve a ready package.
         </Banner>
-        <Banner tone="neutral" icon="clock" title="Emal olunur">
-          Nəticə hazır olanda bildiriş alacaqsınız.
+        <Banner tone="neutral" icon="clock" title="Processing">
+          You will be notified when the results are ready.
         </Banner>
       </div>
     </>
@@ -60,32 +60,32 @@ export function BannersSection() {
 export function FeedbackSection() {
   return (
     <>
-      <SectionHeader title="Yüklənmə və boş vəziyyət" />
+      <SectionHeader title="Loading and empty states" />
       <ListSkeleton rows={2} />
       <Card className="mt-2 p-0">
         <EmptyState
           icon="pass"
-          title="Təsdiq gözləyən paket yoxdur"
-          description="Bütün məcburi yoxlamalardan keçən paketlər burada görünəcək."
+          title="No packages awaiting approval"
+          description="Packages that pass every required check will appear here."
         />
       </Card>
-      <SectionHeader title="Bildirişlər" />
+      <SectionHeader title="Notifications" />
       <div className="flex gap-2">
         <Button
           variant="secondary"
           block
           icon="pass"
-          onClick={() => toast.success("Paket təsdiqləndi.")}
+          onClick={() => toast.success("Package approved.")}
         >
-          Uğur
+          Success
         </Button>
         <Button
           variant="secondary"
           block
           icon="fail"
-          onClick={() => toast.error("Şəbəkə xətası", "Bağlantını yoxlayıb yenidən cəhd edin.")}
+          onClick={() => toast.error("Network error", "Check your connection and try again.")}
         >
-          Xəta
+          Error
         </Button>
       </div>
     </>

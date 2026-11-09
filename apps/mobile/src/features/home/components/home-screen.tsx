@@ -11,6 +11,7 @@ import { CountBadge } from "@/components/ui/icon-button";
 import { ListGroup } from "@/components/ui/list";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { useMe } from "@/features/auth/queries";
+import { GrantLink } from "@/features/grants/grant-link";
 import { notificationKeys, useUnreadCount } from "@/features/notifications/queries";
 import { PackageRow } from "@/features/packages/components/package-row";
 import { packagesHref } from "@/features/packages/filters";
@@ -22,6 +23,7 @@ import { refreshAll } from "@/lib/refresh";
 import { useSession } from "@/lib/session";
 
 import { useDashboard, useRecentActivity } from "../queries";
+import { AiWork } from "./ai-work";
 import { OpenAmounts, RecentActivity, SectionSkeleton } from "./home-sections";
 import { ApprovalHero, StatusTiles, SummarySkeleton } from "./home-summary";
 import { Section } from "./section";
@@ -59,6 +61,8 @@ export function HomeScreen() {
         }
       />
       <main className="px-safe pb-tabbar pull-shift mx-auto max-w-app pt-2">
+        <AiWork />
+        <GrantLink />
         {/* Loaded numbers stay on screen if a background refresh fails (a toast reports it). */}
         <Section query={dashboard} skeleton={<SummarySkeleton />}>
           {(data) => (

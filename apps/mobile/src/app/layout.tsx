@@ -20,16 +20,13 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  colorScheme: "light dark",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: brand.backgroundLight },
-    { media: "(prefers-color-scheme: dark)", color: brand.backgroundDark },
-  ],
+  colorScheme: "light",
+  themeColor: brand.backgroundLight,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="az" className={cx(inter.variable, interExt.variable)}>
+    <html lang="en" className={cx(inter.variable, interExt.variable)}>
       <body className="bg-bg text-text font-sans text-subhead">
         <Providers>{children}</Providers>
       </body>

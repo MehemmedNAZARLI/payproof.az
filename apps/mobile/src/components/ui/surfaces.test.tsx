@@ -9,12 +9,12 @@ describe("Card and SectionHeader", () => {
   it("renders content and a level-2 section title with its action", () => {
     render(
       <>
-        <SectionHeader title="Təsdiq gözləyənlər" action={<button>Hamısı</button>} />
+        <SectionHeader title="Awaiting approval" action={<button>All</button>} />
         <Card>Məzmun</Card>
       </>,
     );
-    expect(screen.getByRole("heading", { level: 2, name: "Təsdiq gözləyənlər" })).toBeVisible();
-    expect(screen.getByRole("button", { name: "Hamısı" })).toBeVisible();
+    expect(screen.getByRole("heading", { level: 2, name: "Awaiting approval" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "All" })).toBeVisible();
     expect(screen.getByText("Məzmun")).toBeVisible();
   });
 });
@@ -22,13 +22,13 @@ describe("Card and SectionHeader", () => {
 describe("Banner", () => {
   it("states its meaning in text, with an icon and an optional action", () => {
     const { container } = render(
-      <Banner tone="danger" title="Təsdiq mümkün deyil" action={<button>Vebdə aç</button>}>
-        2 bloklayan problem
+      <Banner tone="danger" title="Approval unavailable" action={<button>Open on web</button>}>
+        2 issues problem
       </Banner>,
     );
-    expect(screen.getByRole("heading", { level: 3, name: "Təsdiq mümkün deyil" })).toBeVisible();
-    expect(screen.getByText("2 bloklayan problem")).toBeVisible();
-    expect(screen.getByRole("button", { name: "Vebdə aç" })).toBeVisible();
+    expect(screen.getByRole("heading", { level: 3, name: "Approval unavailable" })).toBeVisible();
+    expect(screen.getByText("2 issues problem")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Open on web" })).toBeVisible();
     expect(container.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
   });
 });
@@ -37,13 +37,13 @@ describe("EmptyState", () => {
   it("explains why the list is empty and offers a way out", () => {
     render(
       <EmptyState
-        title="Paket tapılmadı"
-        description="Axtarışı və ya filtri dəyişin."
-        action={<button>Filtri təmizlə</button>}
+        title="Package not found"
+        description="Try a different search or filter."
+        action={<button>Clear filters</button>}
       />,
     );
-    expect(screen.getByRole("heading", { name: "Paket tapılmadı" })).toBeVisible();
-    expect(screen.getByText("Axtarışı və ya filtri dəyişin.")).toBeVisible();
-    expect(screen.getByRole("button", { name: "Filtri təmizlə" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Package not found" })).toBeVisible();
+    expect(screen.getByText("Try a different search or filter.")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Clear filters" })).toBeVisible();
   });
 });

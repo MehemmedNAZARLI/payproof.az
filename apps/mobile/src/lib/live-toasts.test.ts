@@ -23,19 +23,19 @@ describe("liveToastText", () => {
   it("says who did what to which package, and its new version", () => {
     const by = { actor: "Aygün Məmmədova", invoice: "INV-1042" };
     expect(liveToastText(event("package.updated"), by)).toBe(
-      "Aygün Məmmədova INV-1042 paketini yenilədi (v5)",
+      "Aygün Məmmədova updated INV-1042 package (v5)",
     );
     expect(liveToastText(event("package.exported"), by)).toBe(
-      "Aygün Məmmədova INV-1042 paketini ixrac etdi (v5)",
+      "Aygün Məmmədova exported INV-1042 package (v5)",
     );
     expect(liveToastText(event("task.changed"), by)).toBe(
-      "Aygün Məmmədova INV-1042 paketinin tapşırığını yenilədi",
+      "Aygün Məmmədova updated INV-1042 package task",
     );
   });
 
   it("falls back to 'the package' and to the system when names are unknown", () => {
     expect(liveToastText(event("package.approved", null), { actor: null })).toBe(
-      "Sistem paketi təsdiqlədi",
+      "System approved the package",
     );
   });
 

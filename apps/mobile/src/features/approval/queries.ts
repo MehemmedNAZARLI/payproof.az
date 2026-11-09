@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { api, ApiError, type Schemas, unwrap } from "@/lib/api";
+import { errorMessage } from "@/lib/query-client";
 
 import { applyApproval } from "./approval-cache";
 
@@ -58,12 +59,12 @@ export function approvalFailure(error: unknown): ApprovalFailure {
     case "FORBIDDEN":
       return { kind: "forbidden" };
     case "PACKAGE_NOT_READY":
-      return { kind: "not-ready", message: error.message };
+      return { kind: "not-ready", message: errorMessage(error) };
     case "IDEMPOTENCY_IN_PROGRESS":
       return { kind: "in-progress" };
     case "NETWORK_ERROR":
       return { kind: "offline" };
     default:
-      return { kind: "other", message: error.message };
+      return { kind: "other", message: errorMessage(error) };
   }
 }

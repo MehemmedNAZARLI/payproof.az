@@ -38,27 +38,25 @@ describe("formatMoney", () => {
 
 describe("dates (Baku time)", () => {
   it("formats a timestamp as day.month.year, hour:minute", () => {
-    expect(formatDateTime("2026-11-06T11:10:00Z")).toBe("06.11.2026, 15:10");
+    expect(formatDateTime("2026-11-06T11:10:00Z")).toBe("6 November 2026, 15:10");
   });
 
   it("writes today in words with the weekday", () => {
-    expect(formatLongDate(new Date("2026-11-08T06:30:00Z"))).toBe("8 noyabr 2026, bazar");
-    expect(formatLongDate(new Date("2026-11-09T20:30:00Z"))).toBe(
-      "10 noyabr 2026, çərşənbə axşamı",
-    );
+    expect(formatLongDate(new Date("2026-11-08T06:30:00Z"))).toBe("8 November 2026, Sunday");
+    expect(formatLongDate(new Date("2026-11-09T20:30:00Z"))).toBe("10 November 2026, Tuesday");
   });
 
   it("greets by the time of day", () => {
-    expect(greeting(new Date("2026-11-08T06:30:00Z"))).toBe("Sabahınız xeyir");
-    expect(greeting(new Date("2026-11-08T10:00:00Z"))).toBe("Günortanız xeyir");
-    expect(greeting(new Date("2026-11-08T16:00:00Z"))).toBe("Axşamınız xeyir");
-    expect(greeting(new Date("2026-11-08T22:30:00Z"))).toBe("Axşamınız xeyir");
+    expect(greeting(new Date("2026-11-08T06:30:00Z"))).toBe("Good morning");
+    expect(greeting(new Date("2026-11-08T10:00:00Z"))).toBe("Good afternoon");
+    expect(greeting(new Date("2026-11-08T16:00:00Z"))).toBe("Good evening");
+    expect(greeting(new Date("2026-11-08T22:30:00Z"))).toBe("Good evening");
   });
 });
 
 describe("formatDate", () => {
   it("writes a contract date day first, without touching time zones", () => {
-    expect(formatDate("2026-11-03")).toBe("03.11.2026");
+    expect(formatDate("2026-11-03")).toBe("3 November 2026");
     expect(() => formatDate("03.11.2026")).toThrow();
   });
 });
@@ -73,9 +71,9 @@ describe("day headings (Baku time)", () => {
   });
 
   it("says today and yesterday in words, other days with the weekday", () => {
-    expect(formatDayHeading("2026-11-08", now)).toBe("Bu gün");
-    expect(formatDayHeading("2026-11-07", now)).toBe("Dünən");
-    expect(formatDayHeading("2026-11-06", now)).toBe("6 noyabr, cümə");
-    expect(formatDayHeading("2025-12-31", now)).toBe("31 dekabr 2025, çərşənbə");
+    expect(formatDayHeading("2026-11-08", now)).toBe("Today");
+    expect(formatDayHeading("2026-11-07", now)).toBe("Yesterday");
+    expect(formatDayHeading("2026-11-06", now)).toBe("6 November, Friday");
+    expect(formatDayHeading("2025-12-31", now)).toBe("31 December 2025, Wednesday");
   });
 });

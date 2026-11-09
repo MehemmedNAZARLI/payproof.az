@@ -3,6 +3,7 @@ import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 
 import { toast } from "@/components/ui/toast-store";
 
+import { errorMessages } from "./english";
 import { t } from "./i18n";
 import { endSession, hasStoredSession } from "./session";
 
@@ -21,7 +22,9 @@ declare module "@tanstack/react-query" {
 }
 
 export const errorMessage = (error: unknown) =>
-  error instanceof ApiError ? error.message : t.errors.unexpected;
+  error instanceof ApiError
+    ? (errorMessages[error.code] ?? t.errors.unexpected)
+    : t.errors.unexpected;
 
 // 4xx will not get better by asking again; network and 5xx errors are worth a retry.
 export const shouldRetry = (failures: number, error: unknown) =>

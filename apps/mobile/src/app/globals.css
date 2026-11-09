@@ -47,15 +47,9 @@
   /* Translucent bar material: tinted canvas + blur, like UIKit's system chrome. */
   --material: color-mix(in srgb, var(--bg) 78%, transparent);
   --hairline: var(--separator);
-  /* Skeleton shimmer: a lighter band in light mode, a brighter one in dark. */
+  /* Skeleton shimmer: a lighter band across the loading surface. */
   --skel-base: var(--surface-2);
   --skel-band: color-mix(in srgb, var(--surface-2), var(--surface) 80%);
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --material: color-mix(in srgb, var(--bg) 72%, transparent);
-    --skel-band: color-mix(in srgb, var(--surface-2), var(--text) 8%);
-  }
 }
 
 /* Custom properties are not validated, so the fallback for Safari < 17.2 needs its own block. */
@@ -78,7 +72,14 @@
   box-shadow: inset 0 -0.5px 0 var(--hairline);
 }
 @utility pb-tabbar {
-  padding-bottom: calc(var(--tabbar-h) + var(--safe-bottom) + var(--sp-6));
+  /* Reserve exactly the fixed bar's border-box, not another bottom spacer. */
+  padding-bottom: calc(var(--tabbar-h) + var(--safe-bottom));
+}
+@utility tabbar {
+  /* One owner for the inset: never add safe-area padding to the tab layout/body. */
+  box-sizing: border-box;
+  height: calc(var(--tabbar-h) + var(--safe-bottom));
+  padding-bottom: var(--safe-bottom);
 }
 @utility shimmer {
   position: relative;
@@ -200,11 +201,6 @@
     text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
   }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      color-scheme: dark;
-    }
-  }
   html,
   body {
     overscroll-behavior-y: none;
@@ -240,8 +236,7 @@
   }
 }
 
-/* Hero card (login, home, success): navy in both themes with one soft accent glow, so white
-   text keeps its contrast. A faint top highlight gives the card an edge on the dark canvas. */
+/* Hero card (login, home, success): navy with one soft accent glow, so white text keeps contrast. */
 @utility hero {
   color: #fff;
   background:

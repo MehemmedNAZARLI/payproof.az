@@ -14,21 +14,21 @@ describe("TabBar", () => {
 
   it("lists the four sections in order", () => {
     render(<TabBar />);
-    const bar = screen.getByRole("navigation", { name: "Mobil naviqasiya" });
+    const bar = screen.getByRole("navigation", { name: "Mobile navigation" });
     const names = [...bar.querySelectorAll("a")].map((a) => a.textContent);
-    expect(names).toEqual(["Əsas", "Paketlər", "Bildirişlər", "Profil"]);
+    expect(names).toEqual(["Home", "Packages", "Notifications", "Profile"]);
   });
 
   it("marks the current section, including its detail pages", () => {
     nav.pathname = "/packages/pkg_1038";
     render(<TabBar />);
-    expect(screen.getByRole("link", { name: "Paketlər" })).toHaveAttribute("aria-current", "page");
-    expect(screen.getByRole("link", { name: "Əsas" })).not.toHaveAttribute("aria-current");
+    expect(screen.getByRole("link", { name: "Packages" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: "Home" })).not.toHaveAttribute("aria-current");
   });
 
   it("announces the unread count on the notifications tab", () => {
     render(<TabBar notificationCount={3} />);
-    expect(screen.getByRole("link", { name: "Bildirişlər, 3 oxunmamış" })).toBeVisible();
+    expect(screen.getByRole("link", { name: "Notifications, 3 unread" })).toBeVisible();
   });
 
   it("caps a large count", () => {

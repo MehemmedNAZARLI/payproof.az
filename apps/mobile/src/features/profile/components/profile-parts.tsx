@@ -7,6 +7,7 @@ import { Icon, type IconName } from "@/components/ui/icon";
 import { ListItem } from "@/components/ui/list";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Schemas } from "@/lib/api";
+import { jobTitle } from "@/lib/english";
 import { t } from "@/lib/i18n";
 
 export function Identity({ me }: { me: Schemas["Me"] }) {
@@ -15,7 +16,7 @@ export function Identity({ me }: { me: Schemas["Me"] }) {
       <Avatar user={me} size="lg" />
       <div className="min-w-0">
         <h2 className="truncate text-title3 font-bold">{me.full_name}</h2>
-        <p className="text-text-2 truncate text-footnote">{me.title}</p>
+        <p className="text-text-2 truncate text-footnote">{jobTitle(me.title)}</p>
         <p className="text-text-3 truncate text-footnote">{me.company.name}</p>
         <Badge tone="accent" icon="user" className="mt-2">
           {t.role[me.role]}

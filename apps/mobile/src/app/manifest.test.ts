@@ -21,21 +21,7 @@ describe("web app manifest", () => {
   it("launches in the page's own colours, so the status bar does not flash at start", () => {
     // Android paints the splash and status bar from the manifest until the page's meta
     // theme-color loads; both must already be the page background (layout.tsx viewport).
-    const lightMeta = (viewport.themeColor as { media: string; color: string }[]).find((c) =>
-      c.media.includes("light"),
-    );
-    expect(m).toMatchObject({ lang: "az", theme_color: lightMeta?.color });
+    expect(m).toMatchObject({ lang: "en", theme_color: viewport.themeColor });
     expect(m.background_color).toBe(brand.backgroundLight);
-  });
-
-  it("offers a dark splash where the browser reads per-scheme manifest colours", () => {
-    expect(m).toMatchObject({
-      user_preferences: {
-        color_scheme_dark: {
-          theme_color: brand.backgroundDark,
-          background_color: brand.backgroundDark,
-        },
-      },
-    });
   });
 });

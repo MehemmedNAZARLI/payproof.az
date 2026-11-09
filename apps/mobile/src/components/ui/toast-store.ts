@@ -8,7 +8,7 @@ export type Toast = {
   tone: ToastTone;
   title: string;
   description?: string;
-  /** One text button next to the message, e.g. "Yenilə". */
+  /** One text button next to the message, e.g. "Refresh". */
   action?: { label: string; onPress: () => void };
   /** Stays until dismissed: for a notice that waits on the user, not one that reports. */
   sticky?: boolean;

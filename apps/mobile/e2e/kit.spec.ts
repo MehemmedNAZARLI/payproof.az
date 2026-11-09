@@ -17,7 +17,7 @@ test("renders the kit without console errors or horizontal scroll", async ({ pag
   for (const width of [360, 390, 430]) {
     await page.setViewportSize({ width, height: 844 });
     await page.goto("/kit");
-    await expect(page.getByRole("heading", { level: 1, name: "UI dəsti" })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: "UI kit" })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBe(0);
   }
   expect(errors).toEqual([]);
@@ -34,9 +34,9 @@ test("collapses the large title into the bar on scroll", async ({ page }) => {
 
 test("opens the sheet, closes it with Esc and returns focus", async ({ page }) => {
   await page.goto("/kit");
-  const row = page.getByRole("button", { name: /Vahid qiymət uyğunluğu/ });
+  const row = page.getByRole("button", { name: /Unit price match/ });
   await row.click();
-  const sheet = page.getByRole("dialog", { name: "Vahid qiymət uyğunluğu" });
+  const sheet = page.getByRole("dialog", { name: "Unit price match" });
   await expect(sheet).toBeInViewport({ ratio: 0.99 });
   await expect(page.locator("nav[inert], [inert] nav")).toHaveCount(1); // page behind is inert
   await page.keyboard.press("Escape");
@@ -46,7 +46,7 @@ test("opens the sheet, closes it with Esc and returns focus", async ({ page }) =
 
 test("dismisses the sheet with a downward swipe", async ({ page }) => {
   await page.goto("/kit");
-  await page.getByRole("button", { name: /Vahid qiymət uyğunluğu/ }).click();
+  await page.getByRole("button", { name: /Unit price match/ }).click();
   const sheet = page.getByRole("dialog");
   await expect(sheet).toBeInViewport({ ratio: 0.99 });
   const handle = await sheet.locator("[data-sheet-handle]").boundingBox();
@@ -63,7 +63,7 @@ test("keeps bar and sheet controls at least 44×44", async ({ page }) => {
   await page.goto("/kit");
   const targets = [
     ...(await page.getByRole("navigation").getByRole("link").all()),
-    page.getByRole("button", { name: /Bildirişlər, 3 oxunmamış/ }),
+    page.getByRole("button", { name: /Notifications, 3 unread/ }),
   ];
   for (const target of targets) {
     const box = await target.boundingBox();

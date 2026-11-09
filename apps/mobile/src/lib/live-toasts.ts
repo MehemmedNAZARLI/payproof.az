@@ -11,7 +11,7 @@ import { t } from "./i18n";
 import { type LiveEvent, onLiveEvent } from "./live";
 import { useSession } from "./session";
 
-/** "Aygün Məmmədova INV-1042 paketini yenilədi (v5)"; null when the event gets no toast. */
+/** "Aygün Məmmədova INV-1042 package updated (v5)"; null when the event gets no toast. */
 export function liveToastText(
   event: LiveEvent,
   { actor, invoice }: { actor: string | null; invoice?: string },
@@ -20,10 +20,10 @@ export function liveToastText(
   const verb = t.live.verb[event.type];
   if (verb) {
     const version = event.package_version ? ` (v${event.package_version})` : "";
-    return `${who} ${t.live.pkg(invoice)} ${verb}${version}`;
+    return `${who} ${verb} ${t.live.pkg(invoice)}${version}`;
   }
-  if (event.type === "task.changed") return `${who} ${t.live.task(invoice)} ${t.live.updated}`;
-  if (event.type === "requirements.changed") return `${who} ${t.live.rules} ${t.live.updated}`;
+  if (event.type === "task.changed") return `${who} ${t.live.updated} ${t.live.task(invoice)}`;
+  if (event.type === "requirements.changed") return `${who} ${t.live.updated} ${t.live.rules}`;
   return null; // notifications have their own badge; unknown types only refetch
 }
 

@@ -14,12 +14,14 @@ import { toast } from "@/components/ui/toast-store";
 import type { Schemas } from "@/lib/api";
 import { appDescription, appName } from "@/lib/brand";
 import { cx } from "@/lib/cx";
+import { jobTitle } from "@/lib/english";
 import { t } from "@/lib/i18n";
 import { errorMessage } from "@/lib/query-client";
 import { signOutReason, useSession } from "@/lib/session";
 
 import { safeNextPath } from "../next-path";
 import { useDevLogin, useDevUsers } from "../queries";
+import { Welcome } from "./welcome";
 
 // The approver is the main mobile user, so that account comes first.
 const ROLE_ORDER: Schemas["Role"][] = ["approver", "operator", "readonly", "admin", "assignee"];
@@ -42,64 +44,66 @@ export function LoginScreen() {
     login.mutate(user.id, { onSuccess: () => toast.success(t.auth.signedIn(user.full_name)) });
 
   return (
-    <div className="bg-bg flex min-h-dvh flex-col">
-      <header className="hero pt-safe">
-        <div className="px-safe mx-auto max-w-app pt-12 pb-14">
-          <span className="grid size-14 place-items-center rounded-lg bg-white text-[#3d5afe] shadow-2">
-            <Icon name="shield" size={32} strokeWidth={1.9} />
-          </span>
-          <h1 className="text-large mt-6">{appName}</h1>
-          <p className="text-hero-text2 mt-1 text-subhead">{appDescription}</p>
-          <span className="bg-hero-fill mt-5 inline-flex h-7 items-center gap-1.5 rounded-full px-3 text-caption font-semibold backdrop-blur-md">
-            <Icon name="info" size={14} strokeWidth={2} />
-            {t.auth.demoBadge}
-          </span>
-        </div>
-      </header>
+    <Welcome>
+      <div className="bg-bg flex min-h-dvh flex-col">
+        <header className="hero pt-safe">
+          <div className="px-safe mx-auto max-w-app pt-12 pb-14">
+            <span className="grid size-14 place-items-center rounded-lg bg-white text-[#3d5afe] shadow-2">
+              <Icon name="shield" size={32} strokeWidth={1.9} />
+            </span>
+            <h1 className="text-large mt-6">{appName}</h1>
+            <p className="text-hero-text2 mt-1 text-subhead">{appDescription}</p>
+            <span className="bg-hero-fill mt-5 inline-flex h-7 items-center gap-1.5 rounded-full px-3 text-caption font-semibold backdrop-blur-md">
+              <Icon name="info" size={14} strokeWidth={2} />
+              {t.auth.demoBadge}
+            </span>
+          </div>
+        </header>
 
-      <main className="bg-bg pb-safe relative -mt-6 flex-1 rounded-t-(--sheet-radius)">
-        <div className="px-safe mx-auto max-w-app pt-7 pb-8">
-          {session === null && signOutReason() === "expired" && (
-            <Banner tone="info" icon="clock" title={t.auth.expired} className="mb-5" />
-          )}
-          <h2 className="text-title3 font-bold">{t.auth.pickTitle}</h2>
-          <p className="text-text-3 mt-0.5 text-footnote">{t.auth.pickHint}</p>
+        <main className="bg-bg pb-safe relative -mt-6 flex-1 rounded-t-(--sheet-radius)">
+          <div className="px-safe mx-auto max-w-app pt-7 pb-8">
+            {session === null && signOutReason() === "expired" && (
+              <Banner tone="info" icon="clock" title={t.auth.expired} className="mb-5" />
+            )}
+            <h2 className="text-title3 font-bold">{t.auth.pickTitle}</h2>
+            <p className="text-text-3 mt-0.5 text-footnote">{t.auth.pickHint}</p>
 
-          {users.isPending ? (
-            <AccountsSkeleton />
-          ) : users.isError ? (
-            <EmptyState
-              icon="alert"
-              title={t.auth.unavailable}
-              description={errorMessage(users.error)}
-              action={
-                <Button variant="secondary" onClick={() => void users.refetch()}>
-                  {t.common.retry}
-                </Button>
-              }
-            />
-          ) : (
-            <ul className="mt-4 flex flex-col gap-2.5" aria-label={t.auth.pickTitle}>
-              {[...users.data.items].sort(byRole).map((user, i) => (
-                <li key={user.id}>
-                  <AccountButton
-                    user={user}
-                    recommended={i === 0 && user.role === "approver"}
-                    busy={login.isPending && login.variables === user.id}
-                    disabled={login.isPending || !!session}
-                    onPress={() => signIn(user)}
-                  />
-                </li>
-              ))}
-            </ul>
-          )}
+            {users.isPending ? (
+              <AccountsSkeleton />
+            ) : users.isError ? (
+              <EmptyState
+                icon="alert"
+                title={t.auth.unavailable}
+                description={errorMessage(users.error)}
+                action={
+                  <Button variant="secondary" onClick={() => void users.refetch()}>
+                    {t.common.retry}
+                  </Button>
+                }
+              />
+            ) : (
+              <ul className="mt-4 flex flex-col gap-2.5" aria-label={t.auth.pickTitle}>
+                {[...users.data.items].sort(byRole).map((user, i) => (
+                  <li key={user.id}>
+                    <AccountButton
+                      user={user}
+                      recommended={i === 0 && user.role === "approver"}
+                      busy={login.isPending && login.variables === user.id}
+                      disabled={login.isPending || !!session}
+                      onPress={() => signIn(user)}
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
 
-          <p className="text-text-3 mt-6 px-2 text-center text-caption leading-relaxed">
-            {t.auth.footnote}
-          </p>
-        </div>
-      </main>
-    </div>
+            <p className="text-text-3 mt-6 px-2 text-center text-caption leading-relaxed">
+              {t.auth.footnote}
+            </p>
+          </div>
+        </main>
+      </div>
+    </Welcome>
   );
 }
 
@@ -132,7 +136,7 @@ function AccountButton({ user, recommended, busy, disabled, onPress }: AccountBu
           {recommended && <Badge tone="accent">{t.auth.recommended}</Badge>}
         </span>
         <span className="text-text-3 block truncate text-footnote">
-          {user.title} · {t.role[user.role]}
+          {jobTitle(user.title)} · {t.role[user.role]}
         </span>
       </span>
       {busy ? (

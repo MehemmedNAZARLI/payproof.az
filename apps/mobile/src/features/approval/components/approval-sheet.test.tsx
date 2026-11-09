@@ -76,38 +76,38 @@ async function openSheet() {
       <LiveBridge />
     </QueryClientProvider>,
   );
-  fireEvent.click(await screen.findByRole("button", { name: "Sübutlara baxıb təsdiqlə" }));
-  return screen.findByRole("dialog", { name: "INV-1038 paketini təsdiqləyin" });
+  fireEvent.click(await screen.findByRole("button", { name: "Review evidence and approve" }));
+  return screen.findByRole("dialog", { name: "INV-1038 — approve package" });
 }
 
 const seeAll = async () => {
   const pkg = await detailOf(ID);
   for (const d of pkg.documents) markSeen(meFor("u2").id, pkg, d.current.id);
 };
-const confirm = (sheet: HTMLElement) => within(sheet).getByRole("button", { name: /Təsdiqlə/ });
+const confirm = (sheet: HTMLElement) => within(sheet).getByRole("button", { name: /Approv/ });
 
 describe("approval sheet", () => {
   it("locks the acknowledgement and the confirm until every document is seen", async () => {
     const sheet = await openSheet();
-    expect(within(sheet).getByText("0/3 baxılıb")).toBeVisible();
+    expect(within(sheet).getByText("0/3 reviewed")).toBeVisible();
     expect(within(sheet).getByRole("checkbox")).toBeDisabled();
-    expect(within(sheet).getByText("Əvvəl 3 sənədə də baxın.")).toBeVisible();
+    expect(within(sheet).getByText("First review 3 more documents.")).toBeVisible();
     expect(confirm(sheet)).toHaveAttribute("aria-disabled", "true");
     fireEvent.click(confirm(sheet));
     expect(push).not.toHaveBeenCalled();
     expect(recordedApprovals()).toEqual([]);
-    expect(within(sheet).getByText(/bank ödənişinə səlahiyyət vermir/)).toBeVisible();
+    expect(within(sheet).getByText(/does not authorize a bank payment/)).toBeVisible();
   });
 
   it("opens a document from the review and counts it when coming back", async () => {
     const sheet = await openSheet();
-    fireEvent.click(within(sheet).getByRole("button", { name: /Faktura · v1/ }));
+    fireEvent.click(within(sheet).getByRole("button", { name: /Invoice · v1/ }));
     await screen.findByRole("article", { name: "HESAB-FAKTURA INV-1038" });
     fireEvent.click(
-      within(screen.getByRole("dialog")).getAllByRole("button", { name: "Geri" }).at(-1)!,
+      within(screen.getByRole("dialog")).getAllByRole("button", { name: "Back" }).at(-1)!,
     );
-    const back = await screen.findByRole("dialog", { name: "INV-1038 paketini təsdiqləyin" });
-    await waitFor(() => expect(within(back).getByText("1/3 baxılıb")).toBeVisible());
+    const back = await screen.findByRole("dialog", { name: "INV-1038 — approve package" });
+    await waitFor(() => expect(within(back).getByText("1/3 reviewed")).toBeVisible());
   });
 
   it("approves once, however often the confirm is tapped, and goes to the success screen", async () => {
@@ -130,7 +130,9 @@ describe("approval sheet", () => {
     const sheet = await openSheet();
     fireEvent.click(within(sheet).getByRole("checkbox"));
     fireEvent.click(confirm(sheet));
-    expect(await within(sheet).findByRole("alert")).toHaveTextContent(/oflayn mümkün deyil/);
+    expect(await within(sheet).findByRole("alert")).toHaveTextContent(
+      /Approval requires you to be online/,
+    );
     fireEvent.click(confirm(sheet));
     await waitFor(() => expect(push).toHaveBeenCalledOnce());
     expect(wire.keys).toHaveLength(2);
@@ -144,7 +146,7 @@ describe("approval sheet", () => {
     fireEvent.click(within(sheet).getByRole("checkbox"));
     fireEvent.click(confirm(sheet));
     expect(await within(sheet).findByRole("alert")).toHaveTextContent(
-      "Paket yenilənib, yenidən baxın",
+      "Package updated. Review it again",
     );
     expect(within(sheet).getByRole("checkbox")).not.toBeChecked();
     fireEvent.click(within(sheet).getByRole("checkbox"));
@@ -171,7 +173,7 @@ describe("approval sheet", () => {
     fireEvent.click(within(sheet).getByRole("checkbox"));
     fireEvent.click(confirm(sheet));
     expect(await within(sheet).findByRole("alert")).toHaveTextContent(
-      "Təsdiq səlahiyyətiniz yoxdur",
+      "You do not have approval permission",
     );
     expect(push).not.toHaveBeenCalled();
   });
@@ -183,9 +185,13 @@ describe("approval sheet", () => {
     expect(within(sheet).getByRole("checkbox")).toBeChecked();
     const key = packageDetailKeys.detail(ID);
     act(() => client.setQueryData<Schemas["PackageDetail"]>(key, (d) => d && { ...d, version: 2 }));
-    await waitFor(() => expect(within(sheet).getByText(/Cari v2/)).toBeVisible());
+    await waitFor(() =>
+      expect(
+        within(sheet).getByText(/I reviewed the documents and check results for v2/),
+      ).toBeVisible(),
+    );
     expect(within(sheet).getByRole("checkbox")).not.toBeChecked();
-    expect(within(sheet).getByText("0/3 baxılıb")).toBeVisible();
+    expect(within(sheet).getByText("0/3 reviewed")).toBeVisible();
   });
 
   it("says at once when someone else makes a newer version, and holds the confirm", async () => {
@@ -198,18 +204,22 @@ describe("approval sheet", () => {
     await unwrap(
       mockClient("u1").PATCH("/v1/fields/{field_id}", {
         params: { path: { field_id: field.id } },
-        body: { value: field.value!, reason: "Sifariş nömrəsi yoxlanıldı", expected_version: 1 },
+        body: { value: field.value!, reason: "Order nömrəsi yoxlanıldı", expected_version: 1 },
       }),
     );
     expect(await within(sheet).findByRole("alert")).toHaveTextContent(
-      "Başqa istifadəçi paketi yenilədi (v2)",
+      "Another user updated the package (v2)",
     );
     expect(confirm(sheet)).toHaveAttribute("aria-disabled", "true");
     fireEvent.click(confirm(sheet));
     expect(recordedApprovals()).toHaveLength(0);
     // v2 loads by itself; it has to be reviewed again, and the notice stays to say why.
-    await waitFor(() => expect(within(sheet).getByText(/Cari v2/)).toBeVisible());
-    expect(within(sheet).getByText("0/3 baxılıb")).toBeVisible();
+    await waitFor(() =>
+      expect(
+        within(sheet).getByText(/I reviewed the documents and check results for v2/),
+      ).toBeVisible(),
+    );
+    expect(within(sheet).getByText("0/3 reviewed")).toBeVisible();
     expect(within(sheet).getByRole("alert")).toHaveTextContent("(v2)");
   });
 
@@ -217,7 +227,7 @@ describe("approval sheet", () => {
     const sheet = await openSheet();
     fireEvent.click(confirm(sheet));
     expect(within(sheet).getByRole("status")).toHaveTextContent(
-      "Təsdiqdən əvvəl paketdəki hər sənədə baxın.",
+      "Review every document before approving.",
     );
   });
 
@@ -226,7 +236,9 @@ describe("approval sheet", () => {
     const sheet = await openSheet();
     const online = vi.spyOn(navigator, "onLine", "get").mockReturnValue(false);
     act(() => void window.dispatchEvent(new Event("offline")));
-    expect(within(sheet).getByRole("alert")).toHaveTextContent(/təsdiq oflayn mümkün deyil/);
+    expect(within(sheet).getByRole("alert")).toHaveTextContent(
+      /Approval requires you to be online/,
+    );
     expect(confirm(sheet)).toHaveAttribute("aria-disabled", "true");
     online.mockRestore();
   });

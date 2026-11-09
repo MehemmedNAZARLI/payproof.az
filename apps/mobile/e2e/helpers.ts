@@ -6,6 +6,9 @@ export const AYGUN = "Aygün Məmmədova";
 /** One-tap demo sign-in from the login screen; lands on home (or the `next` page). */
 export async function signIn(page: Page, name = RASHAD) {
   if (!new URL(page.url()).pathname.startsWith("/login")) await page.goto("/login");
+  const start = page.getByRole("button", { name: "Get started" });
+  await expect(start.or(page.getByRole("button", { name: new RegExp(name) }))).toBeVisible();
+  if (await start.isVisible()) await start.click();
   await page.getByRole("button", { name: new RegExp(name) }).click();
   await expect(page).not.toHaveURL(/\/login/);
 }
@@ -14,14 +17,14 @@ export async function signIn(page: Page, name = RASHAD) {
  * A tab of the bottom bar, followed in the app. The mock DB lives in the page (@payproof/mocks), so
  * a reload (`page.goto`) starts again from the fixtures; stay in the app after a write.
  */
-export const tabLink = (page: Page, name: "Əsas" | "Paketlər" | "Bildirişlər" | "Profil") =>
+export const tabLink = (page: Page, name: "Home" | "Packages" | "Notifications" | "Profile") =>
   page.getByRole("navigation").getByRole("link", { name: new RegExp(`^${name}`) });
 
 /** Signs out from the profile tab, in the app (keeps the page's mock DB). */
 export async function signOutInApp(page: Page) {
-  await tabLink(page, "Profil").click();
-  await page.getByRole("button", { name: "Hesabdan çıx" }).click();
-  await page.getByRole("dialog").getByRole("button", { name: "Hesabdan çıx" }).click();
+  await tabLink(page, "Profile").click();
+  await page.getByRole("button", { name: "Sign out" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Sign out" }).click();
   await expect(page).toHaveURL(/\/login/);
 }
 

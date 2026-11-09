@@ -14,18 +14,18 @@ describe("Toaster", () => {
   it("announces errors assertively and other messages politely", () => {
     render(<Toaster />);
     act(() => {
-      toast.error("Şəbəkə xətası", "Bağlantını yoxlayın.");
-      toast.success("Paket təsdiqləndi.");
+      toast.error("Network error", "Closentını yoxlayın.");
+      toast.success("Package approved.");
     });
-    expect(screen.getByRole("alert")).toHaveTextContent("Şəbəkə xətası");
-    expect(screen.getByRole("alert")).toHaveTextContent("Bağlantını yoxlayın.");
-    expect(screen.getByRole("status")).toHaveTextContent("Paket təsdiqləndi.");
+    expect(screen.getByRole("alert")).toHaveTextContent("Network error");
+    expect(screen.getByRole("alert")).toHaveTextContent("Closentını yoxlayın.");
+    expect(screen.getByRole("status")).toHaveTextContent("Package approved.");
   });
 
   it("can be dismissed with its labelled close button", () => {
     render(<Toaster />);
     act(() => void toast.info("Siyahı yeniləndi."));
-    fireEvent.click(screen.getByRole("button", { name: "Bildirişi bağla" }));
+    fireEvent.click(screen.getByRole("button", { name: "Dismiss notification" }));
     act(() => vi.advanceTimersByTime(250));
     expect(screen.queryByText("Siyahı yeniləndi.")).toBeNull();
   });

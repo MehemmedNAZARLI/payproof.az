@@ -7,22 +7,24 @@ import { horizontalOverflow, pullDown, signIn, watchErrors } from "./helpers";
 test.beforeEach(async ({ page }) => signIn(page));
 
 test("home tiles open the package list filtered", async ({ page }) => {
-  await page.getByRole("link", { name: /Düzəliş tələb edir/ }).click();
+  await page.getByRole("link", { name: /Needs correction/ }).click();
   await expect(page).toHaveURL("/packages?status=problem");
-  await expect(page.getByRole("list", { name: "Paketlər" }).getByRole("listitem")).toHaveCount(8);
+  await expect(page.getByRole("list", { name: "Packages" }).getByRole("listitem")).toHaveCount(8);
 });
 
 test("keeps search and filter in the URL across a reload", async ({ page }) => {
   await page.goto("/packages");
-  await page.getByRole("button", { name: /^Problemli/ }).click();
-  await page.getByRole("searchbox", { name: "Paket axtar" }).fill("restoran");
+  await page.getByRole("button", { name: /^Needs attention/ }).click();
+  await page.getByRole("searchbox", { name: "Search packages" }).fill("restoran");
   await expect(page).toHaveURL("/packages?status=problem&q=restoran");
-  const rows = page.getByRole("list", { name: "Paketlər" }).getByRole("listitem");
+  const rows = page.getByRole("list", { name: "Packages" }).getByRole("listitem");
   await expect(rows.first()).toContainText("C Restoran Qrupu");
+  // keepPreviousData may still show the old page while the URL has already changed.
+  await expect(rows.filter({ hasNotText: "C Restoran Qrupu" })).toHaveCount(0);
   const count = await rows.count();
   await page.reload();
   await expect(rows).toHaveCount(count);
-  await expect(page.getByRole("searchbox", { name: "Paket axtar" })).toHaveValue("restoran");
+  await expect(page.getByRole("searchbox", { name: "Search packages" })).toHaveValue("restoran");
 });
 
 for (const path of ["/home", "/packages", "/notifications"])

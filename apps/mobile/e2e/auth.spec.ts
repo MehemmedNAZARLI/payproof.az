@@ -8,10 +8,11 @@ test("signs in with one tap and greets the approver", async ({ page }) => {
   const errors = watchErrors(page);
   await page.goto("/");
   await expect(page).toHaveURL(/\/login$/);
+  await page.getByRole("button", { name: "Get started" }).click();
   await page.getByRole("button", { name: /Rəşad Əliyev/ }).click();
   await expect(page).toHaveURL(/\/home$/);
   await expect(page.getByRole("heading", { level: 1, name: /, Rəşad$/ })).toBeVisible();
-  await expect(page.getByRole("link", { name: /Təsdiqinizi gözləyir/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Awaiting your approval/ })).toBeVisible();
   expect(errors).toEqual([]);
 });
 
@@ -20,7 +21,7 @@ test("brings a signed-out visitor back to the page they asked for", async ({ pag
   await expect(page).toHaveURL("/login?next=%2Fpackages%3Fstatus%3Dready");
   await signIn(page, AYGUN);
   await expect(page).toHaveURL("/packages?status=ready");
-  await expect(page.getByRole("button", { name: /^Təsdiq gözləyir/ })).toHaveAttribute(
+  await expect(page.getByRole("button", { name: /^Awaiting approval/ })).toHaveAttribute(
     "aria-pressed",
     "true",
   );
@@ -36,8 +37,8 @@ test("signs out and clears the session, the Query cache and the runtime caches",
   page,
 }) => {
   await signIn(page);
-  await page.getByRole("link", { name: "Paketlər" }).click();
-  await expect(page.getByRole("list", { name: "Paketlər" })).toBeVisible();
+  await page.getByRole("navigation").getByRole("link", { name: "Packages", exact: true }).click();
+  await expect(page.getByRole("list", { name: "Packages" })).toBeVisible();
   // The service worker fills its runtime caches (RSC payloads) as the signed-in user browses.
   await expect
     .poll(() =>
@@ -45,9 +46,9 @@ test("signs out and clears the session, the Query cache and the runtime caches",
     )
     .toBe(true);
   await page.goto("/profile");
-  await page.getByRole("button", { name: "Hesabdan çıx" }).click();
-  const sheet = page.getByRole("dialog", { name: "Hesabdan çıxılsın?" });
-  await sheet.getByRole("button", { name: "Hesabdan çıx" }).click();
+  await page.getByRole("button", { name: "Sign out" }).click();
+  const sheet = page.getByRole("dialog", { name: "Sign out?" });
+  await sheet.getByRole("button", { name: "Sign out" }).click();
 
   await expect(page).toHaveURL(/\/login$/);
   // Only the public login screen, fetched after sign-out, may be in the runtime caches now.
@@ -60,7 +61,10 @@ test("signs out and clears the session, the Query cache and the runtime caches",
   });
   expect(left.storage).toBeNull();
   expect(
-    left.urls.filter((path) => !path.startsWith("/login") && !path.startsWith("/_next/static/")),
+    left.urls.filter(
+      (path) =>
+        !path.startsWith("/login") && !path.startsWith("/_next/static/") && path !== "/icon.svg",
+    ),
   ).toEqual([]);
 
   await page.goto("/home");
@@ -69,8 +73,8 @@ test("signs out and clears the session, the Query cache and the runtime caches",
 
 test("shows the operator's permissions without approval", async ({ page }) => {
   await signIn(page, AYGUN);
-  await expect(page.getByRole("link", { name: /Təsdiqçini gözləyir/ })).toBeVisible();
-  await page.getByRole("link", { name: "Profil" }).click();
-  const approve = page.getByRole("listitem").filter({ hasText: "Hazır paketi təsdiqləmək" });
-  await expect(approve).toContainText("Xeyr");
+  await expect(page.getByRole("link", { name: /Awaiting an approver/ })).toBeVisible();
+  await page.getByRole("link", { name: "Profile" }).click();
+  const approve = page.getByRole("listitem").filter({ hasText: "Approve ready packages" });
+  await expect(approve).toContainText("No");
 });

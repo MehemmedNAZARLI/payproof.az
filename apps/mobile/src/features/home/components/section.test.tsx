@@ -13,15 +13,15 @@ describe("Section", () => {
       </Section>,
     );
     expect(screen.queryByText("skeleton")).toBeNull();
-    expect(screen.getByText("İnternet bağlantısı yoxdur")).toBeVisible();
+    expect(screen.getByText("No internet connection")).toBeVisible();
   });
 
   it("shows saved data even while offline", () => {
     render(
       <Section query={{ ...base, data: 3, fetchStatus: "paused" }} skeleton={null}>
-        {(n) => <p>{n} paket</p>}
+        {(n) => <p>{n} packages</p>}
       </Section>,
     );
-    expect(screen.getByText("3 paket")).toBeVisible();
+    expect(screen.getByText("3 packages")).toBeVisible();
   });
 });

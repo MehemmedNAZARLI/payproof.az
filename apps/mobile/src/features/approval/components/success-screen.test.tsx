@@ -25,26 +25,21 @@ function open(invoice: number) {
 describe("SuccessScreen", () => {
   it("states the outcome, that it is not a payment, and who approved what", async () => {
     open(1035);
-    const heading = await screen.findByRole("heading", { name: "Paket göndərilməyə hazırdır" });
+    const heading = await screen.findByRole("heading", { name: "Package ready to send" });
     expect(heading).toHaveFocus();
-    expect(screen.getByText(/-lik faktura paketi \(INV-1035, v\d\)/)).toBeVisible();
-    expect(
-      screen.getByText(/ödənişin təmin edildiyi və ya fakturanın ödənildiyi demək deyil/),
-    ).toBeVisible();
-    expect(screen.getByText("Təsdiqləyən")).toBeVisible();
-    expect(screen.getByRole("link", { name: "Veb tətbiqdə ixrac et" })).toHaveAttribute(
+    expect(screen.getByText(/invoice package \(INV-1035, v\d\)/)).toBeVisible();
+    expect(screen.getByText(/does not mean payment is guaranteed/)).toBeVisible();
+    expect(screen.getByText("Approved by")).toBeVisible();
+    expect(screen.getByRole("link", { name: "Export on web" })).toHaveAttribute(
       "href",
       expect.stringContaining("/packages/0193a000-0000-7000-8002-000000001035"),
     );
-    expect(screen.getByRole("link", { name: "Ana səhifəyə qayıt" })).toHaveAttribute(
-      "href",
-      "/home",
-    );
+    expect(screen.getByRole("link", { name: "Back to home" })).toHaveAttribute("href", "/home");
   });
 
   it("never claims an approval the package does not have", async () => {
     open(1042);
-    expect(await screen.findByText("Bu paket üçün qüvvədə olan təsdiq yoxdur")).toBeVisible();
-    expect(screen.queryByText("Paket göndərilməyə hazırdır")).toBeNull();
+    expect(await screen.findByText("No valid approval for this package")).toBeVisible();
+    expect(screen.queryByText("Package ready to send")).toBeNull();
   });
 });

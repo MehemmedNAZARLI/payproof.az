@@ -6,7 +6,7 @@ const user = {
   id: "0193a000-0000-7000-8000-000000000002",
   email: "rashad.aliyev@a-distribusiya.test",
   full_name: "Rəşad Əliyev",
-  title: "Maliyyə direktoru",
+  title: "Finance director",
   role: "approver",
   company: {
     id: "0193a000-0000-7000-8000-00000000c0a1",

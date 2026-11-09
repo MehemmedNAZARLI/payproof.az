@@ -1,33 +1,27 @@
+import { formatDate as sharedDate } from "@payproof/api-client/format";
+
 import { t } from "./i18n";
 
-export { formatDate, formatDateTime, formatMoney } from "@payproof/api-client/format";
+export { formatMoney } from "@payproof/api-client/format";
 
 // Dates are shown in Baku time, as the business and the fixtures keep them, on any device.
 const ZONE = "Asia/Baku";
 const MONTHS = [
-  "yanvar",
-  "fevral",
-  "mart",
-  "aprel",
-  "may",
-  "iyun",
-  "iyul",
-  "avqust",
-  "sentyabr",
-  "oktyabr",
-  "noyabr",
-  "dekabr",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 // Sunday first, as Date#getDay counts.
-const WEEKDAYS = [
-  "bazar",
-  "bazar ertəsi",
-  "çərşənbə axşamı",
-  "çərşənbə",
-  "cümə axşamı",
-  "cümə",
-  "şənbə",
-];
+const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 const partsFormat = new Intl.DateTimeFormat("en-GB", {
   timeZone: ZONE,
@@ -46,6 +40,17 @@ function bakuParts(date: Date) {
   // The calendar day in Baku, read back as UTC, gives its weekday without the device's zone.
   const weekday = new Date(`${year}-${month}-${day}T00:00:00Z`).getUTCDay();
   return { year, month, day, hour: Number(get("hour")), minute: get("minute"), weekday };
+}
+
+export function formatDate(value: string): string {
+  // Keep the shared helper's strict calendar/offset validation, then render English text.
+  const [day, month, year] = sharedDate(value).split(".");
+  return `${Number(day)} ${MONTHS[Number(month) - 1]} ${year}`;
+}
+
+export function formatDateTime(value: string): string {
+  const date = formatDate(value);
+  return value.includes("T") ? `${date}, ${formatTime(value)}` : date;
 }
 
 /** "8 noyabr 2026, bazar" */
@@ -74,7 +79,7 @@ export function bakuDay(date: Date): string {
   return `${p.year}-${p.month}-${p.day}`;
 }
 
-/** A day heading relative to `now`: "Bu gün", "Dünən", "6 noyabr, cümə" (year if not this one). */
+/** A day heading relative to `now`: "Today", "Yesterday", "6 noyabr, cümə" (year if not this one). */
 export function formatDayHeading(day: string, now: Date): string {
   const today = bakuDay(now);
   const yesterday = bakuDay(new Date(Date.parse(`${today}T12:00:00+04:00`) - 86_400_000));

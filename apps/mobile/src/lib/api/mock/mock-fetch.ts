@@ -33,7 +33,7 @@ export function createMockFetch() {
     return (
       response ??
       HttpResponse.json(
-        { error: { code: "NOT_FOUND", message: "Obyekt tapılmadı.", details: {} } },
+        { error: { code: "NOT_FOUND", message: "Item not found.", details: {} } },
         { status: 404 },
       )
     );

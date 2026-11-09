@@ -8,7 +8,7 @@ export function Card({ className, ...rest }: ComponentPropsWithoutRef<"div">) {
 
 type SectionHeaderProps = { title: string; action?: ReactNode; id?: string };
 
-// Section title above a card or list, with an optional trailing action ("Hamısı").
+// Section title above a card or list, with an optional trailing action ("All").
 export function SectionHeader({ title, action, id }: SectionHeaderProps) {
   return (
     <div className="mt-6 mb-2 flex min-h-11 items-end justify-between gap-3 px-1">

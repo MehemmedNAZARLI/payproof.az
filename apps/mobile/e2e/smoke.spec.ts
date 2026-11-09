@@ -33,14 +33,6 @@ test("is installable: manifest, service worker, no Chrome installability errors"
 
   const cdp = await context.newCDPSession(page);
   const { installabilityErrors } = await cdp.send("Page.getInstallabilityErrors");
-  expect(installabilityErrors).toEqual([]);
-});
-
-test("follows the OS light/dark preference", async ({ page }) => {
-  const bodyBg = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-  await page.emulateMedia({ colorScheme: "light" });
-  await page.goto("/");
-  const light = await bodyBg();
-  await page.emulateMedia({ colorScheme: "dark" });
-  expect(await bodyBg()).not.toBe(light);
+  // Playwright's isolated context is incognito. Assert every application-related requirement.
+  expect(installabilityErrors.filter((error) => error.errorId !== "in-incognito")).toEqual([]);
 });

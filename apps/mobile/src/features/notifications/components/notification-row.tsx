@@ -3,12 +3,13 @@ import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
 import type { Schemas } from "@/lib/api";
 import { cx } from "@/lib/cx";
+import { notificationText } from "@/lib/english";
 import { formatTime } from "@/lib/format";
 import { t } from "@/lib/i18n";
 
 type Props = { notification: Schemas["Notification"]; onOpen: () => void };
 
-// One notification. Unread: a dot and bold text (and "Oxunmamış" for screen readers).
+// One notification. Unread: a dot and bold text (and "Unread" for screen readers).
 // With a package it opens it; the tap also marks it read.
 export function NotificationRow({ notification: n, onOpen }: Props) {
   const unread = n.read_at === null;
@@ -39,7 +40,7 @@ export function NotificationRow({ notification: n, onOpen }: Props) {
             unread ? "font-semibold" : "text-text-2",
           )}
         >
-          {n.text}
+          {notificationText(n.text)}
         </span>
         <span className="text-text-3 mt-0.5 block text-footnote tabular-nums">
           {[n.package?.invoice_number, formatTime(n.created_at)].filter(Boolean).join(" · ")}
