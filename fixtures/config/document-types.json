@@ -1,0 +1,238 @@
+[
+  {
+    "key": "invoice",
+    "name": "Faktura",
+    "version": 1,
+    "builtin": true,
+    "accepted_formats": [
+      "application/pdf",
+      "image/png",
+      "image/jpeg",
+      "text/csv",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    ],
+    "extraction": {
+      "fields": [
+        { "key": "invoice_number", "label": "Faktura nömrəsi", "type": "text", "critical": true },
+        { "key": "invoice_date", "label": "Faktura tarixi", "type": "date", "critical": true },
+        { "key": "seller", "label": "Satıcı", "type": "party", "critical": true },
+        { "key": "buyer", "label": "Alıcı", "type": "party", "critical": true },
+        { "key": "po_ref", "label": "Sifariş istinadı (PO)", "type": "text", "critical": true },
+        { "key": "currency", "label": "Valyuta", "type": "currency", "critical": true },
+        { "key": "total", "label": "Yekun məbləğ", "type": "money", "critical": true }
+      ],
+      "tables": [
+        {
+          "key": "lines",
+          "label": "Sətirlər",
+          "columns": [
+            { "key": "code", "label": "Məhsul kodu", "type": "text", "critical": true },
+            { "key": "description", "label": "Təsvir", "type": "text", "critical": false },
+            { "key": "qty", "label": "Miqdar", "type": "decimal", "critical": true },
+            { "key": "unit", "label": "Vahid", "type": "text", "critical": true },
+            { "key": "unit_price", "label": "Vahid qiyməti", "type": "money", "critical": true },
+            { "key": "amount", "label": "Məbləğ", "type": "money", "critical": false }
+          ]
+        }
+      ],
+      "transaction_lists": []
+    },
+    "instructions": "Satış fakturası. Nömrə adətən başlıqda 'Faktura №' yanındadır. PO istinadı 'Sifariş', 'PO' və ya 'Purchase order' yanında ola bilər; yoxdursa null saxla, uydurma. Sətir məbləği yoxdursa null saxla — hesablama qaydaların işidir."
+  },
+  {
+    "key": "order",
+    "name": "Sifariş",
+    "version": 1,
+    "builtin": true,
+    "accepted_formats": [
+      "application/pdf",
+      "text/csv",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    ],
+    "extraction": {
+      "fields": [
+        { "key": "po_number", "label": "PO nömrəsi", "type": "text", "critical": true },
+        { "key": "order_date", "label": "Sifariş tarixi", "type": "date", "critical": false },
+        { "key": "buyer", "label": "Sifarişçi", "type": "party", "critical": true },
+        { "key": "currency", "label": "Valyuta", "type": "currency", "critical": true }
+      ],
+      "tables": [
+        {
+          "key": "lines",
+          "label": "Sətirlər",
+          "columns": [
+            { "key": "code", "label": "Məhsul kodu", "type": "text", "critical": true },
+            { "key": "qty", "label": "Miqdar", "type": "decimal", "critical": true },
+            { "key": "unit", "label": "Vahid", "type": "text", "critical": true },
+            { "key": "unit_price", "label": "Vahid qiyməti", "type": "money", "critical": true }
+          ]
+        }
+      ],
+      "transaction_lists": []
+    },
+    "instructions": "Müştərinin satınalma sifarişi (PO). PO nömrəsini olduğu kimi saxla; sətirlərdə məhsul kodu, miqdar, vahid və vahid qiyməti."
+  },
+  {
+    "key": "delivery",
+    "name": "Təhvil-təslim aktı",
+    "version": 1,
+    "builtin": true,
+    "accepted_formats": ["application/pdf", "image/png", "image/jpeg"],
+    "extraction": {
+      "fields": [
+        { "key": "note_number", "label": "Akt nömrəsi", "type": "text", "critical": true },
+        { "key": "delivery_date", "label": "Təhvil tarixi", "type": "date", "critical": false },
+        { "key": "po_ref", "label": "Sifariş istinadı (PO)", "type": "text", "critical": true },
+        { "key": "receiver", "label": "Qəbul edən", "type": "party", "critical": true },
+        { "key": "signed", "label": "İmza yeri doludur", "type": "boolean", "critical": true }
+      ],
+      "tables": [
+        {
+          "key": "lines",
+          "label": "Təhvil edilən mallar",
+          "columns": [
+            { "key": "code", "label": "Məhsul kodu", "type": "text", "critical": true },
+            { "key": "qty", "label": "Miqdar", "type": "decimal", "critical": true }
+          ]
+        }
+      ],
+      "transaction_lists": []
+    },
+    "instructions": "Təhvil-təslim aktı və ya qaimə. 'signed' yalnız imza yerinin vizual dolu olub-olmadığını bildirir — imzanın etibarlılığı haqqında qərar vermə."
+  },
+  {
+    "key": "bank_statement",
+    "name": "Bank çıxarışı",
+    "version": 1,
+    "builtin": false,
+    "accepted_formats": [
+      "application/pdf",
+      "text/csv",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    ],
+    "extraction": {
+      "fields": [
+        { "key": "bank_name", "label": "Bank", "type": "text", "critical": false },
+        { "key": "account_holder", "label": "Hesab sahibi", "type": "party", "critical": true },
+        { "key": "iban", "label": "IBAN", "type": "text", "critical": true },
+        { "key": "currency", "label": "Hesabın valyutası", "type": "currency", "critical": true },
+        { "key": "period_start", "label": "Dövrün başlanğıcı", "type": "date", "critical": true },
+        { "key": "period_end", "label": "Dövrün sonu", "type": "date", "critical": true },
+        { "key": "opening_balance", "label": "İlkin qalıq", "type": "money", "critical": false },
+        { "key": "closing_balance", "label": "Son qalıq", "type": "money", "critical": false }
+      ],
+      "tables": [],
+      "transaction_lists": [
+        {
+          "key": "transactions",
+          "label": "Əməliyyatlar",
+          "columns": [
+            { "key": "date", "label": "Tarix", "type": "date", "critical": true },
+            { "key": "amount", "label": "Məbləğ", "type": "money", "critical": true },
+            {
+              "key": "direction",
+              "label": "İstiqamət (debit/credit)",
+              "type": "text",
+              "critical": true
+            },
+            { "key": "counterparty", "label": "Qarşı tərəf", "type": "text", "critical": true },
+            { "key": "reference", "label": "Təyinat", "type": "text", "critical": false }
+          ]
+        }
+      ]
+    },
+    "instructions": "Bank hesabı üzrə çıxarış. Hər əməliyyat ayrıca sətirdir; məbləği işarəsiz yaz, istiqaməti 'debit' (məxaric) və ya 'credit' (mədaxil) kimi göstər. Hesab sahibinin FİN və ya VÖEN-i varsa party.id_number / party.tax_id sahəsinə yaz."
+  },
+  {
+    "key": "card_statement",
+    "name": "Kart çıxarışı",
+    "version": 1,
+    "builtin": false,
+    "accepted_formats": [
+      "application/pdf",
+      "text/csv",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    ],
+    "extraction": {
+      "fields": [
+        { "key": "issuer", "label": "Kartı buraxan bank", "type": "text", "critical": false },
+        { "key": "card_holder", "label": "Kart sahibi", "type": "party", "critical": true },
+        { "key": "card_mask", "label": "Kart nömrəsi (maskalı)", "type": "text", "critical": true },
+        { "key": "currency", "label": "Kartın valyutası", "type": "currency", "critical": true },
+        { "key": "period_start", "label": "Dövrün başlanğıcı", "type": "date", "critical": true },
+        { "key": "period_end", "label": "Dövrün sonu", "type": "date", "critical": true }
+      ],
+      "tables": [],
+      "transaction_lists": [
+        {
+          "key": "transactions",
+          "label": "Kart əməliyyatları",
+          "columns": [
+            { "key": "date", "label": "Tarix", "type": "date", "critical": true },
+            { "key": "amount", "label": "Məbləğ", "type": "money", "critical": true },
+            {
+              "key": "direction",
+              "label": "İstiqamət (debit/credit)",
+              "type": "text",
+              "critical": true
+            },
+            { "key": "counterparty", "label": "Satış nöqtəsi", "type": "text", "critical": true },
+            { "key": "mcc", "label": "MCC", "type": "text", "critical": false }
+          ]
+        }
+      ]
+    },
+    "instructions": "Ödəniş kartı üzrə çıxarış. Kart nömrəsini yalnız maskalı saxla (**** 1234) — tam nömrəni heç vaxt çıxarma. Satış nöqtəsinin adını olduğu kimi yaz."
+  },
+  {
+    "key": "contract",
+    "name": "Müqavilə",
+    "version": 1,
+    "builtin": false,
+    "accepted_formats": ["application/pdf", "image/png", "image/jpeg"],
+    "extraction": {
+      "fields": [
+        { "key": "contract_number", "label": "Müqavilə nömrəsi", "type": "text", "critical": true },
+        { "key": "contract_date", "label": "Bağlanma tarixi", "type": "date", "critical": true },
+        { "key": "party_a", "label": "Tərəf 1", "type": "party", "critical": true },
+        { "key": "party_b", "label": "Tərəf 2", "type": "party", "critical": true },
+        { "key": "valid_from", "label": "Qüvvəyə minmə", "type": "date", "critical": false },
+        { "key": "valid_to", "label": "Bitmə tarixi", "type": "date", "critical": false },
+        { "key": "currency", "label": "Valyuta", "type": "currency", "critical": false },
+        { "key": "total", "label": "Müqavilə məbləği", "type": "money", "critical": false }
+      ],
+      "tables": [],
+      "transaction_lists": []
+    },
+    "instructions": "Müqavilə və ya əlavə. Yalnız sahələri çıxar; hüquqi şərtləri şərh etmə, qayda təklif etmə (P1 — insan təsdiqi ilə)."
+  },
+  {
+    "key": "receipt",
+    "name": "Qəbz / çek",
+    "version": 1,
+    "builtin": false,
+    "accepted_formats": ["application/pdf", "image/png", "image/jpeg"],
+    "extraction": {
+      "fields": [
+        { "key": "merchant", "label": "Satıcı", "type": "party", "critical": true },
+        { "key": "receipt_number", "label": "Çek nömrəsi", "type": "text", "critical": true },
+        { "key": "receipt_date", "label": "Tarix", "type": "date", "critical": true },
+        { "key": "currency", "label": "Valyuta", "type": "currency", "critical": true },
+        { "key": "total", "label": "Cəmi", "type": "money", "critical": true }
+      ],
+      "tables": [
+        {
+          "key": "lines",
+          "label": "Mallar",
+          "columns": [
+            { "key": "description", "label": "Ad", "type": "text", "critical": false },
+            { "key": "qty", "label": "Miqdar", "type": "decimal", "critical": false },
+            { "key": "amount", "label": "Məbləğ", "type": "money", "critical": true }
+          ]
+        }
+      ],
+      "transaction_lists": []
+    },
+    "instructions": "Kassa çeki və ya qəbz (e-kassa daxil). Çek nömrəsi və fiskal ID varsa receipt_number-ə yaz."
+  }
+]

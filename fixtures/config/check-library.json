@@ -1,0 +1,272 @@
+{
+  "families": [
+    {
+      "type": "document_count",
+      "name": "Sənəd dəsti tamdır",
+      "description": "Hər tələb olunan sənəd növünün sayı min_count..max_count aralığındadır. Sistem tərəfindən documents[]-dən törədilir (id D-001), ayrıca konfiqurasiya edilmir.",
+      "system": true,
+      "parameters": [],
+      "related_rules": ["R-007"]
+    },
+    {
+      "type": "field_present",
+      "name": "Sahə mövcuddur",
+      "description": "Hədəf sahələr hər uyğun sənəddə çıxarılıb və mənbə istinadı var. Oxunmayıb → UNKNOWN, yoxdur → FAIL.",
+      "system": false,
+      "parameters": [
+        {
+          "name": "targets",
+          "type": "field_refs",
+          "required": true,
+          "description": "Yoxlanan sahələr"
+        }
+      ],
+      "related_rules": ["R-001"]
+    },
+    {
+      "type": "values_equal",
+      "name": "Dəyərlər sənədlər arasında eynidir",
+      "description": "Sahələrin dəyəri bütün uyğun sənədlərdə eynidir (pul üçün tolerans daxilində). Oxunmayan dəyər → UNKNOWN.",
+      "system": false,
+      "parameters": [
+        {
+          "name": "fields",
+          "type": "field_refs",
+          "required": true,
+          "description": "Ən azı iki sahə"
+        },
+        {
+          "name": "tolerance",
+          "type": "decimal",
+          "required": false,
+          "description": "Yalnız money sahələri; default 0.00"
+        },
+        {
+          "name": "normalize",
+          "type": "enum:exact,casefold",
+          "required": false,
+          "description": "Mətn müqayisəsi; default exact"
+        }
+      ],
+      "related_rules": ["R-002"]
+    },
+    {
+      "type": "totals_sum",
+      "name": "Sətirlərin cəmi yekuna bərabərdir",
+      "description": "Hər sənəddə cədvəl sütununun cəmi yekun sahədən tolerans qədər fərqlənir.",
+      "system": false,
+      "parameters": [
+        {
+          "name": "document_type",
+          "type": "document_type",
+          "required": true,
+          "description": "Sənəd növü"
+        },
+        { "name": "table", "type": "string", "required": true, "description": "Cədvəl açarı" },
+        {
+          "name": "amount_column",
+          "type": "string",
+          "required": true,
+          "description": "Cəmlənən sütun (money)"
+        },
+        {
+          "name": "total_field",
+          "type": "string",
+          "required": true,
+          "description": "Yekun sahə (money)"
+        },
+        { "name": "tolerance", "type": "decimal", "required": true, "description": "0.00–1.00" }
+      ],
+      "related_rules": ["R-009"]
+    },
+    {
+      "type": "date_within_period",
+      "name": "Tarix dövr daxilindədir",
+      "description": "Hədəf tarix from..to aralığındadır (daxil). Sərhəd sabit tarix və ya başqa sənədin sahəsi ola bilər.",
+      "system": false,
+      "parameters": [
+        {
+          "name": "target",
+          "type": "field_ref",
+          "required": true,
+          "description": "Yoxlanan tarix sahəsi"
+        },
+        {
+          "name": "period",
+          "type": "period",
+          "required": true,
+          "description": "{from, to}: tarix və ya FieldRef"
+        }
+      ],
+      "related_rules": []
+    },
+    {
+      "type": "amount_within_limit",
+      "name": "Məbləğ limitdən çox deyil",
+      "description": "Hər məbləğ (each) və ya cəmi (sum) limitdən böyük deyil. Valyuta limitdən fərqlidirsə → UNKNOWN (çevirmə yoxdur).",
+      "system": false,
+      "parameters": [
+        { "name": "target", "type": "field_ref", "required": true, "description": "money sahəsi" },
+        {
+          "name": "aggregate",
+          "type": "enum:each,sum",
+          "required": true,
+          "description": "Hər biri və ya cəmi"
+        },
+        { "name": "limit", "type": "money", "required": true, "description": "{amount, currency}" }
+      ],
+      "related_rules": []
+    },
+    {
+      "type": "line_items_match",
+      "name": "Sətirlər tutuşur",
+      "description": "Sol cədvəlin hər sətri açar sütunla sağ cədvəldə tapılır və müqayisə sütunları bərabərdir. Tapılmayan sətir → UNKNOWN.",
+      "system": false,
+      "parameters": [
+        {
+          "name": "left",
+          "type": "table_ref",
+          "required": true,
+          "description": "{document_type, table}"
+        },
+        {
+          "name": "right",
+          "type": "table_ref",
+          "required": true,
+          "description": "{document_type, table}"
+        },
+        { "name": "key_column", "type": "string", "required": true, "description": "Məs. code" },
+        {
+          "name": "compare",
+          "type": "strings",
+          "required": true,
+          "description": "Məs. [qty, unit_price]"
+        },
+        { "name": "tolerance", "type": "decimal", "required": false, "description": "default 0.00" }
+      ],
+      "related_rules": ["R-004", "R-005", "R-006"]
+    },
+    {
+      "type": "transaction_match",
+      "name": "Sənəd ödəniş əməliyyatı ilə tutuşur",
+      "description": "Hər mənbə sənədi (məs. faktura) çıxarışlardakı bir əməliyyatla məbləğ, tarix pəncərəsi və qarşı tərəfə görə tutuşur. Hər əməliyyat yalnız bir sənədə bağlanır. Uyğun əməliyyat yoxdur → FAIL; birdən çox bərabər namizəd → UNKNOWN (insan seçir).",
+      "system": false,
+      "parameters": [
+        {
+          "name": "source",
+          "type": "match_source",
+          "required": true,
+          "description": "{document_type, amount_field, date_field, counterparty_field}"
+        },
+        {
+          "name": "against",
+          "type": "list_refs",
+          "required": true,
+          "description": "[{document_type, list}]"
+        },
+        {
+          "name": "amount_tolerance",
+          "type": "decimal",
+          "required": true,
+          "description": "Adətən 0.00"
+        },
+        {
+          "name": "date_window_days",
+          "type": "integer",
+          "required": true,
+          "description": "Sənəd tarixindən sonra icazəli gün sayı"
+        },
+        {
+          "name": "counterparty",
+          "type": "enum:normalized,ignore",
+          "required": true,
+          "description": "Ad müqayisəsi"
+        },
+        {
+          "name": "direction",
+          "type": "enum:debit,credit",
+          "required": true,
+          "description": "Əməliyyat istiqaməti"
+        }
+      ],
+      "related_rules": []
+    },
+    {
+      "type": "no_duplicate_use",
+      "name": "Təkrar istifadə yoxdur",
+      "description": "Eyni açarlı sənəd paket daxilində və ya müştərinin digər (ixrac edilmiş və ya təsdiq gözləyən) paketlərində ikinci dəfə istifadə olunmayıb.",
+      "system": false,
+      "parameters": [
+        {
+          "name": "subjects",
+          "type": "subjects",
+          "required": true,
+          "description": "[{document_type, key_fields[]}]"
+        },
+        {
+          "name": "scope",
+          "type": "enum:package,customer",
+          "required": true,
+          "description": "Axtarış sahəsi"
+        }
+      ],
+      "related_rules": []
+    },
+    {
+      "type": "party_identity_match",
+      "name": "Tərəfin şəxsiyyəti uyğundur",
+      "description": "party tipli sahələr eyni tərəfi göstərir: match_on sırası ilə ilk mövcud identifikator (tax_id, id_number, name) müqayisə olunur. Identifikator yoxdur → UNKNOWN.",
+      "system": false,
+      "parameters": [
+        {
+          "name": "parties",
+          "type": "field_refs",
+          "required": true,
+          "description": "Ən azı iki party sahəsi"
+        },
+        {
+          "name": "match_on",
+          "type": "enum_list:tax_id,id_number,name",
+          "required": true,
+          "description": "Prioritet sırası"
+        }
+      ],
+      "related_rules": ["R-003"]
+    }
+  ],
+  "legacy_rules": [
+    {
+      "rule_id": "R-001",
+      "family": "field_present",
+      "note": "require_po bayrağı ilə; öz implementasiyası"
+    },
+    {
+      "rule_id": "R-002",
+      "family": "values_equal",
+      "note": "faktura po_ref = təsdiqlənmiş sifariş PO"
+    },
+    {
+      "rule_id": "R-003",
+      "family": "party_identity_match",
+      "note": "sifariş/təhvil müştərisi = paket müştərisi"
+    },
+    {
+      "rule_id": "R-004",
+      "family": "line_items_match",
+      "note": "valyuta və vahid müqayisə oluna bilir"
+    },
+    {
+      "rule_id": "R-005",
+      "family": "line_items_match",
+      "note": "vahid qiymət; diff = Σ (inv − ord) × inv_qty"
+    },
+    { "rule_id": "R-006", "family": "line_items_match", "note": "faktura/sifariş/təhvil miqdarı" },
+    {
+      "rule_id": "R-007",
+      "family": "document_count",
+      "note": "təhvil sənədi var və sifarişə bağlıdır"
+    },
+    { "rule_id": "R-008", "family": null, "note": "imzanın insan yoxlaması — ümumi ailəsi yoxdur" },
+    { "rule_id": "R-009", "family": "totals_sum", "note": "Σ qty × price = total (tolerans)" }
+  ]
+}

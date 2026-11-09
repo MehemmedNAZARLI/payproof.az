@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: PayProof API
-  version: 0.3.0
+  version: 0.4.0
   description: |
     PayProof P0 API contract — the single source of truth (docs/architecture/api-contract.md).
     Conventions: `snake_case` fields; money is a decimal **string** with its currency, never a float;
@@ -1087,7 +1087,9 @@ paths:
         Internal AI explanations and audit records are never included. Checks in this order: 403 → 409
         VERSION_CONFLICT → 200 with the existing export if the current version is already exported (no new audit
         event) → 409 PACKAGE_NOT_READY if the status is not APPROVED_READY → 422 INVOICE_REQUIRED if no current
-        invoice version is selected (an empty list is a 422 VALIDATION_ERROR) → 200 with a new export.
+        invoice version is selected (an empty list is a 422 VALIDATION_ERROR) → 422 VALIDATION_ERROR with
+        `details.missing_placeholders` (`[{placeholder, source}]`) if the requirement set has an output template and a
+        mapped value is missing — no partially filled document is produced (ADR-0011) → 200 with a new export.
       parameters:
         - $ref: "#/components/parameters/IdempotencyKey"
       requestBody:
@@ -1180,7 +1182,9 @@ paths:
                     },
                 }
         "422":
-          description: INVOICE_REQUIRED or VALIDATION_ERROR (e.g. a non-current document version)
+          description: |
+            INVOICE_REQUIRED or VALIDATION_ERROR (e.g. a non-current document version, or a missing output template
+            value with `details.missing_placeholders`)
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Error" }
@@ -1894,8 +1898,12 @@ components:
         currency: { $ref: "#/components/schemas/Currency" }
     RuleId:
       type: string
-      pattern: "^R-0(0[1-9]|10)$"
-      examples: ["R-001"]
+      pattern: "^[A-Z]{1,4}-[0-9]{2,3}$"
+      description: |
+        Check identifier. `R-001`…`R-010` are the built-in invoice rules (fixed ids and behaviour), `D-001` is the
+        document-count check derived from `RequirementSet.documents`, other ids are configured checks of a customer's
+        requirement set (`CheckConfig.id`, e.g. `U-07`). ADR-0011.
+      examples: ["R-001", "D-001", "U-07"]
     PackageStatus:
       type: string
       enum: [PROCESSING, NEEDS_REVIEW, NEEDS_FIX, READY_FOR_APPROVAL, APPROVED_READY, EXPORTED]
@@ -2266,6 +2274,99 @@ components:
         approved_by: { $ref: "#/components/schemas/UserRef" }
         reason: { type: string }
         created_at: { type: string, format: date-time }
+        documents:
+          type: array
+          description: |
+            Required document types (ADR-0011). Absent on sets that only use the legacy flags; the server derives
+            invoice 1..1, order 0..1 and delivery (require_delivery ? 1 : 0)..1 for them.
+          items: { $ref: "#/components/schemas/DocumentRequirement" }
+        checks:
+          type: array
+          description: Enabled checks in evaluation order. Legacy sets list R-001…R-009 with `type` `legacy_rule`.
+          items: { $ref: "#/components/schemas/CheckConfig" }
+        output:
+          description: Optional output template filled at export; null when the customer has none.
+          oneOf: [{ type: "null" }, { $ref: "#/components/schemas/OutputConfig" }]
+    DocumentTypeKey:
+      type: string
+      pattern: "^[a-z][a-z0-9_]{1,39}$"
+      description: Key of a document type registry entry (`invoice`, `bank_statement`, …). ADR-0011.
+      examples: ["bank_statement"]
+    DocumentRequirement:
+      type: object
+      additionalProperties: false
+      required: [type, name, min_count, max_count]
+      properties:
+        type: { $ref: "#/components/schemas/DocumentTypeKey" }
+        name: { type: string, description: Registry display name (Azerbaijani) }
+        min_count: { type: integer, minimum: 0 }
+        max_count: { type: ["integer", "null"], minimum: 1, description: No upper limit when null }
+    CheckConfig:
+      type: object
+      additionalProperties: false
+      required: [id, type, title, parameters]
+      description: A configured check — a check library family with parameters (ADR-0011).
+      properties:
+        id: { $ref: "#/components/schemas/RuleId" }
+        type:
+          type: string
+          description: |
+            Check library family (`field_present`, `values_equal`, `totals_sum`, `date_within_period`,
+            `amount_within_limit`, `line_items_match`, `transaction_match`, `no_duplicate_use`,
+            `party_identity_match`) or `legacy_rule` for R-001…R-009.
+          examples: ["transaction_match"]
+        title: { type: string }
+        parameters:
+          type: object
+          additionalProperties: true
+          description: |
+            Family-specific parameters; validated against the check library when the set is saved. A field
+            reference is `{document_type, field}`, `party.part` selects a party attribute (`seller.tax_id`).
+    OutputConfig:
+      type: object
+      additionalProperties: false
+      required: [template, placeholders, submission]
+      description: |
+        `.docx` template filled at export only at the mapped placeholders, from validated fields (ADR-0011 §4).
+        The export is sent only to `submission.address` — never to an address from a request body.
+      properties:
+        template:
+          type: object
+          additionalProperties: false
+          required: [file_name, sha256]
+          properties:
+            file_name: { type: string, pattern: "\\.docx$" }
+            sha256: { type: string, pattern: "^[0-9a-f]{64}$" }
+        placeholders:
+          { type: array, minItems: 1, items: { $ref: "#/components/schemas/PlaceholderMapping" } }
+        submission:
+          type: object
+          additionalProperties: false
+          required: [channel, address]
+          properties:
+            channel: { type: string, enum: [email] }
+            address: { type: string, format: email }
+    PlaceholderMapping:
+      type: object
+      additionalProperties: false
+      required: [placeholder, source]
+      properties:
+        placeholder:
+          { type: string, pattern: "^\\{\\{[a-z][a-z0-9_]*\\}\\}$", examples: ["{{total_spent}}"] }
+        source:
+          description: |
+            `field` — a field of a document type with max_count 1 that is a `field_present` target; `aggregate` —
+            sum (money) or count over the documents of a type; `approval` — the current approval; `package` — the
+            package reference. Free text, AI output and user input are never sources.
+          type: object
+          additionalProperties: false
+          required: [kind]
+          properties:
+            kind: { type: string, enum: [field, aggregate, approval, package] }
+            document_type: { $ref: "#/components/schemas/DocumentTypeKey" }
+            field: { type: string }
+            op: { type: string, enum: [sum, count] }
+            value: { type: string, enum: [approver_name, approved_on, reference] }
     Evidence:
       type: object
       additionalProperties: false
@@ -2370,6 +2471,10 @@ components:
       description: Deterministic rule engine result (docs/architecture/rules-engine.md); every rule blocks when FAIL or UNKNOWN.
       properties:
         rule_id: { $ref: "#/components/schemas/RuleId" }
+        check_type:
+          type: string
+          description: Check library family of a configured check (`transaction_match`); absent for R-rules.
+          examples: ["transaction_match"]
         title: { type: string }
         outcome: { $ref: "#/components/schemas/CheckOutcome" }
         cascade:
@@ -2477,6 +2582,36 @@ components:
               document_version_id: { $ref: "#/components/schemas/Uuid" }
               type: { $ref: "#/components/schemas/DocumentType" }
               file_name: { type: string }
+        output: { $ref: "#/components/schemas/ExportOutput" }
+    ExportOutput:
+      type: object
+      additionalProperties: false
+      required: [template_file_name, manifest_file_name, values, submission]
+      description: |
+        Present when the requirement set has an output template (ADR-0011 §4): the filled template and
+        `manifest.json` are in the zip next to the documents. Absent otherwise.
+      properties:
+        template_file_name: { type: string, examples: ["UNEC_qrant_xerc_akti_QR-2026-0914.docx"] }
+        manifest_file_name: { type: string, examples: ["manifest.json"] }
+        values:
+          type: array
+          description: Every mapped placeholder with the value written into the template.
+          items:
+            type: object
+            additionalProperties: false
+            required: [placeholder, value]
+            properties:
+              placeholder: { type: string }
+              value: { type: string }
+        submission:
+          type: object
+          additionalProperties: false
+          required: [address, status, attempted_at]
+          description: Background e-mail delivery to the requirement set's address; a failure does not undo the export.
+          properties:
+            address: { type: string, format: email }
+            status: { type: string, enum: [QUEUED, SENT, FAILED] }
+            attempted_at: { type: ["string", "null"], format: date-time }
     Task:
       type: object
       additionalProperties: false

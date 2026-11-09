@@ -1,0 +1,92 @@
+{
+  "packages": {
+    "QR-2026-0914": {
+      "status": "READY_FOR_APPROVAL",
+      "results": {
+        "D-001": "PASS",
+        "U-01": "PASS",
+        "U-02": "PASS",
+        "U-03": "PASS",
+        "U-04": "PASS",
+        "U-05": "PASS",
+        "U-06": "PASS",
+        "U-07": "PASS",
+        "U-08": "PASS"
+      },
+      "primary_blockers": [],
+      "data": {
+        "U-06": { "total": { "amount": "1290.00", "currency": "AZN" } },
+        "U-07": {
+          "matches": [
+            {
+              "document_id": "unec_0914_ke2231",
+              "transaction": { "document_id": "unec_0914_card_statement", "index": 0 }
+            },
+            {
+              "document_id": "unec_0914_tm88017",
+              "transaction": { "document_id": "unec_0914_bank_statement", "index": 1 }
+            },
+            {
+              "document_id": "unec_0914_ol5520",
+              "transaction": { "document_id": "unec_0914_card_statement", "index": 3 }
+            }
+          ],
+          "unmatched": []
+        }
+      },
+      "template_values": {
+        "{{report_reference}}": "QR-2026-0914",
+        "{{grantee_name}}": "Leyla Həsənova",
+        "{{grantee_fin}}": "5ZK8M2P",
+        "{{period_start}}": "2026-09-01",
+        "{{period_end}}": "2026-10-31",
+        "{{invoice_count}}": "3",
+        "{{total_spent}}": "1290.00 AZN"
+      },
+      "filled_at_export": ["{{approved_by}}", "{{approved_on}}"]
+    },
+    "QR-2026-0927": {
+      "status": "NEEDS_FIX",
+      "results": {
+        "D-001": "PASS",
+        "U-01": "PASS",
+        "U-02": "PASS",
+        "U-03": "PASS",
+        "U-04": "PASS",
+        "U-05": "PASS",
+        "U-06": "PASS",
+        "U-07": "FAIL",
+        "U-08": "PASS"
+      },
+      "primary_blockers": ["U-07"],
+      "data": {
+        "U-06": { "total": { "amount": "760.00", "currency": "AZN" } },
+        "U-07": {
+          "matches": [
+            {
+              "document_id": "unec_0927_ke2307",
+              "transaction": { "document_id": "unec_0927_card_statement", "index": 1 }
+            }
+          ],
+          "unmatched": [
+            {
+              "document_id": "unec_0927_tm88412",
+              "amount": { "amount": "640.00", "currency": "AZN" },
+              "nearest": {
+                "document_id": "unec_0927_card_statement",
+                "index": 2,
+                "amount": { "amount": "604.00", "currency": "AZN" },
+                "difference": { "amount": "36.00", "currency": "AZN" }
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "export_refusal": {
+    "package": "QR-2026-0914",
+    "unreadable": [{ "document_id": "unec_0914_bank_statement", "field": "account_holder" }],
+    "missing_placeholders": ["{{grantee_name}}", "{{grantee_fin}}"]
+  }
+}

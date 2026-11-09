@@ -378,7 +378,9 @@ export interface paths {
          * @description Internal AI explanations and audit records are never included. Checks in this order: 403 → 409
          *     VERSION_CONFLICT → 200 with the existing export if the current version is already exported (no new audit
          *     event) → 409 PACKAGE_NOT_READY if the status is not APPROVED_READY → 422 INVOICE_REQUIRED if no current
-         *     invoice version is selected (an empty list is a 422 VALIDATION_ERROR) → 200 with a new export.
+         *     invoice version is selected (an empty list is a 422 VALIDATION_ERROR) → 422 VALIDATION_ERROR with
+         *     `details.missing_placeholders` (`[{placeholder, source}]`) if the requirement set has an output template and a
+         *     mapped value is missing — no partially filled document is produced (ADR-0011) → 200 with a new export.
          */
         post: operations["exportPackage"];
         delete?: never;
@@ -634,7 +636,14 @@ export interface components {
             amount: components["schemas"]["Decimal"];
             currency: components["schemas"]["Currency"];
         };
-        /** @example R-001 */
+        /**
+         * @description Check identifier. `R-001`…`R-010` are the built-in invoice rules (fixed ids and behaviour), `D-001` is the
+         *     document-count check derived from `RequirementSet.documents`, other ids are configured checks of a customer's
+         *     requirement set (`CheckConfig.id`, e.g. `U-07`). ADR-0011.
+         * @example R-001
+         * @example D-001
+         * @example U-07
+         */
         RuleId: string;
         /**
          * @description Derived from the latest validation run, approvals and exports — never stored as truth. There is no PAID.
@@ -863,6 +872,83 @@ export interface components {
             reason: string;
             /** Format: date-time */
             created_at: string;
+            /**
+             * @description Required document types (ADR-0011). Absent on sets that only use the legacy flags; the server derives
+             *     invoice 1..1, order 0..1 and delivery (require_delivery ? 1 : 0)..1 for them.
+             */
+            documents?: components["schemas"]["DocumentRequirement"][];
+            /** @description Enabled checks in evaluation order. Legacy sets list R-001…R-009 with `type` `legacy_rule`. */
+            checks?: components["schemas"]["CheckConfig"][];
+            /** @description Optional output template filled at export; null when the customer has none. */
+            output?: null | components["schemas"]["OutputConfig"];
+        };
+        /**
+         * @description Key of a document type registry entry (`invoice`, `bank_statement`, …). ADR-0011.
+         * @example bank_statement
+         */
+        DocumentTypeKey: string;
+        DocumentRequirement: {
+            type: components["schemas"]["DocumentTypeKey"];
+            /** @description Registry display name (Azerbaijani) */
+            name: string;
+            min_count: number;
+            /** @description No upper limit when null */
+            max_count: number | null;
+        };
+        /** @description A configured check — a check library family with parameters (ADR-0011). */
+        CheckConfig: {
+            id: components["schemas"]["RuleId"];
+            /**
+             * @description Check library family (`field_present`, `values_equal`, `totals_sum`, `date_within_period`,
+             *     `amount_within_limit`, `line_items_match`, `transaction_match`, `no_duplicate_use`,
+             *     `party_identity_match`) or `legacy_rule` for R-001…R-009.
+             * @example transaction_match
+             */
+            type: string;
+            title: string;
+            /**
+             * @description Family-specific parameters; validated against the check library when the set is saved. A field
+             *     reference is `{document_type, field}`, `party.part` selects a party attribute (`seller.tax_id`).
+             */
+            parameters: {
+                [key: string]: unknown;
+            };
+        };
+        /**
+         * @description `.docx` template filled at export only at the mapped placeholders, from validated fields (ADR-0011 §4).
+         *     The export is sent only to `submission.address` — never to an address from a request body.
+         */
+        OutputConfig: {
+            template: {
+                file_name: string;
+                sha256: string;
+            };
+            placeholders: components["schemas"]["PlaceholderMapping"][];
+            submission: {
+                /** @enum {string} */
+                channel: "email";
+                /** Format: email */
+                address: string;
+            };
+        };
+        PlaceholderMapping: {
+            /** @example {{total_spent}} */
+            placeholder: string;
+            /**
+             * @description `field` — a field of a document type with max_count 1 that is a `field_present` target; `aggregate` —
+             *     sum (money) or count over the documents of a type; `approval` — the current approval; `package` — the
+             *     package reference. Free text, AI output and user input are never sources.
+             */
+            source: {
+                /** @enum {string} */
+                kind: "field" | "aggregate" | "approval" | "package";
+                document_type?: components["schemas"]["DocumentTypeKey"];
+                field?: string;
+                /** @enum {string} */
+                op?: "sum" | "count";
+                /** @enum {string} */
+                value?: "approver_name" | "approved_on" | "reference";
+            };
         };
         /** @description Source reference; a field without evidence is not considered reliable. */
         Evidence: {
@@ -933,6 +1019,11 @@ export interface components {
         /** @description Deterministic rule engine result (docs/architecture/rules-engine.md); every rule blocks when FAIL or UNKNOWN. */
         CheckResult: {
             rule_id: components["schemas"]["RuleId"];
+            /**
+             * @description Check library family of a configured check (`transaction_match`); absent for R-rules.
+             * @example transaction_match
+             */
+            check_type?: string;
             title: string;
             outcome: components["schemas"]["CheckOutcome"];
             /** @description Could not be evaluated because of another problem — blocks, but is not a primary problem. */
@@ -1001,6 +1092,31 @@ export interface components {
                 type: components["schemas"]["DocumentType"];
                 file_name: string;
             }[];
+            output?: components["schemas"]["ExportOutput"];
+        };
+        /**
+         * @description Present when the requirement set has an output template (ADR-0011 §4): the filled template and
+         *     `manifest.json` are in the zip next to the documents. Absent otherwise.
+         */
+        ExportOutput: {
+            /** @example UNEC_qrant_xerc_akti_QR-2026-0914.docx */
+            template_file_name: string;
+            /** @example manifest.json */
+            manifest_file_name: string;
+            /** @description Every mapped placeholder with the value written into the template. */
+            values: {
+                placeholder: string;
+                value: string;
+            }[];
+            /** @description Background e-mail delivery to the requirement set's address; a failure does not undo the export. */
+            submission: {
+                /** Format: email */
+                address: string;
+                /** @enum {string} */
+                status: "QUEUED" | "SENT" | "FAILED";
+                /** Format: date-time */
+                attempted_at: string | null;
+            };
         };
         Task: {
             id: components["schemas"]["Uuid"];
@@ -2924,7 +3040,10 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description INVOICE_REQUIRED or VALIDATION_ERROR (e.g. a non-current document version) */
+            /**
+             * @description INVOICE_REQUIRED or VALIDATION_ERROR (e.g. a non-current document version, or a missing output template
+             *     value with `details.missing_placeholders`)
+             */
             422: {
                 headers: {
                     [name: string]: unknown;

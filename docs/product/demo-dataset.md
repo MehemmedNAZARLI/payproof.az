@@ -44,3 +44,13 @@ Dashboard yoxlaması: açıq problemli məbləğ **29.706,00 AZN** (7 paket) və
 ## Yeni paket dəstləri
 - `INV-1051` (c2, PO-399, tam dəst) → `READY_FOR_APPROVAL`
 - `INV-1052` (c1, PO-400, təhvil aktı yoxdur) → `NEEDS_FIX`
+
+## Konfiqurasiya olunan dəst: UNEC tələbə qrantı hesabatı (ADR-0011)
+Mənbə: `fixtures/scenarios/unec.json`. Müştəri `c3` — UNEC; tələb dəsti v1: fakturalar 1–10, bank çıxarışı 1, kart çıxarışı 1; yoxlamalar `U-01` (məcburi sahələr), `U-02` (bank və kart çıxarışı eyni tələbəyə — FİN), `U-03` (eyni valyuta), `U-04` (faktura sətirləri = yekun), `U-05` (faktura tarixi çıxarış dövründə), `U-06` (xərclər ≤ 1 500,00 AZN), `U-07` (hər faktura bir bank/kart məxarici ilə: məbləğ, 3 gün pəncərə, qarşı tərəf), `U-08` (faktura başqa hesabatda istifadə olunmayıb). Çıxış: `UNEC_qrant_xerc_akti.docx` → `qrant-hesabat@unec.test`.
+
+| Hesabat | Tələbə | Sənədlər | Gözlənilən status | Bloklayan |
+|---|---|---|---|---|
+| QR-2026-0914 | Leyla Həsənova | 3 faktura (1 290,00 AZN), bank + kart çıxarışı | READY_FOR_APPROVAL | — |
+| QR-2026-0927 | Tural Quliyev | 2 faktura (760,00 AZN), bank + kart çıxarışı | NEEDS_FIX | U-07 FAIL — TM-88412 (640,00 AZN) üçün uyğun əməliyyat yoxdur; kartda 604,00 AZN, fərq 36,00 AZN |
+
+İxrac imtinası nümunəsi: QR-2026-0914-də bank çıxarışının hesab sahibi oxunmayıbsa, `{{grantee_name}}` və `{{grantee_fin}}` dəyərsiz qalır → ixrac rədd edilir (`unec.expected.json` → `export_refusal`).

@@ -26,6 +26,27 @@ describe("record serializers conform to the contract", () => {
     });
   });
 
+  it("legacy flags are expressed as documents and R-rule checks (ADR-0011)", () => {
+    const rs = v.customer(db, db.customer("c1")).current_requirements;
+    expect(rs.documents).toEqual([
+      { type: "invoice", name: "Faktura", min_count: 1, max_count: 1 },
+      { type: "order", name: "Sifariş", min_count: 0, max_count: 1 },
+      { type: "delivery", name: "Təhvil-təslim aktı", min_count: 1, max_count: 1 },
+    ]);
+    expect(rs.checks?.map((c) => c.id)).toEqual([
+      "R-001", "R-002", "R-003", "R-004", "R-005", "R-006", "R-007", "R-008", "R-009",
+    ]); // prettier-ignore
+    expect(rs.checks?.[0]).toEqual({
+      id: "R-001",
+      type: "legacy_rule",
+      title: "Məcburi sifariş nömrəsi (PO)",
+      parameters: {},
+    });
+    expect(rs.output).toBeNull();
+    const noDelivery = { ...db.customer("c1").requirement_sets[0]!, require_delivery: false };
+    expect(v.requirementSet(db, db.customer("c1"), noDelivery).documents?.[2]?.min_count).toBe(0);
+  });
+
   it("Task, ApprovalRecord, ExportRecord, AuditEvent, Notification", () => {
     for (const t of db.tasks) assertSchema("Task", v.task(db, t));
     const p = db.pkg("pkg_1033");

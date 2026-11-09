@@ -8,7 +8,7 @@ import { packageKeys } from "@/features/packages/queries";
 import { endSession, getSession, startSession } from "@/lib/session";
 import { meFor, mockToken } from "@/test/mock";
 
-import { type LiveEvent, onLiveEvent, useLiveUpdates,usePackageChangedSince } from "./live";
+import { type LiveEvent, onLiveEvent, useLiveUpdates, usePackageChangedSince } from "./live";
 
 // Each subscribeEvents call is one connection; the test drives its callbacks.
 const wire = vi.hoisted(() => ({
