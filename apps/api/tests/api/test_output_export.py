@@ -142,6 +142,6 @@ async def test_without_a_key_dev_only_logs(
     client: httpx.AsyncClient, seeded: AsyncSession, auth: Auth
 ) -> None:
     job = await _queued(client, seeded, auth)
-    assert (await send_export(seeded, get_storage(), job))["status"] == "SENT"
+    assert (await send_export(seeded, get_storage(), job))["status"] == "QUEUED"  # not sent
     event = await seeded.scalar(select(AuditEvent).where(AuditEvent.action == "export.sent"))
     assert event is not None and "yalnız log" in event.message
