@@ -1,7 +1,7 @@
 // Check library families (ADR-0011) — document count, presence and equality. Deterministic, no AI.
 import { documentTypeName } from "../domain/legacy-profile";
 import { cents } from "../money";
-import { docsOf, readAll, whole } from "./read";
+import { currencyOf, docsOf, readAll, whole } from "./read";
 import type { EvidenceRef, FieldRef, GenericPkg, GenericRequirementSet, Verdict } from "./types";
 import { MONEY, NA, verdict } from "./verdict";
 
@@ -64,13 +64,15 @@ export function valuesEqual(
   p: GenericPkg,
   params: { fields: FieldRef[]; tolerance?: string; normalize?: "exact" | "casefold" },
 ): Verdict {
-  const values: { document_id: string; field: string; value: string }[] = [];
+  const values: { document_id: string; field: string; value: string; currency: string | null }[] =
+    [];
   const evidence: EvidenceRef[] = [];
   let unknown = false;
   for (const f of params.fields)
     for (const { doc, r } of readAll(p, f)) {
       if (r.status === "ok") {
-        values.push({ document_id: doc.id, field: label(f), value: String(r.value) });
+        const value = String(r.value);
+        values.push({ document_id: doc.id, field: label(f), value, currency: currencyOf(doc) });
         evidence.push(r.evidence);
       } else {
         unknown = true;
@@ -83,6 +85,11 @@ export function valuesEqual(
   const isMoney = values.every((v) => MONEY.test(v.value));
   const key = (s: string) => (params.normalize === "casefold" ? s.trim().toLowerCase() : s);
   const first = values[0]!.value;
+  // amounts are equal only in the same currency — never compared across AZN and USD
+  if (isMoney && values.some((v) => !v.currency))
+    return verdict("UNKNOWN", "Məbləğin valyutası oxunmayıb.", evidence, { values });
+  if (isMoney && new Set(values.map((v) => v.currency)).size > 1)
+    return verdict("FAIL", "Məbləğlər fərqli valyutadadır.", evidence, { values });
   const differs = values.some((v) =>
     isMoney ? Math.abs(cents(v.value) - cents(first)) > tol : key(v.value) !== key(first),
   );

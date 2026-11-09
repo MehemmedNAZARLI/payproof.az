@@ -50,5 +50,9 @@ describe("check library: presence, equality, totals, periods", () => {
     ];
     expect(f.valuesEqual(q, { fields: [totals[0]!], tolerance: "0.01" }).outcome).toBe("PASS");
     expect(f.valuesEqual(q, { fields: [totals[0]!] }).outcome).toBe("FAIL");
+    q.documents[1]!.fields = { ...q.documents[1]!.fields, total: "135.00", currency: "USD" };
+    expect(f.valuesEqual(q, { fields: [totals[0]!] }).outcome).toBe("FAIL"); // 135 AZN ≠ 135 USD
+    q.documents[1]!.fields.currency = null;
+    expect(f.valuesEqual(q, { fields: [totals[0]!] }).outcome).toBe("UNKNOWN");
   });
 });
