@@ -27,9 +27,9 @@ describe("SuccessScreen", () => {
     open(1035);
     const heading = await screen.findByRole("heading", { name: "Package ready to send" });
     expect(heading).toHaveFocus();
-    expect(screen.getByText(/-lik faktura the package \(INV-1035, v\d\)/)).toBeVisible();
+    expect(screen.getByText(/invoice package \(INV-1035, v\d\)/)).toBeVisible();
     expect(
-      screen.getByText(/ödənişin təmin edildiyi və ya fakturanın ödənildiyi demək deyil/),
+      screen.getByText(/does not mean payment is guaranteed/),
     ).toBeVisible();
     expect(screen.getByText("Approved by")).toBeVisible();
     expect(screen.getByRole("link", { name: "Export on web" })).toHaveAttribute(

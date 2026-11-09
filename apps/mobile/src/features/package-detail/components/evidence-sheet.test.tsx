@@ -45,10 +45,10 @@ describe("evidence sheets", () => {
     open(1044);
     fireEvent.click(await screen.findByRole("button", { name: /Unit price match/ }));
     const check = await screen.findByRole("dialog", { name: "Unit price match" });
-    expect(within(check).getByText(/KY-10: fakturada 110,00 AZN/)).toBeVisible();
+    expect(within(check).getByText(/Unit prices differ beyond/)).toBeVisible();
     expect(within(check).getByText("Manage corrections and tasks in the web app.")).toBeVisible();
 
-    fireEvent.click(within(check).getByRole("button", { name: /Invoice · v1 · səh\. 1/ }));
+    fireEvent.click(within(check).getByRole("button", { name: /Invoice · v1 · p\. 1/ }));
     const doc = await screen.findByRole("dialog", { name: "Invoice · v1" });
     await waitFor(() => expect(doc.querySelector("[data-highlight]")).toHaveTextContent("KY-10"));
     expect(within(doc).getByText("The yellow highlight marks the source of the check.")).toBeVisible();
@@ -74,12 +74,12 @@ describe("evidence sheets", () => {
 
   it("shows page and quote when the scan cannot be highlighted", async () => {
     open(1047);
-    fireEvent.click(await screen.findByRole("button", { name: /Məcburi sifariş nömrəsi/ }));
-    fireEvent.click(await screen.findByRole("button", { name: /Invoice · v1 · səh\. 1/ }));
+    fireEvent.click(await screen.findByRole("button", { name: /Required purchase order number/ }));
+    fireEvent.click(await screen.findByRole("button", { name: /Invoice · v1 · p\. 1/ }));
     const doc = await screen.findByRole("dialog", { name: "Invoice · v1" });
-    expect(within(doc).getByText(/Skan nüsxədir/)).toBeVisible();
+    expect(within(doc).getByText(/Scanned document/)).toBeVisible();
     expect(await within(doc).findByText(/Highlight unavailable. Showing page 1/)).toBeVisible();
-    expect(within(doc).getByText("Order №: PO-3?7 (oxunmur)")).toBeVisible();
+    expect(within(doc).getByText("Sifariş №: PO-3?7 (oxunmur)")).toBeVisible();
     expect(doc.querySelector("[data-highlight]")).toBeNull();
   });
 
@@ -90,8 +90,8 @@ describe("evidence sheets", () => {
     const r008 = pkg.checks.find((c) => c.rule_id === "R-008")!;
     r008.evidence = [{ ...r008.evidence[0]!, document_version_id: old.id }];
     view(pkg);
-    fireEvent.click(screen.getByRole("button", { name: /İmza tələbi/ }));
-    fireEvent.click(await screen.findByRole("button", { name: /Delivery document · v1 · səh\. 1/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Signature requirement/ }));
+    fireEvent.click(await screen.findByRole("button", { name: /Delivery document · v1 · p\. 1/ }));
     const doc = await screen.findByRole("dialog", { name: "Delivery document · v1" });
     expect(within(doc).getByText("TS-5518.jpg")).toBeVisible();
     await within(doc).findByRole("article");

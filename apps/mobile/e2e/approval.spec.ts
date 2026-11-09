@@ -41,7 +41,7 @@ test("reviews every document, approves once and shows it everywhere", async ({ p
 
   await expect(page).toHaveURL(`/packages/${ID}/success`);
   await expect(page.getByRole("heading", { name: "Package ready to send" })).toBeFocused();
-  await expect(page.getByText(/4\.860,00 AZN-lik faktura the package \(INV-1038, v1\)/)).toBeVisible();
+  await expect(page.getByText(/4\.860,00 AZNinvoice package \(INV-1038, v1\)/)).toBeVisible();
   expect(await horizontalOverflow(page)).toBeLessThanOrEqual(0);
 
   await page.getByRole("link", { name: "Back to home" }).click();
@@ -74,7 +74,7 @@ test("approval says plainly that it needs a connection", async ({ page, context 
   await page.goto(`/packages/${ID}`);
   await page.getByRole("button", { name: "Review evidence and approve" }).click();
   await context.setOffline(true);
-  await expect(sheetOf(page).getByRole("alert")).toContainText("təsdiq oflayn mümkün deyil");
+  await expect(sheetOf(page).getByRole("alert")).toContainText("Approval requires you to be online");
   await expect(confirm(page)).toHaveAttribute("aria-disabled", "true");
   await context.setOffline(false);
   await expect(sheetOf(page).getByRole("alert")).toHaveCount(0);

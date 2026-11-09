@@ -16,7 +16,7 @@ test("badges unread notifications and opens the right package", async ({ page })
   await tab(page).click();
   await expect(page.getByRole("heading", { level: 1, name: "Notifications" })).toBeVisible();
   await expect(page.getByText("2 unread")).toBeVisible();
-  await page.getByRole("link", { name: /INV-1038 təsdiqinizi gözləyir/ }).click();
+  await page.getByRole("link", { name: /INV-1038 is awaiting your approval/ }).click();
   await expect(page).toHaveURL(`/packages/${ID_1038}`);
   await expect(page.getByRole("heading", { level: 1, name: "INV-1038" })).toBeVisible();
 

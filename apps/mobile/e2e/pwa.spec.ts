@@ -33,7 +33,7 @@ test("reopens offline with the last loaded list and detail, read-only", async ({
   await expect(page.getByRole("status").filter({ hasText: "Oflayn" })).toBeVisible();
   const approve = page.getByRole("button", { name: "Review evidence and approve" });
   await expect(approve).toBeDisabled();
-  await expect(page.getByText("təsdiq oflayn mümkün deyil")).toBeVisible();
+  await expect(page.getByText("Approval requires you to be online")).toBeVisible();
 
   await page.goto("/packages");
   await expect(rows(page)).toHaveCount(14);

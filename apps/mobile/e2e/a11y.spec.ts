@@ -41,7 +41,7 @@ for (const scheme of ["light"] as const)
     const sheet = page.getByRole("dialog");
     await expect(sheet).toHaveAccessibleName("Unit price match");
     await axe(page, "evidence sheet");
-    await sheet.getByRole("button", { name: /Invoice · v1 · səh\. 1/ }).click();
+    await sheet.getByRole("button", { name: /Invoice · v1 · p\. 1/ }).click();
     await expect(sheet.locator("[data-highlight]")).toBeVisible();
     await axe(page, "document sheet");
   });

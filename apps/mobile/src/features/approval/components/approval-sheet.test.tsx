@@ -96,7 +96,7 @@ describe("approval sheet", () => {
     fireEvent.click(confirm(sheet));
     expect(push).not.toHaveBeenCalled();
     expect(recordedApprovals()).toEqual([]);
-    expect(within(sheet).getByText(/bank ödənişinə səlahiyyət vermir/)).toBeVisible();
+    expect(within(sheet).getByText(/does not authorize a bank payment/)).toBeVisible();
   });
 
   it("opens a document from the review and counts it when coming back", async () => {
@@ -130,7 +130,7 @@ describe("approval sheet", () => {
     const sheet = await openSheet();
     fireEvent.click(within(sheet).getByRole("checkbox"));
     fireEvent.click(confirm(sheet));
-    expect(await within(sheet).findByRole("alert")).toHaveTextContent(/oflayn mümkün deyil/);
+    expect(await within(sheet).findByRole("alert")).toHaveTextContent(/Approval requires you to be online/);
     fireEvent.click(confirm(sheet));
     await waitFor(() => expect(push).toHaveBeenCalledOnce());
     expect(wire.keys).toHaveLength(2);
@@ -202,7 +202,7 @@ describe("approval sheet", () => {
       }),
     );
     expect(await within(sheet).findByRole("alert")).toHaveTextContent(
-      "Another user the package updated (v2)",
+      "Another user updated the package (v2)",
     );
     expect(confirm(sheet)).toHaveAttribute("aria-disabled", "true");
     fireEvent.click(confirm(sheet));
@@ -226,7 +226,7 @@ describe("approval sheet", () => {
     const sheet = await openSheet();
     const online = vi.spyOn(navigator, "onLine", "get").mockReturnValue(false);
     act(() => void window.dispatchEvent(new Event("offline")));
-    expect(within(sheet).getByRole("alert")).toHaveTextContent(/təsdiq oflayn mümkün deyil/);
+    expect(within(sheet).getByRole("alert")).toHaveTextContent(/Approval requires you to be online/);
     expect(confirm(sheet)).toHaveAttribute("aria-disabled", "true");
     online.mockRestore();
   });

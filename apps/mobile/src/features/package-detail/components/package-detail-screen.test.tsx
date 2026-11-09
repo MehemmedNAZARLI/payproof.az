@@ -47,7 +47,7 @@ describe("PackageDetailScreen", () => {
     expect(docs.getByText("Invoice · v1")).toBeVisible();
     expect(docs.getByText("Delivery document missing")).toBeVisible();
     expect(screen.getByText("Approval unavailable")).toBeVisible();
-    expect(screen.getByText(/3 issues problem/)).toHaveTextContent("R-001, R-002, R-007");
+    expect(screen.getByText(/3 blocking issues/)).toHaveTextContent("R-001, R-002, R-007");
   });
 
   it("offers approval to the approver of a ready package and makes the operator wait", async () => {

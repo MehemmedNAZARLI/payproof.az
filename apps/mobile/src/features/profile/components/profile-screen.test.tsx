@@ -6,7 +6,7 @@ import { createQueryClient } from "@/lib/query-client";
 import { getSession, startSession } from "@/lib/session";
 import { mockToken } from "@/test/mock";
 
-import { ProfileeScreen } from "./profile-screen";
+import { ProfileScreen } from "./profile-screen";
 
 vi.mock("next/navigation", () => ({ usePathname: () => "/profile" }));
 
@@ -14,12 +14,12 @@ function renderAs(token: string) {
   startSession({ access_token: token, token_type: "bearer", expires_in: 60, user: {} as never });
   render(
     <QueryClientProvider client={createQueryClient()}>
-      <ProfileeScreen />
+      <ProfileScreen />
     </QueryClientProvider>,
   );
 }
 
-describe("ProfileeScreen", () => {
+describe("ProfileScreen", () => {
   it("shows who is signed in and what they may do, from /v1/me", async () => {
     renderAs(mockToken("u2"));
     expect(await screen.findByRole("heading", { name: "Rəşad Əliyev" })).toBeInTheDocument();

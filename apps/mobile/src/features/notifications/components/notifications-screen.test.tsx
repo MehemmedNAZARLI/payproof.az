@@ -30,7 +30,7 @@ const tab = () => screen.getByRole("link", { name: /^Notifications/ });
 describe("NotificationsScreen", () => {
   it("groups by day, marks unread ones, and badges the tab", async () => {
     open();
-    expect(await screen.findByText("INV-1038 təsdiqinizi gözləyir · 4.860,00 AZN")).toBeVisible();
+    expect(await screen.findByText("INV-1038 is awaiting your approval · 4.860,00 AZN")).toBeVisible();
     expect(screen.getAllByRole("heading", { level: 2 }).length).toBeGreaterThan(1);
     expect(screen.getAllByText("Unread:")).toHaveLength(2);
     expect(screen.getByText("2 unread")).toBeVisible();
@@ -40,7 +40,7 @@ describe("NotificationsScreen", () => {
 
   it("opens the package and marks it read in one tap", async () => {
     open();
-    const row = (await screen.findByText(/INV-1038 təsdiqinizi gözləyir/)).closest("a")!;
+    const row = (await screen.findByText(/INV-1038 is awaiting your approval/)).closest("a")!;
     expect(row).toHaveAttribute("href", "/packages/0193a000-0000-7000-8002-000000001038");
     fireEvent.click(row);
     await waitFor(() => expect(screen.getByText("1 unread")).toBeVisible());

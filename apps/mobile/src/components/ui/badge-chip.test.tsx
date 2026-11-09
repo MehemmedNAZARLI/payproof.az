@@ -19,7 +19,7 @@ describe("status badges", () => {
 
   it("label task statuses", () => {
     render(<TaskStatusBadge status="SUBMITTED_FOR_RECHECK" />);
-    expect(screen.getByText("Yenidən yoxlamada")).toBeVisible();
+    expect(screen.getByText("Awaiting recheck")).toBeVisible();
   });
 });
 

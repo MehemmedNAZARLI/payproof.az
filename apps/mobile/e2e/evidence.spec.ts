@@ -15,7 +15,7 @@ test("follows a check to the cited row on the invoice and back", async ({ page }
   await page.getByRole("button", { name: /Unit price match/ }).click();
   const sheet = page.getByRole("dialog");
   await expect(sheet).toHaveAccessibleName("Unit price match");
-  await sheet.getByRole("button", { name: /Invoice · v1 · səh\. 1/ }).click();
+  await sheet.getByRole("button", { name: /Invoice · v1 · p\. 1/ }).click();
   await expect(sheet).toHaveAccessibleName("Invoice · v1");
   const cited = sheet.locator("[data-highlight]");
   await expect(cited).toContainText("KY-10");
@@ -54,7 +54,7 @@ test("a phone on its side reads documents full-screen", async ({ page }) => {
   await page.getByRole("button", { name: /Unit price match/ }).click();
   await page
     .getByRole("dialog")
-    .getByRole("button", { name: /Invoice · v1 · səh\. 1/ })
+    .getByRole("button", { name: /Invoice · v1 · p\. 1/ })
     .click();
   const sheet = page.getByRole("dialog", { name: "Invoice · v1" });
   await expect(sheet.locator("[data-highlight]")).toBeInViewport();
@@ -99,7 +99,7 @@ for (const width of [360, 430])
     await page.goto(detail(1042));
     await expect(page.getByRole("heading", { level: 1, name: "INV-1042" })).toBeVisible();
     expect(await horizontalOverflow(page)).toBeLessThanOrEqual(0);
-    await page.getByRole("button", { name: /Məcburi sifariş nömrəsi/ }).click();
+    await page.getByRole("button", { name: /Required purchase order number/ }).click();
     await expect(page.getByRole("dialog")).toBeVisible();
     expect(await horizontalOverflow(page)).toBeLessThanOrEqual(0);
   });

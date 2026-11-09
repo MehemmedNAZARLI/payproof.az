@@ -25,7 +25,7 @@ describe("groupByDay", () => {
     expect(groups.map((g) => [g.heading, g.items.map((i) => i.id)])).toEqual([
       ["Today", ["a", "b"]],
       ["Yesterday", ["c"]],
-      ["3 noyabr, çərşənbə axşamı", ["d"]],
+      ["3 November, Tuesday", ["d"]],
     ]);
   });
 });
