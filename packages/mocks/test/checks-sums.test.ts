@@ -32,3 +32,26 @@ describe("check library: line totals and date periods", () => {
     expect(f.dateWithinPeriod(q, params).outcome).toBe("UNKNOWN");
   });
 });
+
+describe("check library: spending limit", () => {
+  const params = rs.checks.find((c) => c.id === "U-06")!.parameters as never;
+
+  it("sums invoice totals against the grant limit", () => {
+    const v = f.amountWithinLimit(pkg(), params);
+    expect(v).toMatchObject({
+      outcome: "PASS",
+      data: { total: { amount: "1290.00", currency: "AZN" } },
+    });
+    const p = pkg();
+    invoice(p).fields.total = "400.00";
+    const over = f.amountWithinLimit(p, params);
+    expect(over.outcome).toBe("FAIL");
+    expect(over.message).toContain("55.00 AZN aşır");
+  });
+
+  it("a total in another currency is never converted — UNKNOWN", () => {
+    const p = pkg();
+    invoice(p).fields.currency = "USD";
+    expect(f.amountWithinLimit(p, params).outcome).toBe("UNKNOWN");
+  });
+});

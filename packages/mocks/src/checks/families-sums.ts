@@ -1,4 +1,4 @@
-// Check library families (ADR-0011) — line totals and date periods. Integer cents, no AI.
+// Check library families (ADR-0011) — line totals, date periods and spending limits. Integer cents, no AI.
 import { cents } from "../money";
 import { cite, docsOf, read, readAll, whole } from "./read";
 import type { EvidenceRef, FieldRef, GenericPkg, Verdict } from "./types";
@@ -87,4 +87,64 @@ export function dateWithinPeriod(
       data,
     );
   return verdict("PASS", `Bütün tarixlər ${from} – ${to} dövrü daxilindədir.`, evidence, data);
+}
+
+export function amountWithinLimit(
+  p: GenericPkg,
+  params: {
+    target: FieldRef;
+    aggregate: "each" | "sum";
+    limit: { amount: string; currency: string };
+  },
+): Verdict {
+  const { currency } = params.limit;
+  const limit = cents(params.limit.amount);
+  const values = readAll(p, params.target);
+  if (!values.length) return NA("Yoxlanacaq sənəd yoxdur.");
+  const evidence: EvidenceRef[] = values.flatMap(({ r }) =>
+    r.status === "missing" ? [] : r.evidence ? [r.evidence] : [],
+  );
+  if (values.some(({ r }) => r.status !== "ok"))
+    return verdict("UNKNOWN", "Məbləğ oxunmayıb.", evidence, {});
+  if (values.some(({ doc }) => (doc.fields.currency ?? p.currency) !== currency))
+    return verdict(
+      "UNKNOWN",
+      `Limit ${currency}-dədir; fərqli valyutalı məbləğ çevrilmir.`,
+      evidence,
+      {},
+    );
+  const amounts = values.map(({ doc, r }) => ({
+    doc,
+    c: cents(String((r as { value: unknown }).value)),
+  }));
+  if (params.aggregate === "sum") {
+    const total = amounts.reduce((s, a) => s + a.c, 0);
+    const data = { total: money(total, currency), limit: params.limit };
+    if (total > limit)
+      return verdict(
+        "FAIL",
+        `Cəmi ${fmt(total, currency)} limiti (${fmt(limit, currency)}) ${fmt(total - limit, currency)} aşır.`,
+        evidence,
+        data,
+      );
+    return verdict(
+      "PASS",
+      `Cəmi ${fmt(total, currency)} limit (${fmt(limit, currency)}) daxilindədir.`,
+      evidence,
+      data,
+    );
+  }
+  const over = amounts
+    .filter((a) => a.c > limit)
+    .map((a) => ({ document_id: a.doc.id, amount: money(a.c, currency) }));
+  if (over.length)
+    return verdict(
+      "FAIL",
+      `${over.length} məbləğ limitdən (${fmt(limit, currency)}) çoxdur.`,
+      evidence,
+      { over },
+    );
+  return verdict("PASS", `Hər məbləğ limit (${fmt(limit, currency)}) daxilindədir.`, evidence, {
+    over,
+  });
 }
