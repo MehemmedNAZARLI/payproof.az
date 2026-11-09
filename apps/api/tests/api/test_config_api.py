@@ -103,3 +103,17 @@ async def test_configured_set_is_validated_and_versioned(
                                                                   "currency": "AZN"}  # fmt: skip
     same = await client.post(url, headers=auth("u2"), json={**good, "expected_version": 2})
     assert same.status_code == 422  # nothing changed
+
+
+async def test_flags_only_edit_keeps_the_configuration(
+    client: httpx.AsyncClient, seeded: AsyncSession, auth: Auth
+) -> None:
+    body = rules()
+    for key in ("documents", "checks", "output"):
+        del body[key]
+    r = await client.post(f"/v1/customers/{C3}/requirements", headers=auth("u2"),
+                          json={**body, "require_signature": True})  # fmt: skip
+    assert r.status_code == 201, r.text
+    assert r.json()["version"] == 2 and r.json()["require_signature"] is True
+    assert [c["id"] for c in r.json()["checks"]][-1] == "U-08"
+    assert r.json()["output"] == UNEC["output"]

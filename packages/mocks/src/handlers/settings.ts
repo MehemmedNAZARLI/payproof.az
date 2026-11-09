@@ -52,13 +52,17 @@ export const settingsHandlers = (ctx: Ctx) => [
         throw new MockError("VALIDATION_ERROR", "documents və checks birlikdə göndərilir.", 422, {
           fields: { documents: "checks ilə birlikdə" },
         });
+      // omitted (a flags-only edit): the configuration in force carries over, as in the API
+      const { documents, checks, output } = c.requirement_sets.at(-1)!;
       const config = configured
         ? {
             documents: b.documents as RequirementSet["documents"],
             checks: b.checks as RequirementSet["checks"],
             output: (b.output ?? null) as RequirementSet["output"],
           }
-        : {};
+        : checks
+          ? { documents, checks, output: output ?? null }
+          : {};
       const set = saveRequirements(
         db,
         c,

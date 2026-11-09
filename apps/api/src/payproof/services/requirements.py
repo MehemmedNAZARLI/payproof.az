@@ -4,7 +4,7 @@ so the current approval is invalidated (kept in the audit) and the approver told
 
 import datetime as dt
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from decimal import Decimal
 from typing import Any
 
@@ -70,6 +70,10 @@ async def create_rule_set(
         raise InvalidInput(
             "documents və checks birlikdə göndərilir.", {"fields": {"documents": "checks ilə"}}
         )
+    if new.checks is None and new.output is None and current and current.checks is not None:
+        # a flags-only edit (e.g. the web rules screen) keeps the configuration in force
+        new = replace(new, documents=current.documents, checks=current.checks,
+                      output=current.output)  # fmt: skip
     if new.output is not None and new.checks is None:
         raise InvalidInput("Çıxış şablonu yalnız konfiqurasiya olunan dəstdə ola bilər.",
                            {"fields": {"output": "documents/checks tələb olunur"}})  # fmt: skip

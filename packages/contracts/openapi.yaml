@@ -1389,8 +1389,9 @@ paths:
                   type: array
                   minItems: 1
                   description: |
-                    ADR-0011 configured set — sent together with `checks`; omit both for a legacy (flags only)
-                    set. The legacy flags are still required and kept as given.
+                    ADR-0011 configured set — sent together with `checks`. Omitting both (and `output`) keeps the
+                    current version's configuration, or gives a legacy (flags only) set when there is none.
+                    The legacy flags are still required and kept as given.
                   items: { $ref: "#/components/schemas/DocumentRequirementInput" }
                 checks:
                   type: array
