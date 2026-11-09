@@ -1,19 +1,28 @@
-import {
-  checkOutcomeLabel,
-  documentTypeLabel,
-  packageStatusLabel,
-  roleLabel,
-  taskStatusLabel,
-  ui,
-} from "@payproof/api-client/i18n";
-
+import type { Schemas } from "./api";
 import type { checkOutcomeTone, packageStatusTone, taskStatusTone } from "./status-tone";
 
 export type PackageStatus = keyof typeof packageStatusTone;
 export type CheckOutcome = keyof typeof checkOutcomeTone;
 export type TaskStatus = keyof typeof taskStatusTone;
 
-// Contract enum labels come from @payproof/api-client/i18n (shared with web); the rest is mobile copy.
+// Mobile owns its English labels; shared clients and the web retain their own language.
+const packageStatusLabel = {
+  PROCESSING: "Processing", NEEDS_REVIEW: "Needs review", NEEDS_FIX: "Needs correction",
+  READY_FOR_APPROVAL: "Awaiting approval", APPROVED_READY: "Ready to send", EXPORTED: "Exported",
+} satisfies Record<PackageStatus, string>;
+const checkOutcomeLabel = {
+  PASS: "Passed", FAIL: "Failed", UNKNOWN: "Unknown", NOT_APPLICABLE: "Not applicable",
+} satisfies Record<CheckOutcome, string>;
+const taskStatusLabel = {
+  OPEN: "Open", IN_PROGRESS: "In progress", SUBMITTED_FOR_RECHECK: "Awaiting recheck", RESOLVED: "Resolved",
+} satisfies Record<TaskStatus, string>;
+const documentTypeLabel = {
+  invoice: "Invoice", order: "Order", delivery: "Delivery document",
+} satisfies Record<Schemas["DocumentType"], string>;
+const roleLabel = {
+  operator: "Operator", approver: "Approver", readonly: "Read only", admin: "Admin", assignee: "Assignee",
+} satisfies Record<Schemas["Role"], string>;
+
 export const t = {
   package: {
     status: packageStatusLabel,
@@ -257,7 +266,7 @@ export const t = {
     pushValue: "P2",
     pushSoon: "Push notifications are coming soon.",
     appearance: "Appearance",
-    appearanceValue: "System",
+    appearanceValue: "Light",
     web: "Open web app",
     signOut: "Sign out",
     signOutTitle: "Sign out?",
@@ -287,12 +296,12 @@ export const t = {
       "package.deleted": "deleted",
     } as Partial<Record<string, string>>,
     someone: "Another user",
-    system: ui.system,
+    system: "System",
     pkg: (invoice?: string) => (invoice ? `${invoice} package` : "the package"),
     task: (invoice?: string) => (invoice ? `${invoice} package task` : "task"),
     rules: "customer requirements",
     updated: "updated",
-    changedTitle: (v: number) => `Another user the package updated (v${v})`,
+    changedTitle: (v: number) => `Another user updated the package (v${v})`,
     changedBySystemTitle: (v: number) => `Package updated by the system (v${v})`,
     changedBody:
       "Approval applies to the new version. Review the documents again and confirm your review.",
@@ -334,6 +343,6 @@ export const t = {
     refreshing: "Refreshing…",
     empty: "Nothing found",
     unread: (n: number) => `${n} unread`,
-    notificationsUnread: (n: number) => `Bildirişlər, ${n} oxunmamış`,
+    notificationsUnread: (n: number) => `Notifications, ${n} unread`,
   },
 } as const;

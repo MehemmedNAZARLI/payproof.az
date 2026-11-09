@@ -12,7 +12,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: appName,
     short_name: appName,
     description: appDescription,
-    lang: "az",
+    lang: "en",
     dir: "ltr",
     start_url: "/",
     scope: "/",
