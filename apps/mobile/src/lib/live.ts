@@ -2,7 +2,7 @@
 
 import { type Schemas, subscribeEvents } from "@payproof/api-client";
 import { type QueryKey, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 import { homeKeys } from "@/features/home/queries";
 import { notificationKeys } from "@/features/notifications/queries";
@@ -67,23 +67,19 @@ const useVisible = () =>
 
 /**
  * One SSE connection while signed in, online and in front (mounted once, in the providers).
- * Events invalidate what they change. Hidden or offline, the stream is closed — iOS drops
- * background connections anyway — and the next open refetches everything, since events may have
- * been missed meanwhile. While the stream is broken, active queries are polled every 30 s.
+ * Events invalidate what they change. Every (re)connect refetches everything, since events may
+ * have been missed before it (ADR-0010) — the first one included: data loaded before the stream
+ * opened can already be stale. Hidden or offline, the stream is closed (iOS drops background
+ * connections anyway). While the stream is broken, active queries are polled every 30 s.
  */
 export function useLiveUpdates() {
   const queryClient = useQueryClient();
   const token = useSession()?.token;
   const online = useOnline();
   const visible = useVisible();
-  // Outlives one connection (hidden, offline): whether the next open may follow missed events.
-  const missed = useRef<{ token?: string; maybe: boolean }>({ maybe: false });
 
   useEffect(() => {
     if (!token || !online || !visible) return;
-    if (missed.current.token !== token) missed.current = { token, maybe: false };
-    const state = missed.current;
-    let opened = false;
     let polling: ReturnType<typeof setInterval> | undefined;
     const stopPolling = () => {
       clearInterval(polling);
@@ -94,10 +90,8 @@ export function useLiveUpdates() {
       getToken,
       fetch: apiFetch,
       onOpen: () => {
-        opened = true;
         stopPolling();
-        if (state.maybe) void queryClient.invalidateQueries();
-        state.maybe = true;
+        void queryClient.invalidateQueries();
       },
       onEvent: (event) => {
         const keys = liveInvalidation(event);
@@ -106,7 +100,6 @@ export function useLiveUpdates() {
         listeners.forEach((listener) => listener(event));
       },
       onError: (error) => {
-        state.maybe = true;
         // The token was rejected (expired while idle): the stream stopped for good.
         if (error.status === 401) {
           if (hasStoredSession()) endSession("expired");
@@ -118,32 +111,37 @@ export function useLiveUpdates() {
     return () => {
       stop();
       stopPolling();
-      if (opened) state.maybe = true;
     };
   }, [queryClient, token, online, visible]);
 }
 
+export type PackageChange = { version: number; bySystem: boolean };
+
 /**
- * While a sheet works on `version` of a package (approval): the newer version someone else has
- * made since, or null. The server would answer 409 anyway; this says so before the user tries.
- * Own changes don't count — so the viewer's own second tab doesn't either: 409 is still handled.
+ * While a sheet works on `version` of a package (approval): the newer version made since by
+ * someone else (or by the system, e.g. a finished extraction), or null. The server would answer
+ * 409 anyway; this says so before the user tries. Own changes don't count — so the viewer's own
+ * second tab doesn't either: 409 is still handled.
  */
-export function usePackageChangedSince(packageId: string, version: number): number | null {
+export function usePackageChangedSince(packageId: string, version: number): PackageChange | null {
   const me = useSession()?.user.id;
-  const [seen, setSeen] = useState<{ packageId: string; version: number } | null>(null);
+  const [seen, setSeen] = useState<(PackageChange & { packageId: string }) | null>(null);
   useEffect(
     () =>
       onLiveEvent((event) => {
-        if (event.package_id !== packageId || !event.package_version || event.actor_id === me)
-          return;
+        if (!me || event.package_id !== packageId || !event.package_version) return;
+        if (event.actor_id === me) return;
         const newer = event.package_version;
+        const bySystem = event.actor_id === null;
         setSeen((prev) =>
           prev?.packageId === packageId && prev.version >= newer
             ? prev
-            : { packageId, version: newer },
+            : { packageId, version: newer, bySystem },
         );
       }),
     [packageId, me],
   );
-  return seen?.packageId === packageId && seen.version > version ? seen.version : null;
+  return seen?.packageId === packageId && seen.version > version
+    ? { version: seen.version, bySystem: seen.bySystem }
+    : null;
 }

@@ -8,7 +8,7 @@ import { packageKeys } from "@/features/packages/queries";
 import { endSession, getSession, startSession } from "@/lib/session";
 import { meFor, mockToken } from "@/test/mock";
 
-import { type LiveEvent, onLiveEvent, useLiveUpdates } from "./live";
+import { type LiveEvent, onLiveEvent, useLiveUpdates,usePackageChangedSince } from "./live";
 
 // Each subscribeEvents call is one connection; the test drives its callbacks.
 const wire = vi.hoisted(() => ({
@@ -103,7 +103,9 @@ describe("useLiveUpdates", () => {
     const heard = vi.fn();
     const off = onLiveEvent(heard);
     act(() => last().options.onOpen?.());
-    expect(invalidate).not.toHaveBeenCalled(); // the first open follows a fresh load
+    // events may have been missed before the stream opened, the first time too
+    expect(invalidate).toHaveBeenCalledWith();
+    invalidate.mockClear();
     act(() => last().options.onEvent(event));
     expect(invalidate).toHaveBeenCalledWith({ queryKey: packageKeys.lists() });
     expect(heard).toHaveBeenCalledWith(event);
@@ -150,5 +152,37 @@ describe("useLiveUpdates", () => {
     act(() => last().options.onError?.(new ApiError("UNAUTHENTICATED", "x", 401)));
     expect(getSession()).toBeNull();
     expect(open()).toHaveLength(0);
+  });
+});
+
+describe("usePackageChangedSince", () => {
+  function watch() {
+    const qc = new QueryClient();
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={qc}>{children}</QueryClientProvider>
+    );
+    return renderHook(
+      () => {
+        useLiveUpdates();
+        return usePackageChangedSince(event.package_id, 1);
+      },
+      { wrapper },
+    );
+  }
+  const send = (e: Partial<LiveEvent>) => act(() => last().options.onEvent({ ...event, ...e }));
+
+  it("ignores the user's own changes and older versions", () => {
+    const { result } = watch();
+    send({ actor_id: meFor("u2").id, package_version: 2 });
+    send({ actor_id: meFor("u1").id, package_version: 1 });
+    expect(result.current).toBeNull();
+  });
+
+  it("names a newer version by someone else, or by the system", () => {
+    const { result } = watch();
+    send({ actor_id: meFor("u1").id, package_version: 2 });
+    expect(result.current).toEqual({ version: 2, bySystem: false });
+    send({ actor_id: null, package_version: 3 });
+    expect(result.current).toEqual({ version: 3, bySystem: true });
   });
 });
