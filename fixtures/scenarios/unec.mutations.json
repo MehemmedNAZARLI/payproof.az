@@ -1,9 +1,20 @@
 {
   "$comment": "Parity cases for the check library (ADR-0011): each case applies ops to one UNEC package (and its requirement set); unec.reference.json holds the TS reference output for every case and the backend must produce it byte for byte.",
-  "approval": { "approver_name": "Rəşad Əliyev", "approved_on": "2026-11-05" },
+  "approval": {
+    "approver_name": "Rəşad Əliyev",
+    "approved_on": "2026-11-05"
+  },
   "cases": [
-    { "name": "base_0914", "package": "QR-2026-0914", "ops": [] },
-    { "name": "base_0927", "package": "QR-2026-0927", "ops": [] },
+    {
+      "name": "base_0914",
+      "package": "QR-2026-0914",
+      "ops": []
+    },
+    {
+      "name": "base_0927",
+      "package": "QR-2026-0927",
+      "ops": []
+    },
     {
       "name": "base_0914_without_approval",
       "package": "QR-2026-0914",
@@ -13,32 +24,70 @@
     {
       "name": "export_refusal",
       "package": "QR-2026-0914",
-      "ops": [{ "op": "unreadable", "doc": "unec_0914_bank_statement", "field": "account_holder" }]
+      "ops": [
+        {
+          "op": "unreadable",
+          "doc": "unec_0914_bank_statement",
+          "field": "account_holder"
+        }
+      ]
     },
     {
       "name": "invoice_total_unread",
       "package": "QR-2026-0914",
-      "ops": [{ "op": "unreadable", "doc": "unec_0914_ke2231", "field": "total" }]
+      "ops": [
+        {
+          "op": "unreadable",
+          "doc": "unec_0914_ke2231",
+          "field": "total"
+        }
+      ]
     },
     {
       "name": "invoice_total_without_evidence",
       "package": "QR-2026-0914",
-      "ops": [{ "op": "drop_evidence", "doc": "unec_0914_ke2231", "key": "total" }]
+      "ops": [
+        {
+          "op": "drop_evidence",
+          "doc": "unec_0914_ke2231",
+          "key": "total"
+        }
+      ]
     },
     {
       "name": "currency_usd",
       "package": "QR-2026-0914",
-      "ops": [{ "op": "set", "doc": "unec_0914_tm88017", "path": "currency", "value": "USD" }]
+      "ops": [
+        {
+          "op": "set",
+          "doc": "unec_0914_tm88017",
+          "path": "currency",
+          "value": "USD"
+        }
+      ]
     },
     {
       "name": "currency_unread",
       "package": "QR-2026-0914",
-      "ops": [{ "op": "unreadable", "doc": "unec_0914_ke2231", "field": "currency" }]
+      "ops": [
+        {
+          "op": "unreadable",
+          "doc": "unec_0914_ke2231",
+          "field": "currency"
+        }
+      ]
     },
     {
       "name": "seller_tax_id_missing",
       "package": "QR-2026-0914",
-      "ops": [{ "op": "set", "doc": "unec_0914_ke2231", "path": "seller.tax_id", "value": null }]
+      "ops": [
+        {
+          "op": "set",
+          "doc": "unec_0914_ke2231",
+          "path": "seller.tax_id",
+          "value": null
+        }
+      ]
     },
     {
       "name": "statement_row_unread",
@@ -58,7 +107,11 @@
       "name": "statement_list_unreadable",
       "package": "QR-2026-0927",
       "ops": [
-        { "op": "unreadable_table", "doc": "unec_0927_card_statement", "table": "transactions" }
+        {
+          "op": "unreadable_table",
+          "doc": "unec_0927_card_statement",
+          "table": "transactions"
+        }
       ]
     },
     {
@@ -78,19 +131,36 @@
     {
       "name": "lines_empty",
       "package": "QR-2026-0914",
-      "ops": [{ "op": "clear_table", "doc": "unec_0914_ol5520", "table": "lines" }]
+      "ops": [
+        {
+          "op": "clear_table",
+          "doc": "unec_0914_ol5520",
+          "table": "lines"
+        }
+      ]
     },
     {
       "name": "invoice_outside_period",
       "package": "QR-2026-0914",
       "ops": [
-        { "op": "set", "doc": "unec_0914_ke2231", "path": "invoice_date", "value": "2026-08-30" }
+        {
+          "op": "set",
+          "doc": "unec_0914_ke2231",
+          "path": "invoice_date",
+          "value": "2026-08-30"
+        }
       ]
     },
     {
       "name": "period_unread",
       "package": "QR-2026-0914",
-      "ops": [{ "op": "unreadable", "doc": "unec_0914_bank_statement", "field": "period_end" }]
+      "ops": [
+        {
+          "op": "unreadable",
+          "doc": "unec_0914_bank_statement",
+          "field": "period_end"
+        }
+      ]
     },
     {
       "name": "over_limit_sum",
@@ -100,7 +170,10 @@
           "op": "param",
           "check": "U-06",
           "name": "limit",
-          "value": { "amount": "1000.00", "currency": "AZN" }
+          "value": {
+            "amount": "1000.00",
+            "currency": "AZN"
+          }
         }
       ]
     },
@@ -108,12 +181,20 @@
       "name": "over_limit_each",
       "package": "QR-2026-0914",
       "ops": [
-        { "op": "param", "check": "U-06", "name": "aggregate", "value": "each" },
+        {
+          "op": "param",
+          "check": "U-06",
+          "name": "aggregate",
+          "value": "each"
+        },
         {
           "op": "param",
           "check": "U-06",
           "name": "limit",
-          "value": { "amount": "1000.00", "currency": "AZN" }
+          "value": {
+            "amount": "1000.00",
+            "currency": "AZN"
+          }
         }
       ]
     },
@@ -125,32 +206,55 @@
           "op": "param",
           "check": "U-06",
           "name": "limit",
-          "value": { "amount": "1500.00", "currency": "USD" }
+          "value": {
+            "amount": "1500.00",
+            "currency": "USD"
+          }
         }
       ]
     },
     {
       "name": "duplicate_in_package",
       "package": "QR-2026-0914",
-      "ops": [{ "op": "copy", "doc": "unec_0914_ke2231", "as": "unec_0914_ke2231_copy" }]
+      "ops": [
+        {
+          "op": "copy",
+          "doc": "unec_0914_ke2231",
+          "as": "unec_0914_ke2231_copy"
+        }
+      ]
     },
     {
       "name": "duplicate_across_packages",
       "package": "QR-2026-0927",
       "ops": [
-        { "op": "set", "doc": "unec_0927_ke2307", "path": "invoice_number", "value": "KE-2231" }
+        {
+          "op": "set",
+          "doc": "unec_0927_ke2307",
+          "path": "invoice_number",
+          "value": "KE-2231"
+        }
       ]
     },
     {
       "name": "bank_statement_missing",
       "package": "QR-2026-0914",
-      "ops": [{ "op": "remove", "doc": "unec_0914_bank_statement" }]
+      "ops": [
+        {
+          "op": "remove",
+          "doc": "unec_0914_bank_statement"
+        }
+      ]
     },
     {
       "name": "two_card_statements",
       "package": "QR-2026-0914",
       "ops": [
-        { "op": "copy", "doc": "unec_0914_card_statement", "as": "unec_0914_card_statement_2" }
+        {
+          "op": "copy",
+          "doc": "unec_0914_card_statement",
+          "as": "unec_0914_card_statement_2"
+        }
       ]
     },
     {
@@ -173,7 +277,9 @@
           "op": "set",
           "doc": "unec_0914_card_statement",
           "path": "card_holder",
-          "value": { "name": "" }
+          "value": {
+            "name": ""
+          }
         },
         {
           "op": "set",
@@ -198,12 +304,62 @@
     {
       "name": "counterparty_ignored",
       "package": "QR-2026-0927",
-      "ops": [{ "op": "param", "check": "U-07", "name": "counterparty", "value": "ignore" }]
+      "ops": [
+        {
+          "op": "param",
+          "check": "U-07",
+          "name": "counterparty",
+          "value": "ignore"
+        }
+      ]
     },
     {
       "name": "invoice_date_unread",
       "package": "QR-2026-0927",
-      "ops": [{ "op": "unreadable", "doc": "unec_0927_tm88412", "field": "invoice_date" }]
+      "ops": [
+        {
+          "op": "unreadable",
+          "doc": "unec_0927_tm88412",
+          "field": "invoice_date"
+        }
+      ]
+    },
+    {
+      "name": "direction_not_read",
+      "package": "QR-2026-0914",
+      "ops": [
+        {
+          "op": "row",
+          "doc": "unec_0914_card_statement",
+          "table": "transactions",
+          "index": 0,
+          "column": "direction",
+          "value": "Debet"
+        }
+      ]
+    },
+    {
+      "name": "statement_in_usd",
+      "package": "QR-2026-0914",
+      "ops": [
+        {
+          "op": "set",
+          "doc": "unec_0914_card_statement",
+          "path": "currency",
+          "value": "USD"
+        }
+      ]
+    },
+    {
+      "name": "statement_currency_unread",
+      "package": "QR-2026-0914",
+      "ops": [
+        {
+          "op": "unreadable",
+          "doc": "unec_0914_card_statement",
+          "field": "currency"
+        }
+      ]
     },
     {
       "name": "receipt_line_items_and_totals",
@@ -217,7 +373,10 @@
             "file_name": "qebz-0412.jpg",
             "pages": 1,
             "fields": {
-              "merchant": { "name": "Kitab Evi", "tax_id": "1403216781" },
+              "merchant": {
+                "name": "Kitab Evi",
+                "tax_id": "1403216781"
+              },
               "receipt_number": "0412",
               "receipt_date": "2026-09-12",
               "currency": "AZN",
@@ -226,17 +385,43 @@
             "unreadable": [],
             "tables": {
               "lines": [
-                { "description": "Makroiqtisadiyyat dərsliyi", "qty": "2", "amount": "135.00" },
-                { "description": "Qələm", "qty": null, "amount": "1.00" }
+                {
+                  "description": "Makroiqtisadiyyat dərsliyi",
+                  "qty": "2",
+                  "amount": "135.00"
+                },
+                {
+                  "description": "Qələm",
+                  "qty": null,
+                  "amount": "1.00"
+                }
               ]
             },
             "evidence": {
-              "merchant": { "page": 1, "quote": "KITAB EVI VÖEN 1403216781" },
-              "receipt_number": { "page": 1, "quote": "Qəbz № 0412" },
-              "receipt_date": { "page": 1, "quote": "12.09.2026" },
-              "currency": { "page": 1, "quote": "AZN" },
-              "total": { "page": 1, "quote": "CƏMİ 135.01" },
-              "lines[0]": { "page": 1, "quote": "Makroiqtisadiyyat dərsliyi 2 135.00" }
+              "merchant": {
+                "page": 1,
+                "quote": "KITAB EVI VÖEN 1403216781"
+              },
+              "receipt_number": {
+                "page": 1,
+                "quote": "Qəbz № 0412"
+              },
+              "receipt_date": {
+                "page": 1,
+                "quote": "12.09.2026"
+              },
+              "currency": {
+                "page": 1,
+                "quote": "AZN"
+              },
+              "total": {
+                "page": 1,
+                "quote": "CƏMİ 135.01"
+              },
+              "lines[0]": {
+                "page": 1,
+                "quote": "Makroiqtisadiyyat dərsliyi 2 135.00"
+              }
             }
           }
         },
@@ -247,8 +432,14 @@
             "type": "line_items_match",
             "title": "Qəbz sətirləri fakturaya uyğundur",
             "parameters": {
-              "left": { "document_type": "receipt", "table": "lines" },
-              "right": { "document_type": "invoice", "table": "lines" },
+              "left": {
+                "document_type": "receipt",
+                "table": "lines"
+              },
+              "right": {
+                "document_type": "invoice",
+                "table": "lines"
+              },
               "key_column": "description",
               "compare": ["qty", "amount"],
               "tolerance": "0.00"
@@ -263,8 +454,14 @@
             "title": "Qəbz və faktura yekunu eynidir",
             "parameters": {
               "fields": [
-                { "document_type": "receipt", "field": "total" },
-                { "document_type": "invoice", "field": "total" }
+                {
+                  "document_type": "receipt",
+                  "field": "total"
+                },
+                {
+                  "document_type": "invoice",
+                  "field": "total"
+                }
               ],
               "tolerance": "0.01"
             }
@@ -278,8 +475,14 @@
             "title": "Qəbz satıcısı fakturadakıdır",
             "parameters": {
               "parties": [
-                { "document_type": "receipt", "field": "merchant" },
-                { "document_type": "invoice", "field": "seller" }
+                {
+                  "document_type": "receipt",
+                  "field": "merchant"
+                },
+                {
+                  "document_type": "invoice",
+                  "field": "seller"
+                }
               ],
               "match_on": ["tax_id", "name"]
             }
@@ -293,8 +496,14 @@
             "title": "Qəbz nömrəsi (casefold)",
             "parameters": {
               "fields": [
-                { "document_type": "receipt", "field": "receipt_number" },
-                { "document_type": "contract", "field": "contract_number" }
+                {
+                  "document_type": "receipt",
+                  "field": "receipt_number"
+                },
+                {
+                  "document_type": "contract",
+                  "field": "contract_number"
+                }
               ],
               "normalize": "casefold"
             }
@@ -313,7 +522,12 @@
             "type": "field_present",
             "title": "Müqavilə nömrəsi",
             "parameters": {
-              "targets": [{ "document_type": "contract", "field": "contract_number" }]
+              "targets": [
+                {
+                  "document_type": "contract",
+                  "field": "contract_number"
+                }
+              ]
             }
           }
         },
@@ -345,7 +559,12 @@
                 "date_field": "receipt_date",
                 "counterparty_field": "merchant.name"
               },
-              "against": [{ "document_type": "card_statement", "list": "transactions" }],
+              "against": [
+                {
+                  "document_type": "card_statement",
+                  "list": "transactions"
+                }
+              ],
               "amount_tolerance": "0.00",
               "date_window_days": 3,
               "counterparty": "normalized",
@@ -360,8 +579,14 @@
             "type": "line_items_match",
             "title": "Sətirlər",
             "parameters": {
-              "left": { "document_type": "receipt", "table": "lines" },
-              "right": { "document_type": "invoice", "table": "lines" },
+              "left": {
+                "document_type": "receipt",
+                "table": "lines"
+              },
+              "right": {
+                "document_type": "invoice",
+                "table": "lines"
+              },
               "key_column": "description",
               "compare": ["amount"]
             }
@@ -374,7 +599,12 @@
             "type": "no_duplicate_use",
             "title": "Qəbz təkrarı",
             "parameters": {
-              "subjects": [{ "document_type": "receipt", "key_fields": ["receipt_number"] }],
+              "subjects": [
+                {
+                  "document_type": "receipt",
+                  "key_fields": ["receipt_number"]
+                }
+              ],
               "scope": "package"
             }
           }
@@ -386,8 +616,14 @@
             "type": "date_within_period",
             "title": "Qəbz tarixi",
             "parameters": {
-              "target": { "document_type": "receipt", "field": "receipt_date" },
-              "period": { "from": "2026-09-01", "to": "2026-10-31" }
+              "target": {
+                "document_type": "receipt",
+                "field": "receipt_date"
+              },
+              "period": {
+                "from": "2026-09-01",
+                "to": "2026-10-31"
+              }
             }
           }
         },
@@ -398,9 +634,15 @@
             "type": "amount_within_limit",
             "title": "Qəbz limiti",
             "parameters": {
-              "target": { "document_type": "receipt", "field": "total" },
+              "target": {
+                "document_type": "receipt",
+                "field": "total"
+              },
               "aggregate": "each",
-              "limit": { "amount": "100.00", "currency": "AZN" }
+              "limit": {
+                "amount": "100.00",
+                "currency": "AZN"
+              }
             }
           }
         },
@@ -411,7 +653,12 @@
             "type": "party_identity_match",
             "title": "Bir tərəf",
             "parameters": {
-              "parties": [{ "document_type": "card_statement", "field": "card_holder" }],
+              "parties": [
+                {
+                  "document_type": "card_statement",
+                  "field": "card_holder"
+                }
+              ],
               "match_on": ["name"]
             }
           }

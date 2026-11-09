@@ -3958,7 +3958,8 @@
     "status": "NEEDS_FIX",
     "primary_blockers": [
       "U-03",
-      "U-06"
+      "U-06",
+      "U-07"
     ],
     "results": [
       {
@@ -4431,9 +4432,9 @@
         "rule_id": "U-07",
         "check_type": "transaction_match",
         "title": "Hər faktura ödəniş əməliyyatı ilə təsdiqlənir",
-        "outcome": "PASS",
+        "outcome": "FAIL",
         "cascade": false,
-        "message": "3 sənədin hər biri bir ödəniş əməliyyatı ilə tutuşur.",
+        "message": "TM-88017.pdf (1050.00 USD): uyğun əməliyyat yoxdur",
         "evidence": [
           {
             "document_id": "unec_0914_ke2231",
@@ -4478,12 +4479,6 @@
             "quote": "Texno Market MMC, VÖEN 1501122334"
           },
           {
-            "document_id": "unec_0914_bank_statement",
-            "field": "transactions[1]",
-            "page": 1,
-            "quote": "21.09.2026  Texno Market MMC  -1050,00"
-          },
-          {
             "document_id": "unec_0914_ol5520",
             "field": "total",
             "page": 1,
@@ -4519,13 +4514,6 @@
               }
             },
             {
-              "document_id": "unec_0914_tm88017",
-              "transaction": {
-                "document_id": "unec_0914_bank_statement",
-                "index": 1
-              }
-            },
-            {
               "document_id": "unec_0914_ol5520",
               "transaction": {
                 "document_id": "unec_0914_card_statement",
@@ -4533,7 +4521,16 @@
               }
             }
           ],
-          "unmatched": [],
+          "unmatched": [
+            {
+              "document_id": "unec_0914_tm88017",
+              "amount": {
+                "amount": "1050.00",
+                "currency": "USD"
+              },
+              "nearest": null
+            }
+          ],
           "ambiguous": [],
           "unreadable": []
         }
@@ -4642,7 +4639,8 @@
     "primary_blockers": [
       "U-03",
       "U-04",
-      "U-06"
+      "U-06",
+      "U-07"
     ],
     "results": [
       {
@@ -5094,9 +5092,9 @@
         "rule_id": "U-07",
         "check_type": "transaction_match",
         "title": "Hər faktura ödəniş əməliyyatı ilə təsdiqlənir",
-        "outcome": "PASS",
+        "outcome": "UNKNOWN",
         "cascade": false,
-        "message": "3 sənədin hər biri bir ödəniş əməliyyatı ilə tutuşur.",
+        "message": "1 sənəd üçün əməliyyat birmənalı seçilmədi — insan təsdiqi lazımdır.",
         "evidence": [
           {
             "document_id": "unec_0914_ke2231",
@@ -5115,12 +5113,6 @@
             "field": "seller",
             "page": 1,
             "quote": "Kitab Evi MMC, VÖEN 1403216781"
-          },
-          {
-            "document_id": "unec_0914_card_statement",
-            "field": "transactions[0]",
-            "page": 1,
-            "quote": "12.09.2026  KITAB EVI MMC  -135,00"
           },
           {
             "document_id": "unec_0914_tm88017",
@@ -5175,13 +5167,6 @@
         "data": {
           "matches": [
             {
-              "document_id": "unec_0914_ke2231",
-              "transaction": {
-                "document_id": "unec_0914_card_statement",
-                "index": 0
-              }
-            },
-            {
               "document_id": "unec_0914_tm88017",
               "transaction": {
                 "document_id": "unec_0914_bank_statement",
@@ -5198,7 +5183,9 @@
           ],
           "unmatched": [],
           "ambiguous": [],
-          "unreadable": []
+          "unreadable": [
+            "unec_0914_ke2231"
+          ]
         }
       },
       {
@@ -17823,6 +17810,2032 @@
         {
           "placeholder": "{{total_spent}}",
           "value": "760.00 AZN"
+        },
+        {
+          "placeholder": "{{approved_by}}",
+          "value": "Rəşad Əliyev"
+        },
+        {
+          "placeholder": "{{approved_on}}",
+          "value": "2026-11-05"
+        }
+      ],
+      "missing": []
+    }
+  },
+  "direction_not_read": {
+    "status": "NEEDS_REVIEW",
+    "primary_blockers": [
+      "U-07"
+    ],
+    "results": [
+      {
+        "rule_id": "D-001",
+        "check_type": "document_count",
+        "title": "Sənəd dəsti tamdır",
+        "outcome": "PASS",
+        "cascade": false,
+        "message": "Sənəd dəsti tamdır: Faktura 3, Bank çıxarışı 1, Kart çıxarışı 1.",
+        "evidence": [
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "document",
+            "page": 1,
+            "quote": "KE-2231.pdf"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "document",
+            "page": 1,
+            "quote": "TM-88017.pdf"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "document",
+            "page": 1,
+            "quote": "OL-5520.pdf"
+          },
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "document",
+            "page": 1,
+            "quote": "bank_cixarisi_LH_2026-09_10.pdf"
+          },
+          {
+            "document_id": "unec_0914_card_statement",
+            "field": "document",
+            "page": 1,
+            "quote": "kart_cixarisi_4417_2026-09_10.pdf"
+          }
+        ],
+        "fix_hint": null,
+        "data": {
+          "counts": {
+            "invoice": 3,
+            "bank_statement": 1,
+            "card_statement": 1
+          }
+        }
+      },
+      {
+        "rule_id": "U-01",
+        "check_type": "field_present",
+        "title": "Məcburi sahələr çıxarılıb",
+        "outcome": "PASS",
+        "cascade": false,
+        "message": "Bütün məcburi sahələr mənbə ilə çıxarılıb (20).",
+        "evidence": [
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "invoice_number",
+            "page": 1,
+            "quote": "Faktura № KE-2231"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "invoice_number",
+            "page": 1,
+            "quote": "Faktura № TM-88017"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "invoice_number",
+            "page": 1,
+            "quote": "Faktura № OL-5520"
+          },
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "invoice_date",
+            "page": 1,
+            "quote": "Tarix: 12.09.2026"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "invoice_date",
+            "page": 1,
+            "quote": "Tarix: 20.09.2026"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "invoice_date",
+            "page": 1,
+            "quote": "Tarix: 03.10.2026"
+          },
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "seller",
+            "page": 1,
+            "quote": "Kitab Evi MMC, VÖEN 1403216781"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "seller",
+            "page": 1,
+            "quote": "Texno Market MMC, VÖEN 1501122334"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "seller",
+            "page": 1,
+            "quote": "Ofis Ləvazimatları ASC, VÖEN 1702334455"
+          },
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "seller",
+            "page": 1,
+            "quote": "Kitab Evi MMC, VÖEN 1403216781"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "seller",
+            "page": 1,
+            "quote": "Texno Market MMC, VÖEN 1501122334"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "seller",
+            "page": 1,
+            "quote": "Ofis Ləvazimatları ASC, VÖEN 1702334455"
+          },
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 135,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 1050,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 105,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "account_holder",
+            "page": 1,
+            "quote": "Leyla Həsənova (FİN 5ZK8M2P)"
+          },
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "account_holder",
+            "page": 1,
+            "quote": "Leyla Həsənova (FİN 5ZK8M2P)"
+          },
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "period_start",
+            "page": 1,
+            "quote": "Dövr: 01.09.2026 – 31.10.2026"
+          },
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "period_end",
+            "page": 1,
+            "quote": "Dövr: 01.09.2026 – 31.10.2026"
+          },
+          {
+            "document_id": "unec_0914_card_statement",
+            "field": "card_holder",
+            "page": 1,
+            "quote": "LEYLA HASANOVA (FİN 5ZK8M2P)"
+          }
+        ],
+        "fix_hint": null,
+        "data": {
+          "missing": [],
+          "unreadable": []
+        }
+      },
+      {
+        "rule_id": "U-02",
+        "check_type": "party_identity_match",
+        "title": "Bank və kart çıxarışı eyni tələbəyə aiddir",
+        "outcome": "PASS",
+        "cascade": false,
+        "message": "Bütün sənədlər eyni tərəfə aiddir (id_number: 5ZK8M2P).",
+        "evidence": [
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "account_holder",
+            "page": 1,
+            "quote": "Leyla Həsənova (FİN 5ZK8M2P)"
+          },
+          {
+            "document_id": "unec_0914_card_statement",
+            "field": "card_holder",
+            "page": 1,
+            "quote": "LEYLA HASANOVA (FİN 5ZK8M2P)"
+          }
+        ],
+        "fix_hint": null,
+        "data": {
+          "matched_on": "id_number",
+          "values": [
+            "5ZK8M2P",
+            "5ZK8M2P"
+          ]
+        }
+      },
+      {
+        "rule_id": "U-03",
+        "check_type": "values_equal",
+        "title": "Bütün sənədlər eyni valyutadadır",
+        "outcome": "PASS",
+        "cascade": false,
+        "message": "Dəyərlər bütün sənədlərdə eynidir: AZN.",
+        "evidence": [
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "currency",
+            "page": 1,
+            "quote": "Valyuta: AZN"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "currency",
+            "page": 1,
+            "quote": "Valyuta: AZN"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "currency",
+            "page": 1,
+            "quote": "Valyuta: AZN"
+          },
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "currency",
+            "page": 1,
+            "quote": "Valyuta: AZN"
+          },
+          {
+            "document_id": "unec_0914_card_statement",
+            "field": "currency",
+            "page": 1,
+            "quote": "Valyuta: AZN"
+          }
+        ],
+        "fix_hint": null,
+        "data": {
+          "values": [
+            {
+              "document_id": "unec_0914_ke2231",
+              "field": "Faktura: currency",
+              "value": "AZN",
+              "currency": "AZN"
+            },
+            {
+              "document_id": "unec_0914_tm88017",
+              "field": "Faktura: currency",
+              "value": "AZN",
+              "currency": "AZN"
+            },
+            {
+              "document_id": "unec_0914_ol5520",
+              "field": "Faktura: currency",
+              "value": "AZN",
+              "currency": "AZN"
+            },
+            {
+              "document_id": "unec_0914_bank_statement",
+              "field": "Bank çıxarışı: currency",
+              "value": "AZN",
+              "currency": "AZN"
+            },
+            {
+              "document_id": "unec_0914_card_statement",
+              "field": "Kart çıxarışı: currency",
+              "value": "AZN",
+              "currency": "AZN"
+            }
+          ]
+        }
+      },
+      {
+        "rule_id": "U-04",
+        "check_type": "totals_sum",
+        "title": "Faktura sətirlərinin cəmi yekuna bərabərdir",
+        "outcome": "PASS",
+        "cascade": false,
+        "message": "Sətirlərin cəmi 3 sənəddə yekuna bərabərdir.",
+        "evidence": [
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "lines[0]",
+            "page": 1,
+            "quote": "Makroiqtisadiyyat dərsliyi — 3 × 45,00 = 135,00"
+          },
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 135,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "lines[0]",
+            "page": 1,
+            "quote": "Noutbuk 14\" — 1 × 1050,00 = 1050,00"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 1050,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "lines[0]",
+            "page": 1,
+            "quote": "Dəftər A4 — 10 × 4,50 = 45,00"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "lines[1]",
+            "page": 1,
+            "quote": "Kalkulyator — 5 × 12,00 = 60,00"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 105,00 AZN"
+          }
+        ],
+        "fix_hint": null,
+        "data": {
+          "documents": [
+            {
+              "document_id": "unec_0914_ke2231",
+              "lines_total": {
+                "amount": "135.00",
+                "currency": "AZN"
+              },
+              "total": {
+                "amount": "135.00",
+                "currency": "AZN"
+              },
+              "difference": {
+                "amount": "0.00",
+                "currency": "AZN"
+              }
+            },
+            {
+              "document_id": "unec_0914_tm88017",
+              "lines_total": {
+                "amount": "1050.00",
+                "currency": "AZN"
+              },
+              "total": {
+                "amount": "1050.00",
+                "currency": "AZN"
+              },
+              "difference": {
+                "amount": "0.00",
+                "currency": "AZN"
+              }
+            },
+            {
+              "document_id": "unec_0914_ol5520",
+              "lines_total": {
+                "amount": "105.00",
+                "currency": "AZN"
+              },
+              "total": {
+                "amount": "105.00",
+                "currency": "AZN"
+              },
+              "difference": {
+                "amount": "0.00",
+                "currency": "AZN"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "rule_id": "U-05",
+        "check_type": "date_within_period",
+        "title": "Faktura qrant dövrü daxilindədir",
+        "outcome": "PASS",
+        "cascade": false,
+        "message": "Bütün tarixlər 2026-09-01 – 2026-10-31 dövrü daxilindədir.",
+        "evidence": [
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "period_start",
+            "page": 1,
+            "quote": "Dövr: 01.09.2026 – 31.10.2026"
+          },
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "period_end",
+            "page": 1,
+            "quote": "Dövr: 01.09.2026 – 31.10.2026"
+          },
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "invoice_date",
+            "page": 1,
+            "quote": "Tarix: 12.09.2026"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "invoice_date",
+            "page": 1,
+            "quote": "Tarix: 20.09.2026"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "invoice_date",
+            "page": 1,
+            "quote": "Tarix: 03.10.2026"
+          }
+        ],
+        "fix_hint": null,
+        "data": {
+          "from": "2026-09-01",
+          "to": "2026-10-31",
+          "outside": []
+        }
+      },
+      {
+        "rule_id": "U-06",
+        "check_type": "amount_within_limit",
+        "title": "Xərclər qrant limitini aşmır",
+        "outcome": "PASS",
+        "cascade": false,
+        "message": "Cəmi 1290.00 AZN limit (1500.00 AZN) daxilindədir.",
+        "evidence": [
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 135,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 1050,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 105,00 AZN"
+          }
+        ],
+        "fix_hint": null,
+        "data": {
+          "total": {
+            "amount": "1290.00",
+            "currency": "AZN"
+          },
+          "limit": {
+            "amount": "1500.00",
+            "currency": "AZN"
+          }
+        }
+      },
+      {
+        "rule_id": "U-07",
+        "check_type": "transaction_match",
+        "title": "Hər faktura ödəniş əməliyyatı ilə təsdiqlənir",
+        "outcome": "UNKNOWN",
+        "cascade": false,
+        "message": "1 sənəd üçün əməliyyat birmənalı seçilmədi — insan təsdiqi lazımdır.",
+        "evidence": [
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 135,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "invoice_date",
+            "page": 1,
+            "quote": "Tarix: 12.09.2026"
+          },
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "seller",
+            "page": 1,
+            "quote": "Kitab Evi MMC, VÖEN 1403216781"
+          },
+          {
+            "document_id": "unec_0914_card_statement",
+            "field": "transactions[0]",
+            "page": 1,
+            "quote": "12.09.2026  KITAB EVI MMC  -135,00"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 1050,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "invoice_date",
+            "page": 1,
+            "quote": "Tarix: 20.09.2026"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "seller",
+            "page": 1,
+            "quote": "Texno Market MMC, VÖEN 1501122334"
+          },
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "transactions[1]",
+            "page": 1,
+            "quote": "21.09.2026  Texno Market MMC  -1050,00"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 105,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "invoice_date",
+            "page": 1,
+            "quote": "Tarix: 03.10.2026"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "seller",
+            "page": 1,
+            "quote": "Ofis Ləvazimatları ASC, VÖEN 1702334455"
+          },
+          {
+            "document_id": "unec_0914_card_statement",
+            "field": "transactions[3]",
+            "page": 1,
+            "quote": "04.10.2026  OFIS LEVAZIMATLARI  -105,00"
+          }
+        ],
+        "fix_hint": null,
+        "data": {
+          "matches": [
+            {
+              "document_id": "unec_0914_tm88017",
+              "transaction": {
+                "document_id": "unec_0914_bank_statement",
+                "index": 1
+              }
+            },
+            {
+              "document_id": "unec_0914_ol5520",
+              "transaction": {
+                "document_id": "unec_0914_card_statement",
+                "index": 3
+              }
+            }
+          ],
+          "unmatched": [],
+          "ambiguous": [],
+          "unreadable": [
+            "unec_0914_ke2231"
+          ]
+        }
+      },
+      {
+        "rule_id": "U-08",
+        "check_type": "no_duplicate_use",
+        "title": "Faktura başqa hesabatda istifadə olunmayıb",
+        "outcome": "PASS",
+        "cascade": false,
+        "message": "Təkrar istifadə olunan sənəd yoxdur.",
+        "evidence": [
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "seller",
+            "page": 1,
+            "quote": "Kitab Evi MMC, VÖEN 1403216781"
+          },
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "invoice_number",
+            "page": 1,
+            "quote": "Faktura № KE-2231"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "seller",
+            "page": 1,
+            "quote": "Texno Market MMC, VÖEN 1501122334"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "invoice_number",
+            "page": 1,
+            "quote": "Faktura № TM-88017"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "seller",
+            "page": 1,
+            "quote": "Ofis Ləvazimatları ASC, VÖEN 1702334455"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "invoice_number",
+            "page": 1,
+            "quote": "Faktura № OL-5520"
+          }
+        ],
+        "fix_hint": null,
+        "data": {
+          "duplicates": []
+        }
+      }
+    ],
+    "template": {
+      "values": [
+        {
+          "placeholder": "{{report_reference}}",
+          "value": "QR-2026-0914"
+        },
+        {
+          "placeholder": "{{grantee_name}}",
+          "value": "Leyla Həsənova"
+        },
+        {
+          "placeholder": "{{grantee_fin}}",
+          "value": "5ZK8M2P"
+        },
+        {
+          "placeholder": "{{period_start}}",
+          "value": "2026-09-01"
+        },
+        {
+          "placeholder": "{{period_end}}",
+          "value": "2026-10-31"
+        },
+        {
+          "placeholder": "{{invoice_count}}",
+          "value": "3"
+        },
+        {
+          "placeholder": "{{total_spent}}",
+          "value": "1290.00 AZN"
+        },
+        {
+          "placeholder": "{{approved_by}}",
+          "value": "Rəşad Əliyev"
+        },
+        {
+          "placeholder": "{{approved_on}}",
+          "value": "2026-11-05"
+        }
+      ],
+      "missing": []
+    }
+  },
+  "statement_in_usd": {
+    "status": "NEEDS_FIX",
+    "primary_blockers": [
+      "U-03",
+      "U-07"
+    ],
+    "results": [
+      {
+        "rule_id": "D-001",
+        "check_type": "document_count",
+        "title": "Sənəd dəsti tamdır",
+        "outcome": "PASS",
+        "cascade": false,
+        "message": "Sənəd dəsti tamdır: Faktura 3, Bank çıxarışı 1, Kart çıxarışı 1.",
+        "evidence": [
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "document",
+            "page": 1,
+            "quote": "KE-2231.pdf"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "document",
+            "page": 1,
+            "quote": "TM-88017.pdf"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "document",
+            "page": 1,
+            "quote": "OL-5520.pdf"
+          },
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "document",
+            "page": 1,
+            "quote": "bank_cixarisi_LH_2026-09_10.pdf"
+          },
+          {
+            "document_id": "unec_0914_card_statement",
+            "field": "document",
+            "page": 1,
+            "quote": "kart_cixarisi_4417_2026-09_10.pdf"
+          }
+        ],
+        "fix_hint": null,
+        "data": {
+          "counts": {
+            "invoice": 3,
+            "bank_statement": 1,
+            "card_statement": 1
+          }
+        }
+      },
+      {
+        "rule_id": "U-01",
+        "check_type": "field_present",
+        "title": "Məcburi sahələr çıxarılıb",
+        "outcome": "PASS",
+        "cascade": false,
+        "message": "Bütün məcburi sahələr mənbə ilə çıxarılıb (20).",
+        "evidence": [
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "invoice_number",
+            "page": 1,
+            "quote": "Faktura № KE-2231"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "invoice_number",
+            "page": 1,
+            "quote": "Faktura № TM-88017"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "invoice_number",
+            "page": 1,
+            "quote": "Faktura № OL-5520"
+          },
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "invoice_date",
+            "page": 1,
+            "quote": "Tarix: 12.09.2026"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "invoice_date",
+            "page": 1,
+            "quote": "Tarix: 20.09.2026"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "invoice_date",
+            "page": 1,
+            "quote": "Tarix: 03.10.2026"
+          },
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "seller",
+            "page": 1,
+            "quote": "Kitab Evi MMC, VÖEN 1403216781"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "seller",
+            "page": 1,
+            "quote": "Texno Market MMC, VÖEN 1501122334"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "seller",
+            "page": 1,
+            "quote": "Ofis Ləvazimatları ASC, VÖEN 1702334455"
+          },
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "seller",
+            "page": 1,
+            "quote": "Kitab Evi MMC, VÖEN 1403216781"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "seller",
+            "page": 1,
+            "quote": "Texno Market MMC, VÖEN 1501122334"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "seller",
+            "page": 1,
+            "quote": "Ofis Ləvazimatları ASC, VÖEN 1702334455"
+          },
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 135,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 1050,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 105,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "account_holder",
+            "page": 1,
+            "quote": "Leyla Həsənova (FİN 5ZK8M2P)"
+          },
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "account_holder",
+            "page": 1,
+            "quote": "Leyla Həsənova (FİN 5ZK8M2P)"
+          },
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "period_start",
+            "page": 1,
+            "quote": "Dövr: 01.09.2026 – 31.10.2026"
+          },
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "period_end",
+            "page": 1,
+            "quote": "Dövr: 01.09.2026 – 31.10.2026"
+          },
+          {
+            "document_id": "unec_0914_card_statement",
+            "field": "card_holder",
+            "page": 1,
+            "quote": "LEYLA HASANOVA (FİN 5ZK8M2P)"
+          }
+        ],
+        "fix_hint": null,
+        "data": {
+          "missing": [],
+          "unreadable": []
+        }
+      },
+      {
+        "rule_id": "U-02",
+        "check_type": "party_identity_match",
+        "title": "Bank və kart çıxarışı eyni tələbəyə aiddir",
+        "outcome": "PASS",
+        "cascade": false,
+        "message": "Bütün sənədlər eyni tərəfə aiddir (id_number: 5ZK8M2P).",
+        "evidence": [
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "account_holder",
+            "page": 1,
+            "quote": "Leyla Həsənova (FİN 5ZK8M2P)"
+          },
+          {
+            "document_id": "unec_0914_card_statement",
+            "field": "card_holder",
+            "page": 1,
+            "quote": "LEYLA HASANOVA (FİN 5ZK8M2P)"
+          }
+        ],
+        "fix_hint": null,
+        "data": {
+          "matched_on": "id_number",
+          "values": [
+            "5ZK8M2P",
+            "5ZK8M2P"
+          ]
+        }
+      },
+      {
+        "rule_id": "U-03",
+        "check_type": "values_equal",
+        "title": "Bütün sənədlər eyni valyutadadır",
+        "outcome": "FAIL",
+        "cascade": false,
+        "message": "Dəyərlər fərqlidir: AZN / USD.",
+        "evidence": [
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "currency",
+            "page": 1,
+            "quote": "Valyuta: AZN"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "currency",
+            "page": 1,
+            "quote": "Valyuta: AZN"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "currency",
+            "page": 1,
+            "quote": "Valyuta: AZN"
+          },
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "currency",
+            "page": 1,
+            "quote": "Valyuta: AZN"
+          },
+          {
+            "document_id": "unec_0914_card_statement",
+            "field": "currency",
+            "page": 1,
+            "quote": "Valyuta: AZN"
+          }
+        ],
+        "fix_hint": null,
+        "data": {
+          "values": [
+            {
+              "document_id": "unec_0914_ke2231",
+              "field": "Faktura: currency",
+              "value": "AZN",
+              "currency": "AZN"
+            },
+            {
+              "document_id": "unec_0914_tm88017",
+              "field": "Faktura: currency",
+              "value": "AZN",
+              "currency": "AZN"
+            },
+            {
+              "document_id": "unec_0914_ol5520",
+              "field": "Faktura: currency",
+              "value": "AZN",
+              "currency": "AZN"
+            },
+            {
+              "document_id": "unec_0914_bank_statement",
+              "field": "Bank çıxarışı: currency",
+              "value": "AZN",
+              "currency": "AZN"
+            },
+            {
+              "document_id": "unec_0914_card_statement",
+              "field": "Kart çıxarışı: currency",
+              "value": "USD",
+              "currency": "USD"
+            }
+          ]
+        }
+      },
+      {
+        "rule_id": "U-04",
+        "check_type": "totals_sum",
+        "title": "Faktura sətirlərinin cəmi yekuna bərabərdir",
+        "outcome": "PASS",
+        "cascade": false,
+        "message": "Sətirlərin cəmi 3 sənəddə yekuna bərabərdir.",
+        "evidence": [
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "lines[0]",
+            "page": 1,
+            "quote": "Makroiqtisadiyyat dərsliyi — 3 × 45,00 = 135,00"
+          },
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 135,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "lines[0]",
+            "page": 1,
+            "quote": "Noutbuk 14\" — 1 × 1050,00 = 1050,00"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 1050,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "lines[0]",
+            "page": 1,
+            "quote": "Dəftər A4 — 10 × 4,50 = 45,00"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "lines[1]",
+            "page": 1,
+            "quote": "Kalkulyator — 5 × 12,00 = 60,00"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 105,00 AZN"
+          }
+        ],
+        "fix_hint": null,
+        "data": {
+          "documents": [
+            {
+              "document_id": "unec_0914_ke2231",
+              "lines_total": {
+                "amount": "135.00",
+                "currency": "AZN"
+              },
+              "total": {
+                "amount": "135.00",
+                "currency": "AZN"
+              },
+              "difference": {
+                "amount": "0.00",
+                "currency": "AZN"
+              }
+            },
+            {
+              "document_id": "unec_0914_tm88017",
+              "lines_total": {
+                "amount": "1050.00",
+                "currency": "AZN"
+              },
+              "total": {
+                "amount": "1050.00",
+                "currency": "AZN"
+              },
+              "difference": {
+                "amount": "0.00",
+                "currency": "AZN"
+              }
+            },
+            {
+              "document_id": "unec_0914_ol5520",
+              "lines_total": {
+                "amount": "105.00",
+                "currency": "AZN"
+              },
+              "total": {
+                "amount": "105.00",
+                "currency": "AZN"
+              },
+              "difference": {
+                "amount": "0.00",
+                "currency": "AZN"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "rule_id": "U-05",
+        "check_type": "date_within_period",
+        "title": "Faktura qrant dövrü daxilindədir",
+        "outcome": "PASS",
+        "cascade": false,
+        "message": "Bütün tarixlər 2026-09-01 – 2026-10-31 dövrü daxilindədir.",
+        "evidence": [
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "period_start",
+            "page": 1,
+            "quote": "Dövr: 01.09.2026 – 31.10.2026"
+          },
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "period_end",
+            "page": 1,
+            "quote": "Dövr: 01.09.2026 – 31.10.2026"
+          },
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "invoice_date",
+            "page": 1,
+            "quote": "Tarix: 12.09.2026"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "invoice_date",
+            "page": 1,
+            "quote": "Tarix: 20.09.2026"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "invoice_date",
+            "page": 1,
+            "quote": "Tarix: 03.10.2026"
+          }
+        ],
+        "fix_hint": null,
+        "data": {
+          "from": "2026-09-01",
+          "to": "2026-10-31",
+          "outside": []
+        }
+      },
+      {
+        "rule_id": "U-06",
+        "check_type": "amount_within_limit",
+        "title": "Xərclər qrant limitini aşmır",
+        "outcome": "PASS",
+        "cascade": false,
+        "message": "Cəmi 1290.00 AZN limit (1500.00 AZN) daxilindədir.",
+        "evidence": [
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 135,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 1050,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 105,00 AZN"
+          }
+        ],
+        "fix_hint": null,
+        "data": {
+          "total": {
+            "amount": "1290.00",
+            "currency": "AZN"
+          },
+          "limit": {
+            "amount": "1500.00",
+            "currency": "AZN"
+          }
+        }
+      },
+      {
+        "rule_id": "U-07",
+        "check_type": "transaction_match",
+        "title": "Hər faktura ödəniş əməliyyatı ilə təsdiqlənir",
+        "outcome": "FAIL",
+        "cascade": false,
+        "message": "KE-2231.pdf (135.00 AZN): uyğun əməliyyat yoxdur · OL-5520.pdf (105.00 AZN): uyğun əməliyyat yoxdur",
+        "evidence": [
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 135,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "invoice_date",
+            "page": 1,
+            "quote": "Tarix: 12.09.2026"
+          },
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "seller",
+            "page": 1,
+            "quote": "Kitab Evi MMC, VÖEN 1403216781"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 1050,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "invoice_date",
+            "page": 1,
+            "quote": "Tarix: 20.09.2026"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "seller",
+            "page": 1,
+            "quote": "Texno Market MMC, VÖEN 1501122334"
+          },
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "transactions[1]",
+            "page": 1,
+            "quote": "21.09.2026  Texno Market MMC  -1050,00"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 105,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "invoice_date",
+            "page": 1,
+            "quote": "Tarix: 03.10.2026"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "seller",
+            "page": 1,
+            "quote": "Ofis Ləvazimatları ASC, VÖEN 1702334455"
+          }
+        ],
+        "fix_hint": null,
+        "data": {
+          "matches": [
+            {
+              "document_id": "unec_0914_tm88017",
+              "transaction": {
+                "document_id": "unec_0914_bank_statement",
+                "index": 1
+              }
+            }
+          ],
+          "unmatched": [
+            {
+              "document_id": "unec_0914_ke2231",
+              "amount": {
+                "amount": "135.00",
+                "currency": "AZN"
+              },
+              "nearest": null
+            },
+            {
+              "document_id": "unec_0914_ol5520",
+              "amount": {
+                "amount": "105.00",
+                "currency": "AZN"
+              },
+              "nearest": null
+            }
+          ],
+          "ambiguous": [],
+          "unreadable": []
+        }
+      },
+      {
+        "rule_id": "U-08",
+        "check_type": "no_duplicate_use",
+        "title": "Faktura başqa hesabatda istifadə olunmayıb",
+        "outcome": "PASS",
+        "cascade": false,
+        "message": "Təkrar istifadə olunan sənəd yoxdur.",
+        "evidence": [
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "seller",
+            "page": 1,
+            "quote": "Kitab Evi MMC, VÖEN 1403216781"
+          },
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "invoice_number",
+            "page": 1,
+            "quote": "Faktura № KE-2231"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "seller",
+            "page": 1,
+            "quote": "Texno Market MMC, VÖEN 1501122334"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "invoice_number",
+            "page": 1,
+            "quote": "Faktura № TM-88017"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "seller",
+            "page": 1,
+            "quote": "Ofis Ləvazimatları ASC, VÖEN 1702334455"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "invoice_number",
+            "page": 1,
+            "quote": "Faktura № OL-5520"
+          }
+        ],
+        "fix_hint": null,
+        "data": {
+          "duplicates": []
+        }
+      }
+    ],
+    "template": {
+      "values": [
+        {
+          "placeholder": "{{report_reference}}",
+          "value": "QR-2026-0914"
+        },
+        {
+          "placeholder": "{{grantee_name}}",
+          "value": "Leyla Həsənova"
+        },
+        {
+          "placeholder": "{{grantee_fin}}",
+          "value": "5ZK8M2P"
+        },
+        {
+          "placeholder": "{{period_start}}",
+          "value": "2026-09-01"
+        },
+        {
+          "placeholder": "{{period_end}}",
+          "value": "2026-10-31"
+        },
+        {
+          "placeholder": "{{invoice_count}}",
+          "value": "3"
+        },
+        {
+          "placeholder": "{{total_spent}}",
+          "value": "1290.00 AZN"
+        },
+        {
+          "placeholder": "{{approved_by}}",
+          "value": "Rəşad Əliyev"
+        },
+        {
+          "placeholder": "{{approved_on}}",
+          "value": "2026-11-05"
+        }
+      ],
+      "missing": []
+    }
+  },
+  "statement_currency_unread": {
+    "status": "NEEDS_REVIEW",
+    "primary_blockers": [
+      "U-03",
+      "U-07"
+    ],
+    "results": [
+      {
+        "rule_id": "D-001",
+        "check_type": "document_count",
+        "title": "Sənəd dəsti tamdır",
+        "outcome": "PASS",
+        "cascade": false,
+        "message": "Sənəd dəsti tamdır: Faktura 3, Bank çıxarışı 1, Kart çıxarışı 1.",
+        "evidence": [
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "document",
+            "page": 1,
+            "quote": "KE-2231.pdf"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "document",
+            "page": 1,
+            "quote": "TM-88017.pdf"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "document",
+            "page": 1,
+            "quote": "OL-5520.pdf"
+          },
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "document",
+            "page": 1,
+            "quote": "bank_cixarisi_LH_2026-09_10.pdf"
+          },
+          {
+            "document_id": "unec_0914_card_statement",
+            "field": "document",
+            "page": 1,
+            "quote": "kart_cixarisi_4417_2026-09_10.pdf"
+          }
+        ],
+        "fix_hint": null,
+        "data": {
+          "counts": {
+            "invoice": 3,
+            "bank_statement": 1,
+            "card_statement": 1
+          }
+        }
+      },
+      {
+        "rule_id": "U-01",
+        "check_type": "field_present",
+        "title": "Məcburi sahələr çıxarılıb",
+        "outcome": "PASS",
+        "cascade": false,
+        "message": "Bütün məcburi sahələr mənbə ilə çıxarılıb (20).",
+        "evidence": [
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "invoice_number",
+            "page": 1,
+            "quote": "Faktura № KE-2231"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "invoice_number",
+            "page": 1,
+            "quote": "Faktura № TM-88017"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "invoice_number",
+            "page": 1,
+            "quote": "Faktura № OL-5520"
+          },
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "invoice_date",
+            "page": 1,
+            "quote": "Tarix: 12.09.2026"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "invoice_date",
+            "page": 1,
+            "quote": "Tarix: 20.09.2026"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "invoice_date",
+            "page": 1,
+            "quote": "Tarix: 03.10.2026"
+          },
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "seller",
+            "page": 1,
+            "quote": "Kitab Evi MMC, VÖEN 1403216781"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "seller",
+            "page": 1,
+            "quote": "Texno Market MMC, VÖEN 1501122334"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "seller",
+            "page": 1,
+            "quote": "Ofis Ləvazimatları ASC, VÖEN 1702334455"
+          },
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "seller",
+            "page": 1,
+            "quote": "Kitab Evi MMC, VÖEN 1403216781"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "seller",
+            "page": 1,
+            "quote": "Texno Market MMC, VÖEN 1501122334"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "seller",
+            "page": 1,
+            "quote": "Ofis Ləvazimatları ASC, VÖEN 1702334455"
+          },
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 135,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 1050,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 105,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "account_holder",
+            "page": 1,
+            "quote": "Leyla Həsənova (FİN 5ZK8M2P)"
+          },
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "account_holder",
+            "page": 1,
+            "quote": "Leyla Həsənova (FİN 5ZK8M2P)"
+          },
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "period_start",
+            "page": 1,
+            "quote": "Dövr: 01.09.2026 – 31.10.2026"
+          },
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "period_end",
+            "page": 1,
+            "quote": "Dövr: 01.09.2026 – 31.10.2026"
+          },
+          {
+            "document_id": "unec_0914_card_statement",
+            "field": "card_holder",
+            "page": 1,
+            "quote": "LEYLA HASANOVA (FİN 5ZK8M2P)"
+          }
+        ],
+        "fix_hint": null,
+        "data": {
+          "missing": [],
+          "unreadable": []
+        }
+      },
+      {
+        "rule_id": "U-02",
+        "check_type": "party_identity_match",
+        "title": "Bank və kart çıxarışı eyni tələbəyə aiddir",
+        "outcome": "PASS",
+        "cascade": false,
+        "message": "Bütün sənədlər eyni tərəfə aiddir (id_number: 5ZK8M2P).",
+        "evidence": [
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "account_holder",
+            "page": 1,
+            "quote": "Leyla Həsənova (FİN 5ZK8M2P)"
+          },
+          {
+            "document_id": "unec_0914_card_statement",
+            "field": "card_holder",
+            "page": 1,
+            "quote": "LEYLA HASANOVA (FİN 5ZK8M2P)"
+          }
+        ],
+        "fix_hint": null,
+        "data": {
+          "matched_on": "id_number",
+          "values": [
+            "5ZK8M2P",
+            "5ZK8M2P"
+          ]
+        }
+      },
+      {
+        "rule_id": "U-03",
+        "check_type": "values_equal",
+        "title": "Bütün sənədlər eyni valyutadadır",
+        "outcome": "UNKNOWN",
+        "cascade": false,
+        "message": "Müqayisə üçün dəyər oxunmayıb.",
+        "evidence": [
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "currency",
+            "page": 1,
+            "quote": "Valyuta: AZN"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "currency",
+            "page": 1,
+            "quote": "Valyuta: AZN"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "currency",
+            "page": 1,
+            "quote": "Valyuta: AZN"
+          },
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "currency",
+            "page": 1,
+            "quote": "Valyuta: AZN"
+          },
+          {
+            "document_id": "unec_0914_card_statement",
+            "field": "currency",
+            "page": 1,
+            "quote": "Valyuta: AZN"
+          }
+        ],
+        "fix_hint": null,
+        "data": {
+          "values": [
+            {
+              "document_id": "unec_0914_ke2231",
+              "field": "Faktura: currency",
+              "value": "AZN",
+              "currency": "AZN"
+            },
+            {
+              "document_id": "unec_0914_tm88017",
+              "field": "Faktura: currency",
+              "value": "AZN",
+              "currency": "AZN"
+            },
+            {
+              "document_id": "unec_0914_ol5520",
+              "field": "Faktura: currency",
+              "value": "AZN",
+              "currency": "AZN"
+            },
+            {
+              "document_id": "unec_0914_bank_statement",
+              "field": "Bank çıxarışı: currency",
+              "value": "AZN",
+              "currency": "AZN"
+            }
+          ]
+        }
+      },
+      {
+        "rule_id": "U-04",
+        "check_type": "totals_sum",
+        "title": "Faktura sətirlərinin cəmi yekuna bərabərdir",
+        "outcome": "PASS",
+        "cascade": false,
+        "message": "Sətirlərin cəmi 3 sənəddə yekuna bərabərdir.",
+        "evidence": [
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "lines[0]",
+            "page": 1,
+            "quote": "Makroiqtisadiyyat dərsliyi — 3 × 45,00 = 135,00"
+          },
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 135,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "lines[0]",
+            "page": 1,
+            "quote": "Noutbuk 14\" — 1 × 1050,00 = 1050,00"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 1050,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "lines[0]",
+            "page": 1,
+            "quote": "Dəftər A4 — 10 × 4,50 = 45,00"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "lines[1]",
+            "page": 1,
+            "quote": "Kalkulyator — 5 × 12,00 = 60,00"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 105,00 AZN"
+          }
+        ],
+        "fix_hint": null,
+        "data": {
+          "documents": [
+            {
+              "document_id": "unec_0914_ke2231",
+              "lines_total": {
+                "amount": "135.00",
+                "currency": "AZN"
+              },
+              "total": {
+                "amount": "135.00",
+                "currency": "AZN"
+              },
+              "difference": {
+                "amount": "0.00",
+                "currency": "AZN"
+              }
+            },
+            {
+              "document_id": "unec_0914_tm88017",
+              "lines_total": {
+                "amount": "1050.00",
+                "currency": "AZN"
+              },
+              "total": {
+                "amount": "1050.00",
+                "currency": "AZN"
+              },
+              "difference": {
+                "amount": "0.00",
+                "currency": "AZN"
+              }
+            },
+            {
+              "document_id": "unec_0914_ol5520",
+              "lines_total": {
+                "amount": "105.00",
+                "currency": "AZN"
+              },
+              "total": {
+                "amount": "105.00",
+                "currency": "AZN"
+              },
+              "difference": {
+                "amount": "0.00",
+                "currency": "AZN"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "rule_id": "U-05",
+        "check_type": "date_within_period",
+        "title": "Faktura qrant dövrü daxilindədir",
+        "outcome": "PASS",
+        "cascade": false,
+        "message": "Bütün tarixlər 2026-09-01 – 2026-10-31 dövrü daxilindədir.",
+        "evidence": [
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "period_start",
+            "page": 1,
+            "quote": "Dövr: 01.09.2026 – 31.10.2026"
+          },
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "period_end",
+            "page": 1,
+            "quote": "Dövr: 01.09.2026 – 31.10.2026"
+          },
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "invoice_date",
+            "page": 1,
+            "quote": "Tarix: 12.09.2026"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "invoice_date",
+            "page": 1,
+            "quote": "Tarix: 20.09.2026"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "invoice_date",
+            "page": 1,
+            "quote": "Tarix: 03.10.2026"
+          }
+        ],
+        "fix_hint": null,
+        "data": {
+          "from": "2026-09-01",
+          "to": "2026-10-31",
+          "outside": []
+        }
+      },
+      {
+        "rule_id": "U-06",
+        "check_type": "amount_within_limit",
+        "title": "Xərclər qrant limitini aşmır",
+        "outcome": "PASS",
+        "cascade": false,
+        "message": "Cəmi 1290.00 AZN limit (1500.00 AZN) daxilindədir.",
+        "evidence": [
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 135,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 1050,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 105,00 AZN"
+          }
+        ],
+        "fix_hint": null,
+        "data": {
+          "total": {
+            "amount": "1290.00",
+            "currency": "AZN"
+          },
+          "limit": {
+            "amount": "1500.00",
+            "currency": "AZN"
+          }
+        }
+      },
+      {
+        "rule_id": "U-07",
+        "check_type": "transaction_match",
+        "title": "Hər faktura ödəniş əməliyyatı ilə təsdiqlənir",
+        "outcome": "UNKNOWN",
+        "cascade": false,
+        "message": "2 sənəd üçün əməliyyat birmənalı seçilmədi — insan təsdiqi lazımdır.",
+        "evidence": [
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 135,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "invoice_date",
+            "page": 1,
+            "quote": "Tarix: 12.09.2026"
+          },
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "seller",
+            "page": 1,
+            "quote": "Kitab Evi MMC, VÖEN 1403216781"
+          },
+          {
+            "document_id": "unec_0914_card_statement",
+            "field": "document",
+            "page": 1,
+            "quote": "kart_cixarisi_4417_2026-09_10.pdf"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 1050,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "invoice_date",
+            "page": 1,
+            "quote": "Tarix: 20.09.2026"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "seller",
+            "page": 1,
+            "quote": "Texno Market MMC, VÖEN 1501122334"
+          },
+          {
+            "document_id": "unec_0914_bank_statement",
+            "field": "transactions[1]",
+            "page": 1,
+            "quote": "21.09.2026  Texno Market MMC  -1050,00"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "total",
+            "page": 1,
+            "quote": "Cəmi: 105,00 AZN"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "invoice_date",
+            "page": 1,
+            "quote": "Tarix: 03.10.2026"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "seller",
+            "page": 1,
+            "quote": "Ofis Ləvazimatları ASC, VÖEN 1702334455"
+          },
+          {
+            "document_id": "unec_0914_card_statement",
+            "field": "document",
+            "page": 1,
+            "quote": "kart_cixarisi_4417_2026-09_10.pdf"
+          }
+        ],
+        "fix_hint": null,
+        "data": {
+          "matches": [
+            {
+              "document_id": "unec_0914_tm88017",
+              "transaction": {
+                "document_id": "unec_0914_bank_statement",
+                "index": 1
+              }
+            }
+          ],
+          "unmatched": [],
+          "ambiguous": [],
+          "unreadable": [
+            "unec_0914_ke2231",
+            "unec_0914_ol5520"
+          ]
+        }
+      },
+      {
+        "rule_id": "U-08",
+        "check_type": "no_duplicate_use",
+        "title": "Faktura başqa hesabatda istifadə olunmayıb",
+        "outcome": "PASS",
+        "cascade": false,
+        "message": "Təkrar istifadə olunan sənəd yoxdur.",
+        "evidence": [
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "seller",
+            "page": 1,
+            "quote": "Kitab Evi MMC, VÖEN 1403216781"
+          },
+          {
+            "document_id": "unec_0914_ke2231",
+            "field": "invoice_number",
+            "page": 1,
+            "quote": "Faktura № KE-2231"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "seller",
+            "page": 1,
+            "quote": "Texno Market MMC, VÖEN 1501122334"
+          },
+          {
+            "document_id": "unec_0914_tm88017",
+            "field": "invoice_number",
+            "page": 1,
+            "quote": "Faktura № TM-88017"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "seller",
+            "page": 1,
+            "quote": "Ofis Ləvazimatları ASC, VÖEN 1702334455"
+          },
+          {
+            "document_id": "unec_0914_ol5520",
+            "field": "invoice_number",
+            "page": 1,
+            "quote": "Faktura № OL-5520"
+          }
+        ],
+        "fix_hint": null,
+        "data": {
+          "duplicates": []
+        }
+      }
+    ],
+    "template": {
+      "values": [
+        {
+          "placeholder": "{{report_reference}}",
+          "value": "QR-2026-0914"
+        },
+        {
+          "placeholder": "{{grantee_name}}",
+          "value": "Leyla Həsənova"
+        },
+        {
+          "placeholder": "{{grantee_fin}}",
+          "value": "5ZK8M2P"
+        },
+        {
+          "placeholder": "{{period_start}}",
+          "value": "2026-09-01"
+        },
+        {
+          "placeholder": "{{period_end}}",
+          "value": "2026-10-31"
+        },
+        {
+          "placeholder": "{{invoice_count}}",
+          "value": "3"
+        },
+        {
+          "placeholder": "{{total_spent}}",
+          "value": "1290.00 AZN"
         },
         {
           "placeholder": "{{approved_by}}",
